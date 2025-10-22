@@ -13,9 +13,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabaseClient";
 import { APP_NAME } from "@/lib/constants";
 
-// Force dynamic rendering
+// Force dynamic rendering - disable static generation
 export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
 
 export default function RegisterPage() {
   const router = useRouter();

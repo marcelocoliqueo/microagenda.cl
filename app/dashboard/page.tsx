@@ -49,9 +49,8 @@ import {
 } from "@/lib/constants";
 import { createSubscriptionPreference } from "@/lib/mercadopagoClient";
 
-// Force dynamic rendering
+// Force dynamic rendering - disable static generation
 export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
 
 export default function DashboardPage() {
   const router = useRouter();
