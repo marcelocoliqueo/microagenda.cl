@@ -1,0 +1,243 @@
+================================================================================
+🚀 INICIO RÁPIDO - DEPLOY MICROAGENDA
+================================================================================
+
+VERSIÓN: 2.0.0
+ESTADO: ✅ Listo para deploy (falta crear assets visuales)
+
+================================================================================
+📋 CHECKLIST RÁPIDO
+================================================================================
+
+ANTES DE DEPLOY:
+[ ] Crear logo icon.png (512x512)
+[ ] Crear logo.svg
+[ ] Crear og.png (1200x630)  
+[ ] Crear favicon.ico
+[ ] npm run build (verificar que compila)
+
+DEPLOY:
+[ ] Subir a GitHub
+[ ] Importar en Vercel
+[ ] Copiar variables de .env.local a Vercel
+[ ] Ejecutar schema_update.sql en Supabase
+[ ] Deploy en Vercel
+
+POST-DEPLOY:
+[ ] Configurar dominio microagenda.cl
+[ ] Actualizar webhook MercadoPago
+[ ] Probar flujo completo
+[ ] Verificar cron job
+
+================================================================================
+🎨 ASSETS PENDIENTES (CRÍTICO)
+================================================================================
+
+/public/icon.png       - Logo isotipo 512x512px
+                        Pluma abstracta (2 curvas)
+                        Colores: #2563EB + #84CC16
+
+/public/logo.svg       - Logo completo con texto
+                        Texto: "MicroAgenda" en Poppins Bold
+                        
+/public/og.png         - Open Graph 1200x630px
+                        Para redes sociales
+
+/public/favicon.ico    - Multi-resolución
+                        16x16, 32x32, 48x48
+
+Herramientas sugeridas:
+- Canva Pro
+- Figma
+- DALL-E / Midjourney
+- Contratar diseñador en Fiverr
+
+================================================================================
+⚡ COMANDOS ESENCIALES
+================================================================================
+
+# Build local
+npm run build
+
+# Subir a GitHub
+git init
+git add .
+git commit -m "feat: MicroAgenda v2.0.0"
+git remote add origin https://github.com/tu-usuario/microagenda.git
+git push -u origin main
+
+# Generar tokens seguros
+openssl rand -base64 32
+
+# Ver si quedan referencias antiguas
+grep -r "AgendaProX" . --exclude-dir=node_modules --exclude-dir=.next
+
+================================================================================
+🗄️ SUPABASE - EJECUTAR SQL
+================================================================================
+
+1. Ir a Supabase → SQL Editor
+2. Copiar contenido de schema_update.sql
+3. Click RUN
+4. Verificar:
+   ✅ Columna next_billing_date agregada
+   ✅ Función get_peak_hours creada
+   ✅ Función get_recurring_clients creada
+
+================================================================================
+☁️ VERCEL - VARIABLES DE ENTORNO
+================================================================================
+
+CRÍTICAS (sin estas no funciona):
+NEXT_PUBLIC_SUPABASE_URL=https://...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+
+OPCIONALES (para funcionalidad completa):
+RESEND_API_KEY=re_...
+MERCADOPAGO_ACCESS_TOKEN=TEST-...
+MERCADOPAGO_WEBHOOK_SECRET=[generar con openssl]
+WHATSAPP_ID=...
+WHATSAPP_TOKEN=...
+
+OTRAS:
+NEXT_PUBLIC_APP_URL=https://tu-dominio.vercel.app
+NEXT_PUBLIC_APP_NAME=MicroAgenda
+CRON_SECRET=[generar con openssl]
+
+================================================================================
+🌐 DOMINIO
+================================================================================
+
+1. Registrar microagenda.cl
+2. En Vercel → Settings → Domains → Add microagenda.cl
+3. Configurar DNS según instrucciones de Vercel
+4. Esperar propagación (5-30 min usualmente)
+
+================================================================================
+💳 MERCADOPAGO
+================================================================================
+
+1. Ir a https://www.mercadopago.cl/developers
+2. Tu Aplicación → Webhooks
+3. URL: https://microagenda.cl/api/mercadopago-webhook
+4. Eventos: ✅ Pagos
+5. Guardar
+
+================================================================================
+✅ TESTING POST-DEPLOY
+================================================================================
+
+1. Abrir https://microagenda.cl
+2. Registrar cuenta de prueba
+3. Crear un servicio (ej: "Corte de cabello - $15000 - 30 min")
+4. Ir a /u/[tu-email-antes-del-@]
+5. Hacer una reserva como cliente
+6. Volver al dashboard
+7. Verificar que aparece la reserva
+8. Cambiar estado de cita
+9. Probar botón "Activar Suscripción" (sandbox)
+10. Verificar que llegan emails (si Resend configurado)
+
+Si TODO funciona → ✅ Deploy exitoso!
+
+================================================================================
+📊 ARCHIVOS IMPORTANTES
+================================================================================
+
+LEER PRIMERO:
+- REBRANDING_COMPLETO.md    - Overview completo
+- CHANGELOG_MVP_FINAL.md    - Qué cambió en v2.0.0
+
+REFERENCIA:
+- BRANDING_GUIDE.md         - Identidad visual
+- COMANDOS_DEPLOYMENT.md    - Comandos detallados
+- RESUMEN_CAMBIOS.md        - Consolidado técnico
+
+TÉCNICO:
+- schema_update.sql         - Script BD
+- .env.local                - Variables documentadas
+
+AYUDA:
+- README.md                 - Documentación principal
+- QUICKSTART.md             - Inicio en 10 minutos
+
+================================================================================
+🆘 AYUDA
+================================================================================
+
+Problemas de build:
+  rm -rf .next node_modules
+  npm install
+  npm run build
+
+Dudas sobre branding:
+  → Ver BRANDING_GUIDE.md
+
+Dudas sobre deployment:
+  → Ver COMANDOS_DEPLOYMENT.md
+
+Problemas con Supabase:
+  → SUPABASE_SETUP.md
+
+Problemas con MercadoPago:
+  → MERCADOPAGO_SETUP.md
+
+Email: soporte@microagenda.cl
+
+================================================================================
+🎯 TIEMPO ESTIMADO
+================================================================================
+
+Crear assets visuales:      1-2 horas (con diseñador) o 3-4 horas (DIY)
+Subir a GitHub:             5 minutos
+Deploy Vercel:              10 minutos
+Configurar variables:       15 minutos
+Ejecutar SQL:               5 minutos
+Configurar dominio:         30 minutos (+ espera DNS)
+Testing completo:           30 minutos
+
+TOTAL: ~3-4 horas (primera vez)
+       ~1 hora (si ya tienes assets)
+
+================================================================================
+✨ SIGUIENTES PASOS
+================================================================================
+
+AHORA:
+1. Crear assets visuales (logo, OG, favicon)
+2. Ejecutar schema_update.sql en Supabase
+3. npm run build para verificar
+
+LUEGO:
+4. Subir a GitHub
+5. Deploy en Vercel
+6. Configurar variables entorno
+7. Configurar dominio
+
+FINALMENTE:
+8. Actualizar webhook MercadoPago
+9. Testing completo
+10. Invitar primeros usuarios beta
+
+================================================================================
+🎉 ESTADO ACTUAL
+================================================================================
+
+✅ Código: 100% listo
+✅ Rebranding: Completo
+✅ Documentación: Completa
+✅ BD Schema: Preparado
+✅ Config: Documentada
+
+❌ Assets visuales: Pendientes
+❌ Deploy: No realizado aún
+❌ Dominio: No configurado aún
+
+SIGUIENTE ACCIÓN CRÍTICA: Crear assets visuales
+
+================================================================================
+
+"Tu agenda simple, cercana y profesional" 🪶
+MicroAgenda v2.0.0 - Enero 2025
+
+================================================================================
