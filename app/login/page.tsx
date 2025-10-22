@@ -12,9 +12,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabaseClient";
 import { APP_NAME } from "@/lib/constants";
 
-// Force dynamic rendering - disable static generation
-export const dynamic = 'force-dynamic';
-
 export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();

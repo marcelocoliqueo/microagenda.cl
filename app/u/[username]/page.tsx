@@ -20,10 +20,6 @@ import { supabase, type Profile, type Service } from "@/lib/supabaseClient";
 import { formatCurrency, formatDate, generateTimeSlots, sanitizePhone } from "@/lib/utils";
 import { APP_NAME } from "@/lib/constants";
 
-// Force dynamic rendering - disable static generation
-export const dynamic = 'force-dynamic';
-export const dynamicParams = true;
-
 export default function PublicAgendaPage({
   params,
 }: {

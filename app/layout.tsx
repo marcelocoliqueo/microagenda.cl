@@ -6,6 +6,10 @@ import { APP_NAME, APP_DESCRIPTION } from "@/lib/constants";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
+// Force all pages to be dynamic - no static generation
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: {
     default: APP_NAME,
