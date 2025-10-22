@@ -1,6 +1,14 @@
 # MicroAgenda
 
+[![GitHub](https://img.shields.io/badge/GitHub-marcelocoliqueo%2Fmicroagenda.cl-blue?logo=github)](https://github.com/marcelocoliqueo/microagenda.cl)
+[![Vercel](https://img.shields.io/badge/Deploy-Vercel-black?logo=vercel)](https://vercel.com)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-green?logo=supabase)](https://supabase.com)
+
 Sistema de agendamiento profesional para profesionales independientes (manicuristas, barberos, masajistas, psicólogos, tatuadores, etc.) que gestionan sus citas por WhatsApp.
+
+**Estado:** ✅ Producción Ready | **Versión:** 2.0.0 | **Repositorio:** [github.com/marcelocoliqueo/microagenda.cl](https://github.com/marcelocoliqueo/microagenda.cl)
 
 ## Características
 
@@ -31,9 +39,10 @@ Sistema de agendamiento profesional para profesionales independientes (manicuris
 
 ## Instalación y Configuración
 
-### 1. Clonar o descargar el proyecto
+### 1. Clonar el proyecto desde GitHub
 
 ```bash
+git clone https://github.com/marcelocoliqueo/microagenda.cl.git
 cd microagenda.cl
 npm install
 ```
@@ -148,35 +157,47 @@ Abrir [http://localhost:3000](http://localhost:3000)
 
 ## Deploy en Vercel
 
-### 1. Push a GitHub
+> **✅ Repositorio ya configurado:** El proyecto está conectado a GitHub y listo para deployment automático.
+
+### Deployment Automático
+
+Cada push a la rama `main` se despliega automáticamente a producción en Vercel:
 
 ```bash
-git init
+# Hacer cambios en el código
 git add .
-git commit -m "Initial commit"
-git remote add origin https://github.com/tu-usuario/agendaprox.git
-git push -u origin main
+git commit -m "Descripción de cambios"
+git push origin main
+# Vercel detecta el push y despliega automáticamente
 ```
 
-### 2. Importar en Vercel
+### Configuración Inicial en Vercel
 
-1. Ir a [Vercel](https://vercel.com)
-2. Importar repositorio de GitHub
-3. Configurar variables de entorno (copiar de `.env.local`)
-4. Deploy
+1. **Ir a [Vercel](https://vercel.com)** e iniciar sesión con GitHub
+2. **Importar el proyecto:**
+   - Click en "Add New..." → "Project"
+   - Seleccionar `marcelocoliqueo/microagenda.cl`
+   - Click en "Import"
 
-### 3. Configurar Webhook de MercadoPago
+3. **Configurar variables de entorno:**
+   - Añadir TODAS las variables de `.env.local.example`
+   - Aplicar a: Production, Preview, Development
 
-1. Una vez deployed, copiar la URL de Vercel
-2. Ir a tu aplicación en MercadoPago Developer
-3. Configurar webhook: `https://tu-dominio.vercel.app/api/mercadopago-webhook`
-4. Actualizar `MERCADOPAGO_WEBHOOK_URL` en variables de entorno de Vercel
+4. **Deploy:**
+   - Click en "Deploy"
+   - Esperar 2-3 minutos
 
-### 4. Configurar Dominio Personalizado (Opcional)
+5. **Configurar Webhook de MercadoPago:**
+   - Copiar URL de Vercel: `https://tu-proyecto.vercel.app`
+   - En MercadoPago Developer → Webhooks
+   - URL: `https://tu-proyecto.vercel.app/api/mercadopago-webhook`
 
-1. En Vercel → Settings → Domains
-2. Agregar tu dominio personalizado
-3. Configurar DNS según instrucciones
+6. **Configurar Dominio Personalizado (Opcional):**
+   - En Vercel → Settings → Domains
+   - Agregar `microagenda.cl` y `www.microagenda.cl`
+   - Configurar DNS según instrucciones
+
+**📚 Guía Completa:** Ver [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md) para instrucciones detalladas
 
 ## Uso de la Aplicación
 
