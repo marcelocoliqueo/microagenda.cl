@@ -12,6 +12,10 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabaseClient";
 import { APP_NAME } from "@/lib/constants";
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();

@@ -9,9 +9,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Disable static optimization for build
-  // This allows the app to build without environment variables
-  output: "standalone",
+  experimental: {
+    serverComponentsExternalPackages: ['@supabase/supabase-js'],
+  },
 };
 
 export default nextConfig;

@@ -2,6 +2,9 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { APP_NAME, SUPPORT_EMAIL } from "@/lib/constants";
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: "Política de Privacidad",
   description: "Política de privacidad y protección de datos personales de MicroAgenda",

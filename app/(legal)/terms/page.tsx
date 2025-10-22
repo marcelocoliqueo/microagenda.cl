@@ -2,6 +2,9 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { APP_NAME, SUPPORT_EMAIL, PLAN_PRICE, formatCurrency } from "@/lib/constants";
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: "Términos y Condiciones",
   description: "Términos y condiciones de uso de MicroAgenda",

@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency, PLAN_PRICE, APP_NAME } from "@/lib/constants";
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 const features = [
   {
     icon: Calendar,
