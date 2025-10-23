@@ -110,7 +110,7 @@ function HeroPremium() {
 
   return (
     <section
-      className="relative overflow-hidden pt-28 pb-24 md:pt-36 md:pb-36"
+      className="relative overflow-hidden pt-24 pb-16 md:pt-36 md:pb-36"
       onMouseMove={(e) => {
         if (!enableParallax) return;
         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -149,7 +149,7 @@ function HeroPremium() {
           transition={{ duration: 0.6 }}
           className="max-w-6xl mx-auto"
         >
-          <div className="grid md:grid-cols-2 items-center gap-10">
+          <div className="grid md:grid-cols-2 items-center gap-8 md:gap-10">
             {/* Left: copy */}
             <div className="text-center md:text-left">
               <div className="flex justify-center md:justify-start mb-6">
@@ -164,10 +164,10 @@ function HeroPremium() {
                 </span>
               </div>
 
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-slate-900 mb-6">
+              <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-slate-900 mb-6">
                 Gestiona reservas con una experiencia a la altura de tu marca
               </h1>
-              <p className="text-lg md:text-xl text-slate-600 mb-8 md:mb-10 max-w-2xl md:max-w-none mx-auto md:mx-0">
+              <p className="text-base sm:text-lg md:text-xl text-slate-600 mb-6 md:mb-10 max-w-2xl md:max-w-none mx-auto md:mx-0">
                 Un solo plan. Reservas 24/7, confirmaciones y recordatorios inteligentes; todo sin esfuerzo.
               </p>
 
