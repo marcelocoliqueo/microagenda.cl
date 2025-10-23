@@ -14,7 +14,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatCurrency, PLAN_PRICE, APP_NAME } from "@/lib/constants";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // Diferenciales (mensajes implícitos, no comparaciones literales)
 const differentiators = [
@@ -83,11 +83,31 @@ function LogoPlaceholder({ className }: { className?: string }) {
 function HeroPremium() {
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
   const [dims, setDims] = useState({ w: 0, h: 0 });
+  const [reduceMotion, setReduceMotion] = useState(false);
+  const [pointerFine, setPointerFine] = useState(true);
+
+  useEffect(() => {
+    const rm = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const pf = window.matchMedia("(pointer: fine)");
+    setReduceMotion(rm.matches);
+    setPointerFine(pf.matches);
+    const onPfChange = (e: MediaQueryListEvent) => setPointerFine(e.matches);
+    const onRmChange = (e: MediaQueryListEvent) => setReduceMotion(e.matches);
+    pf.addEventListener("change", onPfChange);
+    rm.addEventListener("change", onRmChange);
+    return () => {
+      pf.removeEventListener("change", onPfChange);
+      rm.removeEventListener("change", onRmChange);
+    };
+  }, []);
+
+  const enableParallax = pointerFine && !reduceMotion;
 
   return (
     <section
       className="relative overflow-hidden pt-28 pb-24 md:pt-36 md:pb-36"
       onMouseMove={(e) => {
+        if (!enableParallax) return;
         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
         setMouse({ x: e.clientX - rect.left, y: e.clientY - rect.top });
         setDims({ w: rect.width, h: rect.height });
@@ -103,7 +123,9 @@ function HeroPremium() {
       <div
         className="absolute inset-0 -z-10 pointer-events-none"
         style={{
-          background: `radial-gradient(600px circle at ${mouse.x}px ${mouse.y}px, rgba(2,6,23,0.12), transparent 40%)`,
+          background: enableParallax
+            ? `radial-gradient(600px circle at ${mouse.x}px ${mouse.y}px, rgba(2,6,23,0.12), transparent 40%)`
+            : "radial-gradient(600px circle at 50% 30%, rgba(2,6,23,0.08), transparent 40%)",
         }}
       />
 
@@ -195,7 +217,9 @@ function HeroPremium() {
                 <div
                   className="absolute inset-0 rounded-3xl bg-white/60 backdrop-blur-xl border border-slate-200/70 shadow-2xl overflow-hidden"
                   style={{
-                    transform: `translate3d(${(mouse.x - dims.w / 2) * 0.02}px, ${(mouse.y - dims.h / 2) * 0.02}px, 0) rotateX(${-(mouse.y - dims.h / 2) * 0.01}deg) rotateY(${(mouse.x - dims.w / 2) * 0.01}deg)`,
+                    transform: enableParallax
+                      ? `translate3d(${(mouse.x - dims.w / 2) * 0.02}px, ${(mouse.y - dims.h / 2) * 0.02}px, 0) rotateX(${-(mouse.y - dims.h / 2) * 0.01}deg) rotateY(${(mouse.x - dims.w / 2) * 0.01}deg)`
+                      : undefined,
                     transformStyle: "preserve-3d",
                   }}
                 >
@@ -224,7 +248,9 @@ function HeroPremium() {
                 <div
                   className="absolute -right-6 -bottom-8 w-44 h-28 rounded-2xl bg-white/80 backdrop-blur border border-slate-200/70 shadow-xl p-4"
                   style={{
-                    transform: `translate3d(${(mouse.x - dims.w / 2) * 0.04}px, ${(mouse.y - dims.h / 2) * 0.04}px, 0)`,
+                    transform: enableParallax
+                      ? `translate3d(${(mouse.x - dims.w / 2) * 0.04}px, ${(mouse.y - dims.h / 2) * 0.04}px, 0)`
+                      : undefined,
                   }}
                 >
                   <div className="text-xs text-slate-500 mb-1">Ingresos</div>
@@ -273,7 +299,7 @@ export default function HomePage() {
       <HeroPremium />
 
       {/* Demo 30s */}
-      <section id="demo" className="relative py-14 md:py-20">
+      <section id="demo" className="relative py-14 md:py-20 scroll-mt-24 md:scroll-mt-32">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center mb-8">
             <h3 className="text-2xl md:text-3xl font-semibold text-slate-900 mb-2">Demo en 30 segundos</h3>
