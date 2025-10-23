@@ -120,11 +120,8 @@ function HeroPremium() {
     >
       {/* ambient gradients */}
       <div className="absolute inset-0 -z-20">
-        {/* mobile centered glow */}
-        <div className="md:hidden absolute -top-16 left-1/2 -translate-x-1/2 w-[28rem] h-[28rem] rounded-full bg-gradient-to-b from-white via-slate-100 to-transparent blur-3xl opacity-70" />
-        {/* desktop opposing glows */}
-        <div className="hidden md:block absolute -top-24 -right-16 w-[36rem] h-[36rem] rounded-full bg-gradient-to-br from-slate-200 via-white to-slate-100 blur-3xl opacity-70" />
-        <div className="hidden md:block absolute -bottom-24 -left-16 w-[36rem] h-[36rem] rounded-full bg-gradient-to-tr from-emerald-100 via-white to-blue-100 blur-3xl opacity-70" />
+        <div className="absolute -top-24 -right-16 w-[24rem] h-[24rem] md:w-[36rem] md:h-[36rem] rounded-full bg-gradient-to-br from-slate-200 via-white to-slate-100 blur-3xl opacity-70" />
+        <div className="absolute -bottom-24 -left-16 w-[24rem] h-[24rem] md:w-[36rem] md:h-[36rem] rounded-full bg-gradient-to-tr from-emerald-100 via-white to-blue-100 blur-3xl opacity-70" />
       </div>
 
       {/* spotlight following cursor */}
@@ -152,7 +149,7 @@ function HeroPremium() {
           transition={{ duration: 0.6 }}
           className="max-w-6xl mx-auto"
         >
-          <div className="grid place-items-center md:grid-cols-2 md:items-center md:justify-items-start gap-8 md:gap-10">
+          <div className="grid md:grid-cols-2 items-center gap-8 md:gap-10">
             {/* Left: copy */}
             <div className="text-center md:text-left">
               <div className="flex justify-center md:justify-start mb-6">
@@ -217,7 +214,7 @@ function HeroPremium() {
 
             {/* Right: parallax mockup */}
             <div className="relative">
-              <div className="relative mx-auto md:mx-0 w-full md:w-[580px] h-64 md:h-[360px] [perspective:1000px]">
+            <div className="relative mx-auto md:mx-0 w-[min(580px,100%)] h-64 md:h-[360px] [perspective:1000px]">
                 {/* main dashboard card */}
                 <div
                   className="absolute inset-0 rounded-3xl bg-white/60 backdrop-blur-xl border border-slate-200/70 shadow-2xl overflow-hidden"
