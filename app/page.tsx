@@ -4,10 +4,9 @@ import { motion } from "framer-motion";
 import {
   Calendar,
   Zap,
-  MessageSquare,
-  Mail,
-  BarChart3,
   Shield,
+  Clock,
+  TrendingUp,
   Check,
   ChevronRight
 } from "lucide-react";
@@ -15,71 +14,245 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatCurrency, PLAN_PRICE, APP_NAME } from "@/lib/constants";
+import { useState } from "react";
 
-// Features reales del MVP (no inventar nada)
-const features = [
-  {
-    icon: Calendar,
-    title: "Agenda Online",
-    description: "Disponible 24/7 para que tus clientes reserven cuando quieran",
-  },
+// Diferenciales (mensajes implícitos, no comparaciones literales)
+const differentiators = [
   {
     icon: Zap,
-    title: "Confirmación Automática",
-    description: "Confirmaciones instantáneas sin intervención manual",
+    title: "Instalación en minutos",
+    description: "De cero a tu agenda lista sin fricciones ni curvas de aprendizaje.",
   },
   {
-    icon: MessageSquare,
-    title: "Recordatorios WhatsApp",
-    description: "Automatización de mensajes para reducir inasistencias",
+    icon: Calendar,
+    title: "Todo incluido",
+    description: "Reservas 24/7, confirmaciones y recordatorios automatizados, sin extras ocultos.",
   },
   {
-    icon: Mail,
-    title: "Notificaciones Email",
-    description: "Correos automáticos con cada reserva y recordatorio",
+    icon: Clock,
+    title: "Hecho para WhatsApp",
+    description: "Recordatorios inteligentes donde tus clientes realmente responden.",
   },
   {
-    icon: BarChart3,
-    title: "Estadísticas",
-    description: "Citas, clientes recurrentes y horas más solicitadas",
+    icon: TrendingUp,
+    title: "Crece con datos",
+    description: "Métricas claras para entender horarios pico e ingresos.",
   },
   {
     icon: Shield,
-    title: "Privacidad y Seguridad",
-    description: "Cumplimiento con Ley 19.628 de Protección de Datos",
+    title: "Confianza y privacidad",
+    description: "Cumplimiento Ley 19.628, control total de tus datos.",
+  },
+  {
+    icon: Zap,
+    title: "Rendimiento premium",
+    description: "Interfaz veloz y agradable para ti y tus clientes.",
   },
 ];
 
-// Beneficios del plan único
+// Inclusiones del plan único
 const planBenefits = [
   "Agenda online disponible 24/7",
-  "Confirmaciones automáticas",
-  "Recordatorios por WhatsApp",
+  "Confirmaciones automáticas de reservas",
+  "Recordatorios por WhatsApp incluidos",
   "Notificaciones por correo electrónico",
-  "Estadísticas básicas",
-  "Soporte prioritario",
-  "Cumplimiento Ley 19.628",
-  "Cancelación libre en cualquier momento",
+  "Estadísticas esenciales de tu negocio",
+  "Soporte humano prioritario",
+  "Cumplimiento Ley 19.628 (Chile)",
+  "Cancela cuando quieras",
 ];
+
+function LogoPlaceholder({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 120 28"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-hidden="true"
+    >
+      {/* Wordmark */}
+      <rect x="6" y="10" width="18" height="8" rx="2" fill="currentColor" opacity="0.85" />
+      <rect x="28" y="10" width="16" height="8" rx="2" fill="currentColor" opacity="0.7" />
+      <rect x="48" y="10" width="24" height="8" rx="2" fill="currentColor" opacity="0.55" />
+      <rect x="76" y="10" width="18" height="8" rx="2" fill="currentColor" opacity="0.4" />
+      <circle cx="104" cy="14" r="4" fill="currentColor" opacity="0.35" />
+    </svg>
+  );
+}
+
+function HeroPremium() {
+  const [mouse, setMouse] = useState({ x: 0, y: 0 });
+  const [dims, setDims] = useState({ w: 0, h: 0 });
+
+  return (
+    <section
+      className="relative overflow-hidden pt-28 pb-24 md:pt-36 md:pb-36"
+      onMouseMove={(e) => {
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+        setMouse({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+        setDims({ w: rect.width, h: rect.height });
+      }}
+    >
+      {/* ambient gradients */}
+      <div className="absolute inset-0 -z-20">
+        <div className="absolute -top-24 -right-16 w-[36rem] h-[36rem] rounded-full bg-gradient-to-br from-slate-200 via-white to-slate-100 blur-3xl opacity-70" />
+        <div className="absolute -bottom-24 -left-16 w-[36rem] h-[36rem] rounded-full bg-gradient-to-tr from-emerald-100 via-white to-blue-100 blur-3xl opacity-70" />
+      </div>
+
+      {/* spotlight following cursor */}
+      <div
+        className="absolute inset-0 -z-10 pointer-events-none"
+        style={{
+          background: `radial-gradient(600px circle at ${mouse.x}px ${mouse.y}px, rgba(2,6,23,0.12), transparent 40%)`,
+        }}
+      />
+
+      {/* subtle grid overlay */}
+      <div className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)] opacity-[0.5]">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, rgba(2,6,23,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(2,6,23,0.06) 1px, transparent 1px)",
+            backgroundSize: "28px 28px, 28px 28px",
+          }}
+        />
+      </div>
+
+      <div className="container mx-auto px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="max-w-6xl mx-auto"
+        >
+          <div className="grid md:grid-cols-2 items-center gap-10">
+            {/* Left: copy */}
+            <div className="text-center md:text-left">
+              <div className="flex justify-center md:justify-start mb-6">
+                <div className="text-6xl md:text-7xl">🪶</div>
+              </div>
+
+              {/* eyebrow badge */}
+              <div className="flex justify-center md:justify-start mb-4">
+                <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 backdrop-blur px-3 py-1 text-xs text-slate-700">
+                  <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
+                  Agenda premium para profesionales
+                </span>
+              </div>
+
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-slate-900 mb-6">
+                Gestiona reservas con una experiencia a la altura de tu marca
+              </h1>
+              <p className="text-lg md:text-xl text-slate-600 mb-8 md:mb-10 max-w-2xl md:max-w-none mx-auto md:mx-0">
+                Un solo plan. Reservas 24/7, confirmaciones y recordatorios inteligentes; todo sin esfuerzo.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start items-center mb-4">
+                <Link href="/register">
+                  <Button
+                    size="lg"
+                    className="relative w-full sm:w-auto bg-slate-900 hover:bg-black text-white px-8 py-6 text-lg shadow-lg hover:shadow-xl transition-all rounded-[14px] ring-1 ring-slate-900/10 overflow-hidden"
+                  >
+                    Probar Gratis
+                    <ChevronRight className="ml-2 w-5 h-5" />
+                  </Button>
+                </Link>
+                <Link href="#demo">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="w-full sm:w-auto border-2 border-slate-300 hover:border-slate-900 px-8 py-6 text-lg rounded-[14px]"
+                  >
+                    Ver demo en 30s
+                  </Button>
+                </Link>
+              </div>
+
+              <p className="text-sm text-slate-500 mb-4">
+                {formatCurrency(PLAN_PRICE)}/mes · Sin tarjeta · Cancela cuando quieras
+              </p>
+
+              {/* Social proof */}
+              <div className="flex flex-col sm:flex-row items-center gap-4 justify-center md:justify-start">
+                <div className="flex items-center gap-6 opacity-85 text-slate-400">
+                  {[1,2,3,4,5].map((i) => (
+                    <LogoPlaceholder key={i} className="h-6 w-24" />
+                  ))}
+                </div>
+                <div className="text-sm text-slate-600">Confiado por profesionales independientes en Chile</div>
+                <span className="hidden sm:inline h-5 w-px bg-slate-300" />
+                <span className="text-xs text-slate-600 rounded-full border border-slate-200 bg-white/70 backdrop-blur px-2.5 py-1">
+                  Cumplimiento Ley 19.628
+                </span>
+              </div>
+            </div>
+
+            {/* Right: parallax mockup */}
+            <div className="relative">
+              <div className="relative mx-auto md:mx-0 w-[min(580px,100%)] h-[360px] [perspective:1000px]">
+                {/* main dashboard card */}
+                <div
+                  className="absolute inset-0 rounded-3xl bg-white/60 backdrop-blur-xl border border-slate-200/70 shadow-2xl overflow-hidden"
+                  style={{
+                    transform: `translate3d(${(mouse.x - dims.w / 2) * 0.02}px, ${(mouse.y - dims.h / 2) * 0.02}px, 0) rotateX(${-(mouse.y - dims.h / 2) * 0.01}deg) rotateY(${(mouse.x - dims.w / 2) * 0.01}deg)`,
+                    transformStyle: "preserve-3d",
+                  }}
+                >
+                  {/* header bar */}
+                  <div className="h-12 border-b border-slate-200/70 bg-white/60 backdrop-blur flex items-center px-4">
+                    <div className="h-3 w-3 rounded-full bg-rose-400 mr-1.5" />
+                    <div className="h-3 w-3 rounded-full bg-amber-400 mr-1.5" />
+                    <div className="h-3 w-3 rounded-full bg-emerald-400" />
+                  </div>
+                  {/* content skeleton */}
+                  <div className="p-5">
+                    <div className="grid grid-cols-3 gap-3 mb-4">
+                      <div className="h-20 rounded-xl bg-slate-100" />
+                      <div className="h-20 rounded-xl bg-slate-100" />
+                      <div className="h-20 rounded-xl bg-slate-100" />
+                    </div>
+                    <div className="space-y-2">
+                      {[...Array(5)].map((_, i) => (
+                        <div key={i} className="h-8 rounded-lg bg-slate-100" />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* floating stats card */}
+                <div
+                  className="absolute -right-6 -bottom-8 w-44 h-28 rounded-2xl bg-white/80 backdrop-blur border border-slate-200/70 shadow-xl p-4"
+                  style={{
+                    transform: `translate3d(${(mouse.x - dims.w / 2) * 0.04}px, ${(mouse.y - dims.h / 2) * 0.04}px, 0)`,
+                  }}
+                >
+                  <div className="text-xs text-slate-500 mb-1">Ingresos</div>
+                  <div className="text-xl font-semibold text-slate-900">{formatCurrency(125000)}</div>
+                  <div className="text-xs text-emerald-600 mt-1">+18% esta semana</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header/Navbar */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+      {/* Navbar glass */}
+      <header className="fixed top-0 inset-x-0 z-50 border-b border-white/20 bg-white/60 backdrop-blur-md">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            {/* Logo con pluma */}
             <Link href="/" className="flex items-center gap-2 group">
-              <div className="text-3xl group-hover:scale-110 transition-transform">
-                🪶
-              </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-green-500 bg-clip-text text-transparent">
+              <div className="text-3xl group-hover:scale-110 transition-transform">🪶</div>
+              <span className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
                 {APP_NAME}
               </span>
             </Link>
-
-            {/* Navigation */}
             <div className="flex items-center gap-3">
               <Link href="/login">
                 <Button variant="ghost" className="hidden sm:inline-flex text-slate-700">
@@ -87,7 +260,7 @@ export default function HomePage() {
                 </Button>
               </Link>
               <Link href="/register">
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-md">
+                <Button className="bg-slate-900 hover:bg-black text-white shadow-md">
                   Comenzar Gratis
                 </Button>
               </Link>
@@ -96,70 +269,37 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-green-50 pt-16 pb-20 md:pt-24 md:pb-32">
-        {/* Decorative background elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-100 rounded-full blur-3xl opacity-30 -z-10" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-green-100 rounded-full blur-3xl opacity-30 -z-10" />
+      {/* Hero premium */}
+      <HeroPremium />
 
+      {/* Demo 30s */}
+      <section id="demo" className="relative py-14 md:py-20">
         <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="max-w-4xl mx-auto text-center"
-          >
-            {/* Logo centrado arriba */}
-            <div className="flex justify-center mb-6">
-              <div className="text-6xl md:text-7xl">🪶</div>
+          <div className="max-w-4xl mx-auto text-center mb-8">
+            <h3 className="text-2xl md:text-3xl font-semibold text-slate-900 mb-2">Demo en 30 segundos</h3>
+            <p className="text-slate-600">Reserva, confirma y recuerda. Todo en un flujo simple.</p>
+          </div>
+          <div className="max-w-4xl mx-auto">
+            <div className="rounded-2xl border border-slate-200/70 bg-white/70 backdrop-blur p-4 shadow-xl">
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="space-y-3">
+                  <div className="h-10 rounded-lg bg-slate-100" />
+                  <div className="h-10 rounded-lg bg-slate-100" />
+                  <div className="h-10 rounded-lg bg-slate-100" />
+                </div>
+                <div className="md:col-span-2 space-y-3">
+                  {[...Array(6)].map((_, i) => (
+                    <div key={i} className="h-12 rounded-lg bg-slate-100" />
+                  ))}
+                </div>
+              </div>
             </div>
-
-            {/* Título principal */}
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-slate-900 mb-6 leading-tight">
-              Gestiona tus citas profesionales{" "}
-              <span className="bg-gradient-to-r from-blue-600 to-green-500 bg-clip-text text-transparent">
-                sin complicaciones
-              </span>
-            </h1>
-
-            {/* Subtítulo */}
-            <p className="text-xl md:text-2xl text-slate-600 mb-10 max-w-2xl mx-auto font-light">
-              Sistema de agendamiento diseñado para profesionales independientes.
-              Recibe reservas, confirma citas y envía recordatorios automáticos.
-            </p>
-
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
-              <Link href="/register">
-                <Button
-                  size="lg"
-                  className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-lg shadow-lg hover:shadow-xl transition-all"
-                >
-                  Probar Gratis
-                  <ChevronRight className="ml-2 w-5 h-5" />
-                </Button>
-              </Link>
-              <Link href="#demo">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="w-full sm:w-auto border-2 border-slate-300 hover:border-blue-600 px-8 py-6 text-lg"
-                >
-                  Ver Demo
-                </Button>
-              </Link>
-            </div>
-
-            {/* Precio */}
-            <p className="text-sm text-slate-500">
-              Solo <span className="font-semibold text-slate-700">{formatCurrency(PLAN_PRICE)}/mes</span> · Sin permanencia
-            </p>
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 md:py-32 bg-white">
+      {/* Diferenciales implícitos */}
+      <section id="diferenciales" className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0 }}
@@ -167,41 +307,34 @@ export default function HomePage() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            {/* Section Title */}
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-4">
-                Todo lo que necesitas en un solo lugar
+            <div className="text-center mb-14">
+              <h2 className="text-3xl md:text-5xl font-semibold text-slate-900 mb-4">
+                Diseñado para destacar, pensado para funcionar
               </h2>
               <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-                Funcionalidades esenciales para gestionar tu negocio de forma profesional
+                Elegancia, velocidad y simplicidad en una sola experiencia.
               </p>
             </div>
 
-            {/* Features Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              {features.map((feature, index) => (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+              {differentiators.map((item, index) => (
                 <motion.div
-                  key={feature.title}
-                  initial={{ opacity: 0, y: 20 }}
+                  key={item.title}
+                  initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  transition={{ duration: 0.45, delay: index * 0.05 }}
                   viewport={{ once: true }}
                 >
-                  <Card className="h-full border-2 border-slate-100 hover:border-blue-200 hover:shadow-lg transition-all group">
+                  <Card className="h-full border border-slate-200/70 bg-white/70 backdrop-blur hover:border-slate-300 hover:shadow-xl transition-all">
                     <CardContent className="p-6">
-                      {/* Icon */}
-                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-100 to-green-100 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                        <feature.icon className="w-7 h-7 text-blue-600" />
+                      <div className="w-12 h-12 rounded-xl bg-slate-900/90 text-white flex items-center justify-center mb-4">
+                        <item.icon className="w-6 h-6" />
                       </div>
-
-                      {/* Title */}
-                      <h3 className="text-xl font-bold text-slate-900 mb-3">
-                        {feature.title}
+                      <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                        {item.title}
                       </h3>
-
-                      {/* Description */}
                       <p className="text-slate-600 leading-relaxed">
-                        {feature.description}
+                        {item.description}
                       </p>
                     </CardContent>
                   </Card>
@@ -212,8 +345,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="demo" className="py-20 md:py-32 bg-gray-50">
+      {/* Plan único: glass pricing */}
+      <section className="relative py-16 md:py-28">
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-white via-slate-50 to-white" />
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0 }}
@@ -221,72 +355,59 @@ export default function HomePage() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            {/* Section Title */}
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-4">
+            <div className="text-center mb-10">
+              <h2 className="text-3xl md:text-5xl font-semibold text-slate-900 mb-3">
                 Un solo plan, todo incluido
               </h2>
               <p className="text-lg text-slate-600">
-                Sin sorpresas, sin tarifas ocultas
+                Transparente y directo. Sin sorpresas.
               </p>
             </div>
 
-            {/* Pricing Card */}
-            <div className="max-w-lg mx-auto">
-              <Card className="border-2 border-blue-600 shadow-2xl hover:shadow-3xl transition-shadow">
+            <div className="max-w-3xl mx-auto">
+              <Card className="border border-slate-200/70 bg-white/70 backdrop-blur-xl shadow-2xl">
                 <CardContent className="p-8 md:p-10">
-                  {/* Plan Badge */}
-                  <div className="inline-block px-4 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold mb-6">
-                    Plan Único
-                  </div>
-
-                  {/* Price */}
-                  <div className="mb-8">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-5xl md:text-6xl font-bold text-slate-900">
-                        {formatCurrency(PLAN_PRICE)}
-                      </span>
-                      <span className="text-xl text-slate-600">/ mes</span>
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                    <div>
+                      <div className="inline-block px-4 py-1 bg-slate-900 text-white rounded-full text-sm font-medium mb-4">
+                        Plan Único
+                      </div>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-5xl md:text-6xl font-semibold text-slate-900">
+                          {formatCurrency(PLAN_PRICE)}
+                        </span>
+                        <span className="text-xl text-slate-600">/ mes</span>
+                      </div>
+                      <p className="text-slate-500 mt-2">Cancela cuando quieras</p>
                     </div>
-                    <p className="text-slate-500 mt-2">Sin permanencia</p>
+                    <Link href="/register" className="block md:min-w-[240px]">
+                      <Button
+                        size="lg"
+                        className="relative w-full bg-slate-900 hover:bg-black text-white py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all rounded-[14px] ring-1 ring-slate-900/10 overflow-hidden"
+                      >
+                        Comenzar Ahora
+                        <ChevronRight className="ml-2 w-5 h-5" />
+                      </Button>
+                    </Link>
                   </div>
 
-                  {/* Benefits List */}
-                  <ul className="space-y-4 mb-8">
+                  <ul className="grid md:grid-cols-2 gap-4 mt-8">
                     {planBenefits.map((benefit, index) => (
                       <motion.li
-                        key={index}
-                        initial={{ opacity: 0, x: -10 }}
+                        key={benefit}
+                        initial={{ opacity: 0, x: -8 }}
                         whileInView={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.05 }}
+                        transition={{ duration: 0.3, delay: index * 0.04 }}
                         viewport={{ once: true }}
                         className="flex items-start gap-3"
                       >
                         <div className="mt-0.5">
-                          <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
+                          <Check className="w-5 h-5 text-emerald-600 flex-shrink-0" />
                         </div>
-                        <span className="text-slate-700 leading-relaxed">
-                          {benefit}
-                        </span>
+                        <span className="text-slate-700 leading-relaxed">{benefit}</span>
                       </motion.li>
                     ))}
                   </ul>
-
-                  {/* CTA Button */}
-                  <Link href="/register" className="block">
-                    <Button
-                      size="lg"
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
-                    >
-                      Comenzar Ahora
-                      <ChevronRight className="ml-2 w-5 h-5" />
-                    </Button>
-                  </Link>
-
-                  {/* Footer Text */}
-                  <p className="text-center text-sm text-slate-500 mt-6">
-                    Cancela cuando quieras, sin compromisos
-                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -294,65 +415,22 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Final CTA Section */}
-      <section className="relative overflow-hidden py-20 md:py-32">
-        {/* Gradient Background */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-green-500 -z-10" />
-
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="max-w-3xl mx-auto text-center"
-          >
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-              Comienza a gestionar tus citas hoy
-            </h2>
-            <p className="text-xl md:text-2xl text-blue-50 mb-10 font-light">
-              Únete a cientos de profesionales que ya confían en {APP_NAME}
-            </p>
-            <Link href="/register">
-              <Button
-                size="lg"
-                className="bg-white text-blue-600 hover:bg-blue-50 px-8 py-6 text-lg font-semibold shadow-2xl hover:shadow-3xl transition-all"
-              >
-                Crear Cuenta Gratis
-                <ChevronRight className="ml-2 w-5 h-5" />
-              </Button>
-            </Link>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-slate-900 text-slate-300 py-12">
+      {/* Footer minimal */}
+      <footer className="bg-slate-900 text-slate-300 py-12 mt-6">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            {/* Brand */}
             <div className="text-center md:text-left">
               <div className="flex items-center gap-2 justify-center md:justify-start mb-2">
                 <span className="text-2xl">🪶</span>
                 <span className="text-xl font-bold text-white">{APP_NAME}</span>
               </div>
-              <p className="text-sm text-slate-400">
-                © 2025 {APP_NAME}. Todos los derechos reservados.
-              </p>
+              <p className="text-sm text-slate-400">© 2025 {APP_NAME}. Todos los derechos reservados.</p>
             </div>
-
-            {/* Links */}
             <div className="flex gap-8 text-sm">
-              <Link
-                href="/privacy"
-                className="text-slate-400 hover:text-white transition-colors"
-              >
+              <Link href="/privacy" className="text-slate-400 hover:text-white transition-colors">
                 Política de Privacidad
               </Link>
-              <Link
-                href="/terms"
-                className="text-slate-400 hover:text-white transition-colors"
-              >
+              <Link href="/terms" className="text-slate-400 hover:text-white transition-colors">
                 Términos y Condiciones
               </Link>
             </div>
