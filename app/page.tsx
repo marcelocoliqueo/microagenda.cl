@@ -164,10 +164,10 @@ function HeroPremium() {
                 </span>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-slate-900 mb-6">
+              <h1 className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-slate-900 mb-6">
                 Gestiona reservas con una experiencia a la altura de tu marca
               </h1>
-              <p className="text-base sm:text-lg md:text-xl text-slate-600 mb-6 md:mb-10 max-w-2xl md:max-w-none mx-auto md:mx-0">
+              <p className="text-sm sm:text-base md:text-xl text-slate-600 mb-6 md:mb-10 max-w-2xl md:max-w-none mx-auto md:mx-0">
                 Un solo plan. Reservas 24/7, confirmaciones y recordatorios inteligentes; todo sin esfuerzo.
               </p>
 
@@ -175,7 +175,7 @@ function HeroPremium() {
                 <Link href="/register">
                   <Button
                     size="lg"
-                    className="relative w-full sm:w-auto bg-gradient-to-r from-[rgb(var(--brand-start))] via-[rgb(var(--brand-mid))] to-[rgb(var(--brand-end))] hover:brightness-105 text-white px-8 py-6 text-lg shadow-lg hover:shadow-2xl transition-all rounded-[14px] ring-1 ring-white/10 overflow-hidden will-change-transform hover:-translate-y-0.5 hover:scale-[1.01]"
+                    className="relative w-full sm:w-auto bg-gradient-to-r from-[rgb(var(--brand-start))] via-[rgb(var(--brand-mid))] to-[rgb(var(--brand-end))] hover:brightness-105 text-white px-6 sm:px-8 py-4 sm:py-6 text-base sm:text-lg shadow-lg hover:shadow-2xl transition-all rounded-[14px] ring-1 ring-white/10 overflow-hidden will-change-transform hover:-translate-y-0.5 hover:scale-[1.01]"
                   >
                     <span className="absolute inset-0 opacity-35 bg-[radial-gradient(1200px_200px_at_0%_0%,rgba(255,255,255,0.25),transparent_40%)]" />
                     Probar Gratis
@@ -186,7 +186,7 @@ function HeroPremium() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="w-full sm:w-auto border-2 border-[rgb(var(--brand-mid))]/40 hover:border-[rgb(var(--brand-mid))] text-slate-800 px-8 py-6 text-lg rounded-[14px]"
+                    className="w-full sm:w-auto border-2 border-[rgb(var(--brand-mid))]/40 hover:border-[rgb(var(--brand-mid))] text-slate-800 px-6 sm:px-8 py-4 sm:py-6 text-base sm:text-lg rounded-[14px]"
                   >
                     Ver demo en 30s
                   </Button>
@@ -214,7 +214,7 @@ function HeroPremium() {
 
             {/* Right: parallax mockup */}
             <div className="relative">
-            <div className="relative mx-auto md:mx-0 w-[min(580px,100%)] h-64 md:h-[360px] [perspective:1000px]">
+            <div className="relative mx-auto md:mx-0 w-full max-w-[580px] h-56 sm:h-64 md:h-[360px] [perspective:1000px]">
                 {/* main dashboard card */}
                 <div
                   className="absolute inset-0 rounded-3xl bg-white/60 backdrop-blur-xl border border-slate-200/70 shadow-2xl overflow-hidden"
@@ -248,16 +248,16 @@ function HeroPremium() {
 
                 {/* floating stats card */}
                 <div
-                  className="absolute md:-right-6 md:-bottom-8 right-4 bottom-4 w-40 h-24 md:w-44 md:h-28 rounded-2xl bg-white/80 backdrop-blur border border-slate-200/70 shadow-xl p-4"
+                  className="absolute right-3 bottom-3 md:-right-6 md:-bottom-8 w-36 h-22 sm:w-40 sm:h-24 md:w-44 md:h-28 rounded-2xl bg-white/80 backdrop-blur border border-slate-200/70 shadow-xl p-3 sm:p-4"
                   style={{
                     transform: enableParallax
                       ? `translate3d(${(mouse.x - dims.w / 2) * 0.04}px, ${(mouse.y - dims.h / 2) * 0.04}px, 0)`
                       : undefined,
                   }}
                 >
-                  <div className="text-xs text-slate-500 mb-1">Ingresos</div>
-                  <div className="text-xl font-semibold text-slate-900">{formatCurrency(125000)}</div>
-                  <div className="text-xs text-emerald-600 mt-1">+18% esta semana</div>
+                  <div className="text-[10px] sm:text-xs text-slate-500 mb-1">Ingresos</div>
+                  <div className="text-lg sm:text-xl font-semibold text-slate-900">{formatCurrency(125000)}</div>
+                  <div className="text-[10px] sm:text-xs text-emerald-600 mt-1">+18% esta semana</div>
                 </div>
               </div>
             </div>
