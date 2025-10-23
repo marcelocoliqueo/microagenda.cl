@@ -378,7 +378,7 @@ export default function HomePage() {
                         </span>
                         <span className="text-xl text-slate-600">/ mes</span>
                       </div>
-                      <p className="text-slate-500 mt-2">Cancela cuando quieras</p>
+                      <p className="text-slate-500 mt-2">IVA incluido · Cancela cuando quieras</p>
                     </div>
                     <Link href="/register" className="block md:min-w-[240px]">
                       <Button
