@@ -175,7 +175,7 @@ function HeroPremium() {
                 <Link href="/register">
                   <Button
                     size="lg"
-                    className="relative w-full sm:w-auto bg-gradient-to-r from-indigo-600 via-fuchsia-600 to-rose-600 hover:from-indigo-700 hover:via-fuchsia-700 hover:to-rose-700 text-white px-8 py-6 text-lg shadow-lg hover:shadow-2xl transition-all rounded-[14px] ring-1 ring-white/10 overflow-hidden will-change-transform hover:-translate-y-0.5 hover:scale-[1.01]"
+                    className="relative w-full sm:w-auto bg-gradient-to-r from-[rgb(var(--brand-start))] via-[rgb(var(--brand-mid))] to-[rgb(var(--brand-end))] hover:brightness-105 text-white px-8 py-6 text-lg shadow-lg hover:shadow-2xl transition-all rounded-[14px] ring-1 ring-white/10 overflow-hidden will-change-transform hover:-translate-y-0.5 hover:scale-[1.01]"
                   >
                     <span className="absolute inset-0 opacity-35 bg-[radial-gradient(1200px_200px_at_0%_0%,rgba(255,255,255,0.25),transparent_40%)]" />
                     Probar Gratis
@@ -186,7 +186,7 @@ function HeroPremium() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="w-full sm:w-auto border-2 border-fuchsia-300 hover:border-fuchsia-500 text-slate-800 px-8 py-6 text-lg rounded-[14px]"
+                    className="w-full sm:w-auto border-2 border-[rgb(var(--brand-mid))]/40 hover:border-[rgb(var(--brand-mid))] text-slate-800 px-8 py-6 text-lg rounded-[14px]"
                   >
                     Ver demo en 30s
                   </Button>
@@ -354,9 +354,9 @@ export default function HomePage() {
                   transition={{ type: "spring", stiffness: 160, damping: 18, delay: index * 0.05 }}
                   viewport={{ once: true }}
                 >
-                  <Card className="h-full border border-slate-200/70 bg-white/70 backdrop-blur hover:border-fuchsia-200 hover:shadow-2xl transition-all">
+                  <Card className="h-full border border-slate-200/70 bg-white/70 backdrop-blur hover:border-[rgb(var(--brand-mid))]/40 hover:shadow-2xl transition-all">
                     <CardContent className="p-6">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-600 to-fuchsia-600 text-white flex items-center justify-center mb-4">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[rgb(var(--brand-start))] to-[rgb(var(--brand-mid))] text-white flex items-center justify-center mb-4">
                         <item.icon className="w-6 h-6" />
                       </div>
                       <h3 className="text-lg font-semibold text-slate-900 mb-2">
@@ -395,11 +395,11 @@ export default function HomePage() {
 
             <div className="max-w-3xl mx-auto">
               <Card className="relative border border-slate-200/70 bg-white/70 backdrop-blur-xl shadow-2xl overflow-hidden">
-                <div className="pointer-events-none absolute inset-0 rounded-[inherit] border-2 border-transparent bg-[linear-gradient(120deg,rgba(79,70,229,0.25),rgba(217,70,239,0.25),rgba(244,63,94,0.25))] animate-gradient z-0" />
+                <div className="pointer-events-none absolute inset-0 rounded-[inherit] border-2 border-transparent bg-[linear-gradient(120deg,rgba(var(--brand-start),0.25),rgba(var(--brand-mid),0.25),rgba(var(--brand-end),0.25))] animate-gradient z-0" />
                 <CardContent className="p-8 md:p-10 relative z-10">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                     <div>
-                      <div className="inline-block px-4 py-1 bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white rounded-full text-sm font-medium mb-4">
+                      <div className="inline-block px-4 py-1 bg-gradient-to-r from-[rgb(var(--brand-start))] to-[rgb(var(--brand-mid))] text-white rounded-full text-sm font-medium mb-4">
                         Plan Único
                       </div>
                       <div className="flex items-baseline gap-2">
@@ -421,7 +421,7 @@ export default function HomePage() {
                     <Link href="/register" className="block md:min-w-[240px]">
                       <Button
                         size="lg"
-                        className="relative w-full bg-gradient-to-r from-indigo-600 via-fuchsia-600 to-rose-600 hover:from-indigo-700 hover:via-fuchsia-700 hover:to-rose-700 text-white py-6 text-lg font-semibold shadow-lg hover:shadow-2xl transition-all rounded-[14px] ring-1 ring-white/10 overflow-hidden hover:-translate-y-0.5 hover:scale-[1.01]"
+                        className="relative w-full bg-gradient-to-r from-[rgb(var(--brand-start))] via-[rgb(var(--brand-mid))] to-[rgb(var(--brand-end))] hover:brightness-105 text-white py-6 text-lg font-semibold shadow-lg hover:shadow-2xl transition-all rounded-[14px] ring-1 ring-white/10 overflow-hidden hover:-translate-y-0.5 hover:scale-[1.01]"
                       >
                         <span className="absolute inset-0 opacity-35 bg-[radial-gradient(1200px_200px_at_0%_0%,rgba(255,255,255,0.25),transparent_40%)]" />
                         Comenzar Ahora

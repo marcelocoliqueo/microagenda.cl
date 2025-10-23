@@ -13,17 +13,22 @@ export default {
         // Updated for MicroAgenda MVP Final - New brand palette
         background: "#F8FAFC", // Gris claro
         surface: "#FFFFFF",
+        brand: {
+          start: "#4F46E5", // indigo-600
+          mid: "#D946EF", // fuchsia-600
+          end: "#F43F5E", // rose-600
+        },
         primary: {
-          DEFAULT: "#2563EB", // Azul petróleo
+          DEFAULT: "#4F46E5", // Indigo premium
           foreground: "#FFFFFF",
         },
         secondary: {
-          DEFAULT: "#84CC16", // Verde oliva
+          DEFAULT: "#14B8A6", // Teal profesional
           foreground: "#1E293B",
         },
         accent: {
-          DEFAULT: "#FCD34D", // Terracota suave
-          foreground: "#1E293B",
+          DEFAULT: "#22C55E", // Éxito (verde)
+          foreground: "#052E16",
         },
         text: "#1E293B", // Gris oscuro
         muted: {
