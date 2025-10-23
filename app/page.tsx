@@ -8,7 +8,8 @@ import {
   Clock,
   TrendingUp,
   Check,
-  ChevronRight
+  ChevronRight,
+  Info
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -102,6 +103,11 @@ function HeroPremium() {
   }, []);
 
   const enableParallax = pointerFine && !reduceMotion;
+  const spotlightBg = enableParallax
+    ? `radial-gradient(600px circle at ${mouse.x}px ${mouse.y}px, rgba(2,6,23,0.12), transparent 40%)`
+    : reduceMotion
+      ? "radial-gradient(600px circle at 50% 30%, rgba(2,6,23,0.04), transparent 40%)"
+      : "radial-gradient(600px circle at 50% 30%, rgba(2,6,23,0.08), transparent 40%)";
 
   return (
     <section
@@ -122,11 +128,7 @@ function HeroPremium() {
       {/* spotlight following cursor */}
       <div
         className="absolute inset-0 -z-10 pointer-events-none"
-        style={{
-          background: enableParallax
-            ? `radial-gradient(600px circle at ${mouse.x}px ${mouse.y}px, rgba(2,6,23,0.12), transparent 40%)`
-            : "radial-gradient(600px circle at 50% 30%, rgba(2,6,23,0.08), transparent 40%)",
-        }}
+        style={{ background: spotlightBg }}
       />
 
       {/* subtle grid overlay */}
@@ -404,7 +406,15 @@ export default function HomePage() {
                         </span>
                         <span className="text-xl text-slate-600">/ mes</span>
                       </div>
-                      <p className="text-slate-500 mt-2">IVA incluido · Cancela cuando quieras</p>
+                      <div className="flex items-center gap-2 text-slate-500 mt-2">
+                        <span>IVA incluido · Cancela cuando quieras</span>
+                        <div className="group relative">
+                          <Info className="w-4 h-4 text-slate-400" />
+                          <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 mt-2 w-48 rounded-md border border-slate-200 bg-white/95 backdrop-blur px-3 py-2 text-xs text-slate-700 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                            Precio final. No hay cargos ocultos ni comisiones adicionales.
+                          </div>
+                        </div>
+                      </div>
                     </div>
                     <Link href="/register" className="block md:min-w-[240px]">
                       <Button
