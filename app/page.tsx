@@ -103,11 +103,10 @@ function HeroPremium() {
   }, []);
 
   const enableParallax = pointerFine && !reduceMotion;
+  const staticAlpha = !pointerFine ? 0.06 : reduceMotion ? 0.04 : 0.08;
   const spotlightBg = enableParallax
     ? `radial-gradient(600px circle at ${mouse.x}px ${mouse.y}px, rgba(2,6,23,0.12), transparent 40%)`
-    : reduceMotion
-      ? "radial-gradient(600px circle at 50% 30%, rgba(2,6,23,0.04), transparent 40%)"
-      : "radial-gradient(600px circle at 50% 30%, rgba(2,6,23,0.08), transparent 40%)";
+    : `radial-gradient(600px circle at 50% 30%, rgba(2,6,23,${staticAlpha}), transparent 40%)`;
 
   return (
     <section
@@ -121,8 +120,8 @@ function HeroPremium() {
     >
       {/* ambient gradients */}
       <div className="absolute inset-0 -z-20">
-        <div className="absolute -top-24 -right-16 w-[36rem] h-[36rem] rounded-full bg-gradient-to-br from-slate-200 via-white to-slate-100 blur-3xl opacity-70" />
-        <div className="absolute -bottom-24 -left-16 w-[36rem] h-[36rem] rounded-full bg-gradient-to-tr from-emerald-100 via-white to-blue-100 blur-3xl opacity-70" />
+        <div className="absolute -top-24 -right-16 w-[24rem] h-[24rem] md:w-[36rem] md:h-[36rem] rounded-full bg-gradient-to-br from-slate-200 via-white to-slate-100 blur-3xl opacity-70" />
+        <div className="absolute -bottom-24 -left-16 w-[24rem] h-[24rem] md:w-[36rem] md:h-[36rem] rounded-full bg-gradient-to-tr from-emerald-100 via-white to-blue-100 blur-3xl opacity-70" />
       </div>
 
       {/* spotlight following cursor */}
@@ -132,7 +131,7 @@ function HeroPremium() {
       />
 
       {/* subtle grid overlay */}
-      <div className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)] opacity-[0.5]">
+      <div className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)] opacity-[0.35] md:opacity-[0.5]">
         <div
           className="absolute inset-0"
           style={{
@@ -200,14 +199,14 @@ function HeroPremium() {
 
               {/* Social proof */}
               <div className="flex flex-col sm:flex-row items-center gap-4 justify-center md:justify-start">
-                <div className="flex items-center gap-6 opacity-85 text-slate-400">
+              <div className="flex items-center gap-4 sm:gap-6 opacity-85 text-slate-400">
                   {[1,2,3,4,5].map((i) => (
-                    <LogoPlaceholder key={i} className="h-6 w-24" />
+                    <LogoPlaceholder key={i} className="h-5 w-20 sm:h-6 sm:w-24" />
                   ))}
                 </div>
-                <div className="text-sm text-slate-600">Confiado por profesionales independientes en Chile</div>
+                <div className="text-xs sm:text-sm text-slate-600">Confiado por profesionales independientes en Chile</div>
                 <span className="hidden sm:inline h-5 w-px bg-slate-300" />
-                <span className="text-xs text-slate-600 rounded-full border border-slate-200 bg-white/70 backdrop-blur px-2.5 py-1">
+                <span className="text-[11px] sm:text-xs text-slate-600 rounded-full border border-slate-200 bg-white/70 backdrop-blur px-2 py-0.5 sm:px-2.5 sm:py-1">
                   Cumplimiento Ley 19.628
                 </span>
               </div>
@@ -215,7 +214,7 @@ function HeroPremium() {
 
             {/* Right: parallax mockup */}
             <div className="relative">
-              <div className="relative mx-auto md:mx-0 w-[min(580px,100%)] h-[360px] [perspective:1000px]">
+            <div className="relative mx-auto md:mx-0 w-[min(580px,100%)] h-64 md:h-[360px] [perspective:1000px]">
                 {/* main dashboard card */}
                 <div
                   className="absolute inset-0 rounded-3xl bg-white/60 backdrop-blur-xl border border-slate-200/70 shadow-2xl overflow-hidden"
@@ -249,7 +248,7 @@ function HeroPremium() {
 
                 {/* floating stats card */}
                 <div
-                  className="absolute -right-6 -bottom-8 w-44 h-28 rounded-2xl bg-white/80 backdrop-blur border border-slate-200/70 shadow-xl p-4"
+                  className="absolute md:-right-6 md:-bottom-8 right-4 bottom-4 w-40 h-24 md:w-44 md:h-28 rounded-2xl bg-white/80 backdrop-blur border border-slate-200/70 shadow-xl p-4"
                   style={{
                     transform: enableParallax
                       ? `translate3d(${(mouse.x - dims.w / 2) * 0.04}px, ${(mouse.y - dims.h / 2) * 0.04}px, 0)`
