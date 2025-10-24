@@ -340,7 +340,7 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
-          </div>
+            </div>
         </div>
       </section>
 
@@ -418,13 +418,13 @@ export default function HomePage() {
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                     <div>
                       <div className="inline-block px-4 py-1 bg-gradient-to-r from-[rgb(var(--brand-start))] to-[rgb(var(--brand-mid))] text-white rounded-full text-sm font-medium mb-4">
-                        Plan Único
-                      </div>
-                      <div className="flex items-baseline gap-2">
+                    Plan Único
+                  </div>
+                    <div className="flex items-baseline gap-2">
                         <span className="text-5xl md:text-6xl font-semibold text-slate-900">
-                          {formatCurrency(PLAN_PRICE)}
-                        </span>
-                        <span className="text-xl text-slate-600">/ mes</span>
+                        {formatCurrency(PLAN_PRICE)}
+                      </span>
+                      <span className="text-xl text-slate-600">/ mes</span>
                       </div>
                       <div className="flex items-center gap-2 text-slate-500 mt-2">
                         <span>IVA incluido · Cancela cuando quieras</span>

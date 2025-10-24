@@ -5,9 +5,9 @@
 @layer base {
   :root {
     --radius: 0.75rem;
-    --brand-start: 79 70 229; /* #4F46E5 */
-    --brand-mid: 217 70 239; /* #D946EF */
-    --brand-end: 244 63 94;  /* #F43F5E */
+    --brand-start: 16 185 129; /* #10B981 */
+    --brand-mid: 34 197 94;  /* #22C55E */
+    --brand-end: 132 204 22; /* #84CC16 */
   }
 
   * {

@@ -14,21 +14,21 @@ export default {
         background: "#F8FAFC", // Gris claro
         surface: "#FFFFFF",
         brand: {
-          start: "#4F46E5", // indigo-600
-          mid: "#D946EF", // fuchsia-600
-          end: "#F43F5E", // rose-600
+          start: "#10B981", // emerald-500
+          mid: "#22C55E", // green-500
+          end: "#84CC16", // lime-500
         },
         primary: {
-          DEFAULT: "#4F46E5", // Indigo premium
+          DEFAULT: "#10B981", // Emerald premium
           foreground: "#FFFFFF",
         },
         secondary: {
-          DEFAULT: "#14B8A6", // Teal profesional
+          DEFAULT: "#16A34A", // Verde profesional
           foreground: "#1E293B",
         },
         accent: {
-          DEFAULT: "#22C55E", // Éxito (verde)
-          foreground: "#052E16",
+          DEFAULT: "#84CC16", // Verde lima para acentos
+          foreground: "#1F2C16",
         },
         text: "#1E293B", // Gris oscuro
         muted: {
