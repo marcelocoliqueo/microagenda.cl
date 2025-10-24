@@ -81,6 +81,24 @@ function LogoPlaceholder({ className }: { className?: string }) {
   );
 }
 
+function FeatherLogoSVG({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 48 48"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-hidden="true"
+    >
+      <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M8 40c10-2 18.5-8.5 26-22 1.8-3.2 3-6.6 4-10" opacity="0.9" />
+        <path d="M10 34c6-1 12-6 18-16" opacity="0.8" />
+        <path d="M14 28c4-1 8-4 12-10" opacity="0.7" />
+        <path d="M6 42l10-10" opacity="0.9" />
+      </g>
+    </svg>
+  );
+}
+
 function HeroPremium() {
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
   const [dims, setDims] = useState({ w: 0, h: 0 });
@@ -106,7 +124,7 @@ function HeroPremium() {
   const staticAlpha = !pointerFine ? 0.06 : reduceMotion ? 0.04 : 0.08;
   const spotlightBg = enableParallax
     ? `radial-gradient(600px circle at ${mouse.x}px ${mouse.y}px, rgba(2,6,23,0.12), transparent 40%)`
-    : `radial-gradient(600px circle at 50% 30%, rgba(2,6,23,${staticAlpha}), transparent 40%)`;
+    : `radial-gradient(600px circle at 50% 45%, rgba(2,6,23,${staticAlpha}), transparent 40%)`;
 
   return (
     <section
@@ -153,7 +171,7 @@ function HeroPremium() {
             {/* Left: copy */}
             <div className="text-center md:text-left">
               <div className="flex justify-center md:justify-start mb-6">
-                <div className="text-6xl md:text-7xl">🪶</div>
+                <FeatherLogoSVG className="h-16 w-16 md:h-20 md:w-20 text-slate-800" />
               </div>
 
               {/* eyebrow badge */}
