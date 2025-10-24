@@ -137,14 +137,14 @@ function HeroPremium() {
       }}
     >
       {/* ambient gradients */}
-      <div className="absolute inset-0 -z-20">
+      <div className="absolute inset-0 -z-20 overflow-hidden">
         <div className="absolute -top-24 -right-16 w-[24rem] h-[24rem] md:w-[36rem] md:h-[36rem] rounded-full bg-gradient-to-br from-slate-200 via-white to-slate-100 blur-3xl opacity-70" />
         <div className="absolute -bottom-24 -left-16 w-[24rem] h-[24rem] md:w-[36rem] md:h-[36rem] rounded-full bg-gradient-to-tr from-emerald-100 via-white to-blue-100 blur-3xl opacity-70" />
       </div>
 
       {/* spotlight following cursor */}
       <div
-        className="absolute inset-0 -z-10 pointer-events-none"
+        className="absolute inset-0 -z-10 pointer-events-none overflow-hidden"
         style={{ background: spotlightBg }}
       />
 
@@ -232,7 +232,7 @@ function HeroPremium() {
 
             {/* Right: parallax mockup */}
             <div className="relative">
-            <div className="relative mx-auto md:mx-0 w-full max-w-[580px] aspect-[16/10] md:aspect-auto md:h-[360px] [perspective:1000px]">
+            <div className="relative mx-auto md:mx-0 w-full max-w-[580px] aspect-[16/10] md:aspect-auto md:h-[360px] [perspective:1000px] overflow-hidden">
                 {/* main dashboard card */}
                 <div
                   className="absolute inset-0 rounded-3xl bg-white/60 backdrop-blur-xl border border-slate-200/70 shadow-2xl overflow-hidden"
