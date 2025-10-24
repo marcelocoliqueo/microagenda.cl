@@ -128,7 +128,7 @@ function HeroPremium() {
 
   return (
     <section
-      className="relative overflow-hidden pt-24 pb-16 md:pt-36 md:pb-36"
+      className="relative overflow-hidden pt-24 pb-16 md:pt-36 md:pb-36 min-h-[90svh]"
       onMouseMove={(e) => {
         if (!enableParallax) return;
         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -232,7 +232,7 @@ function HeroPremium() {
 
             {/* Right: parallax mockup */}
             <div className="relative">
-            <div className="relative mx-auto md:mx-0 w-full max-w-[580px] h-56 sm:h-64 md:h-[360px] [perspective:1000px]">
+            <div className="relative mx-auto md:mx-0 w-full max-w-[580px] aspect-[16/10] md:aspect-auto md:h-[360px] [perspective:1000px]">
                 {/* main dashboard card */}
                 <div
                   className="absolute inset-0 rounded-3xl bg-white/60 backdrop-blur-xl border border-slate-200/70 shadow-2xl overflow-hidden"
