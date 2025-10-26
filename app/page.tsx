@@ -53,14 +53,41 @@ const differentiators = [
 
 // Inclusiones del plan único
 const planBenefits = [
-  "Agenda online disponible 24/7",
-  "Confirmaciones automáticas de reservas",
-  "Recordatorios por WhatsApp incluidos",
-  "Notificaciones por correo electrónico",
-  "Estadísticas esenciales de tu negocio",
-  "Soporte humano prioritario",
-  "Cumplimiento Ley 19.628 (Chile)",
-  "Cancela cuando quieras",
+  {
+    icon: "🗓️",
+    title: "Agenda Online",
+    description: "Recibe reservas 24/7 desde cualquier dispositivo. Tus clientes pueden agendar directamente sin tener que escribirte.",
+  },
+  {
+    icon: "✅",
+    title: "Confirmación Automática",
+    description: "Las citas se confirman al instante, sin intervención manual.",
+  },
+  {
+    icon: "💬",
+    title: "Recordatorios por WhatsApp",
+    description: "Envío automático de recordatorios para reducir inasistencias. Mensajes personalizables con nombre, hora y servicio.",
+  },
+  {
+    icon: "📧",
+    title: "Notificaciones por Email",
+    description: "Envía correos automáticos de confirmación y recordatorio. Avisa si hay cancelaciones o cambios.",
+  },
+  {
+    icon: "📊",
+    title: "Estadísticas del Negocio",
+    description: "Visualiza tus citas completadas, canceladas y tus ingresos estimados. Métricas simples para conocer tu rendimiento.",
+  },
+  {
+    icon: "🌐",
+    title: "Página Pública Personalizada",
+    description: "URL única de tu negocio (ejemplo: microagenda.cl/tunegocio). Muestra tus servicios, horarios disponibles y botón para agendar.",
+  },
+  {
+    icon: "💬",
+    title: "Soporte Prioritario",
+    description: "Atención rápida por chat o correo ante cualquier duda.",
+  },
 ];
 
 function LogoPlaceholder({ className }: { className?: string }) {
@@ -427,11 +454,11 @@ export default function HomePage() {
                       <span className="text-xl text-slate-600">/ mes</span>
                       </div>
                       <div className="flex items-center gap-2 text-slate-500 mt-2">
-                        <span>IVA incluido · Cancela cuando quieras</span>
+                        <span>Sin permanencia · Cancela cuando quieras</span>
                         <div className="group relative">
                           <Info className="w-4 h-4 text-slate-400" />
                           <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 mt-2 w-48 rounded-md border border-slate-200 bg-white/95 backdrop-blur px-3 py-2 text-xs text-slate-700 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                            Precio final. No hay cargos ocultos ni comisiones adicionales.
+                            Precio final con IVA incluido. Sin cargos ocultos ni comisiones adicionales.
                           </div>
                         </div>
                       </div>
@@ -448,20 +475,23 @@ export default function HomePage() {
                     </Link>
                   </div>
 
-                  <ul className="grid md:grid-cols-2 gap-4 mt-8">
+                  <ul className="grid md:grid-cols-2 gap-6 mt-8">
                     {planBenefits.map((benefit, index) => (
                       <motion.li
-                        key={benefit}
+                        key={benefit.title}
                         initial={{ opacity: 0, x: -8 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.3, delay: index * 0.04 }}
                         viewport={{ once: true }}
                         className="flex items-start gap-3"
                       >
-                        <div className="mt-0.5">
-                          <Check className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                        <div className="mt-0.5 text-2xl flex-shrink-0">
+                          {benefit.icon}
                         </div>
-                        <span className="text-slate-700 leading-relaxed">{benefit}</span>
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-slate-900 mb-1">{benefit.title}</h4>
+                          <p className="text-sm text-slate-600 leading-relaxed">{benefit.description}</p>
+                        </div>
                       </motion.li>
                     ))}
                   </ul>
