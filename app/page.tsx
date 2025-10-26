@@ -235,7 +235,7 @@ function HeroPremium() {
             <div className="relative mx-auto md:mx-0 w-full max-w-[580px] aspect-[16/10] md:aspect-auto md:h-[360px] [perspective:1000px] overflow-hidden">
                 {/* main dashboard card */}
                 <div
-                  className="absolute inset-0 rounded-3xl bg-white/60 backdrop-blur-xl border border-slate-200/70 shadow-2xl overflow-hidden"
+                  className="absolute inset-0 rounded-3xl bg-white/80 backdrop-blur-xl border border-slate-200/50 shadow-lg overflow-hidden"
                   style={{
                     transform: enableParallax
                       ? `translate3d(${(mouse.x - dims.w / 2) * 0.02}px, ${(mouse.y - dims.h / 2) * 0.02}px, 0) rotateX(${-(mouse.y - dims.h / 2) * 0.01}deg) rotateY(${(mouse.x - dims.w / 2) * 0.01}deg)`
@@ -244,7 +244,7 @@ function HeroPremium() {
                   }}
                 >
                   {/* header bar */}
-                  <div className="h-12 border-b border-slate-200/70 bg-white/60 backdrop-blur flex items-center px-4">
+                  <div className="h-12 border-b border-slate-200/50 bg-white/90 backdrop-blur flex items-center px-4">
                     <div className="h-3 w-3 rounded-full bg-rose-400 mr-1.5" />
                     <div className="h-3 w-3 rounded-full bg-amber-400 mr-1.5" />
                     <div className="h-3 w-3 rounded-full bg-emerald-400" />
