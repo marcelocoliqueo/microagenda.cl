@@ -232,7 +232,7 @@ function HeroPremium() {
 
             {/* Right: parallax mockup */}
             <div className="relative">
-            <div className="relative mx-auto md:mx-0 w-full max-w-[580px] aspect-[16/10] md:aspect-auto md:h-[360px] [perspective:1000px] overflow-hidden">
+            <div className="relative mx-auto md:mx-0 w-full max-w-[580px] aspect-[4/3] md:aspect-auto md:h-[360px] [perspective:1000px] overflow-hidden">
                 {/* main dashboard card */}
                 <div
                   className="absolute inset-0 rounded-3xl bg-white/90 backdrop-blur-xl border border-slate-200/50 overflow-hidden"
