@@ -1,4 +1,4 @@
--- AgendaProX Database Schema
+-- MicroAgenda Database Schema
 -- Execute this in Supabase SQL Editor
 
 -- Enable UUID extension
