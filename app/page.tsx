@@ -235,7 +235,7 @@ function HeroPremium() {
             <div className="relative mx-auto md:mx-0 w-full max-w-[580px] aspect-[16/10] md:aspect-auto md:h-[360px] [perspective:1000px] overflow-hidden">
                 {/* main dashboard card */}
                 <div
-                  className="absolute inset-0 rounded-3xl bg-white/80 backdrop-blur-xl border border-slate-200/50 shadow-lg overflow-hidden"
+                  className="absolute inset-0 rounded-3xl bg-white/90 backdrop-blur-xl border border-slate-200/50 overflow-hidden"
                   style={{
                     transform: enableParallax
                       ? `translate3d(${(mouse.x - dims.w / 2) * 0.02}px, ${(mouse.y - dims.h / 2) * 0.02}px, 0) rotateX(${-(mouse.y - dims.h / 2) * 0.01}deg) rotateY(${(mouse.x - dims.w / 2) * 0.01}deg)`
@@ -244,20 +244,20 @@ function HeroPremium() {
                   }}
                 >
                   {/* header bar */}
-                  <div className="h-12 border-b border-slate-200/50 bg-white/90 backdrop-blur flex items-center px-4">
+                  <div className="h-12 border-b border-slate-200/50 bg-white/95 backdrop-blur flex items-center px-4">
                     <div className="h-3 w-3 rounded-full bg-rose-400 mr-1.5" />
                     <div className="h-3 w-3 rounded-full bg-amber-400 mr-1.5" />
                     <div className="h-3 w-3 rounded-full bg-emerald-400" />
                   </div>
                   {/* content skeleton */}
-                  <div className="p-5">
-                    <div className="grid grid-cols-3 gap-3 mb-4">
-                      <div className="h-20 rounded-xl bg-slate-100" />
-                      <div className="h-20 rounded-xl bg-slate-100" />
-                      <div className="h-20 rounded-xl bg-slate-100" />
+                  <div className="p-4 h-[calc(100%-3rem)]">
+                    <div className="grid grid-cols-3 gap-3 mb-3">
+                      <div className="h-16 rounded-xl bg-slate-100" />
+                      <div className="h-16 rounded-xl bg-slate-100" />
+                      <div className="h-16 rounded-xl bg-slate-100" />
                     </div>
                     <div className="space-y-2">
-                      {[...Array(5)].map((_, i) => (
+                      {[...Array(4)].map((_, i) => (
                         <div key={i} className="h-8 rounded-lg bg-slate-100" />
                       ))}
                     </div>
