@@ -250,15 +250,15 @@ function HeroPremium() {
                     <div className="h-3 w-3 rounded-full bg-emerald-400" />
                   </div>
                   {/* content skeleton */}
-                  <div className="p-4 h-[calc(100%-3rem)]">
-                    <div className="grid grid-cols-3 gap-3 mb-3">
-                      <div className="h-16 rounded-xl bg-slate-100" />
-                      <div className="h-16 rounded-xl bg-slate-100" />
-                      <div className="h-16 rounded-xl bg-slate-100" />
+                  <div className="p-3 h-[calc(100%-3rem)] overflow-hidden">
+                    <div className="grid grid-cols-3 gap-2 mb-2">
+                      <div className="h-12 rounded-lg bg-slate-100" />
+                      <div className="h-12 rounded-lg bg-slate-100" />
+                      <div className="h-12 rounded-lg bg-slate-100" />
                     </div>
-                    <div className="space-y-2">
-                      {[...Array(4)].map((_, i) => (
-                        <div key={i} className="h-8 rounded-lg bg-slate-100" />
+                    <div className="space-y-1.5">
+                      {[...Array(3)].map((_, i) => (
+                        <div key={i} className="h-6 rounded-md bg-slate-100" />
                       ))}
                     </div>
                   </div>
