@@ -362,24 +362,119 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center mb-8">
             <h3 className="text-2xl md:text-3xl font-semibold text-slate-900 mb-2">Demo en 30 segundos</h3>
-            <p className="text-slate-600">Reserva, confirma y recuerda. Todo en un flujo simple.</p>
+            <p className="text-slate-600">Así de simple agendan tus clientes</p>
           </div>
           <div className="max-w-4xl mx-auto">
-            <div className="rounded-2xl border border-slate-200/70 bg-white/70 backdrop-blur p-4 shadow-xl">
-              <div className="grid md:grid-cols-3 gap-4">
-                <div className="space-y-3">
-                  <div className="h-10 rounded-lg bg-slate-100" />
-                  <div className="h-10 rounded-lg bg-slate-100" />
-                  <div className="h-10 rounded-lg bg-slate-100" />
+            {/* Mock fiel de la página pública de agendamiento */}
+            <div className="rounded-2xl border border-slate-200/70 bg-white/70 backdrop-blur shadow-xl overflow-hidden">
+              {/* Header */}
+              <div className="border-b border-slate-200/70 bg-white/60 backdrop-blur px-6 py-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">🪶</span>
+                  <span className="text-lg font-bold text-slate-900">{APP_NAME}</span>
                 </div>
-                <div className="md:col-span-2 space-y-3">
-                  {[...Array(6)].map((_, i) => (
-                    <div key={i} className="h-12 rounded-lg bg-slate-100" />
-                  ))}
+              </div>
+              
+              {/* Content */}
+              <div className="p-6 md:p-8">
+                {/* Professional Info */}
+                <div className="text-center mb-8">
+                  <h2 className="text-3xl font-bold text-slate-900 mb-2">María González</h2>
+                  <p className="text-slate-600">Salón de Belleza Profesional</p>
+                </div>
+
+                {/* Services Grid */}
+                <div className="mb-8">
+                  <h3 className="text-xl font-bold text-slate-900 mb-4 text-center">Servicios</h3>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="rounded-xl border border-slate-200/70 bg-white/70 p-4 hover:shadow-md transition-shadow">
+                      <h4 className="font-semibold text-slate-900 mb-2">Corte de cabello</h4>
+                      <div className="flex items-center justify-between text-sm text-slate-600">
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          <span>45 min</span>
+                        </div>
+                        <span className="font-semibold text-slate-900 text-base">$15.000</span>
+                      </div>
+                    </div>
+                    <div className="rounded-xl border border-slate-200/70 bg-white/70 p-4 hover:shadow-md transition-shadow">
+                      <h4 className="font-semibold text-slate-900 mb-2">Manicure completa</h4>
+                      <div className="flex items-center justify-between text-sm text-slate-600">
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          <span>60 min</span>
+                        </div>
+                        <span className="font-semibold text-slate-900 text-base">$12.000</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Booking Form */}
+                <div className="rounded-xl border border-slate-200/70 bg-white/70 p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Calendar className="w-5 h-5 text-slate-700" />
+                    <h3 className="text-lg font-semibold text-slate-900">Reservar una cita</h3>
+                  </div>
+                  <p className="text-sm text-slate-600 mb-6">Completa el formulario para agendar tu cita</p>
+                  
+                  <div className="space-y-4">
+                    {/* Nombre */}
+                    <div>
+                      <label className="text-sm font-medium text-slate-700 block mb-2">Tu nombre completo</label>
+                      <div className="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-400 text-sm">
+                        Juan Pérez
+                      </div>
+                    </div>
+
+                    {/* Teléfono */}
+                    <div>
+                      <label className="text-sm font-medium text-slate-700 block mb-2">Tu teléfono (WhatsApp)</label>
+                      <div className="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-400 text-sm">
+                        +56912345678
+                      </div>
+                    </div>
+
+                    {/* Servicio */}
+                    <div>
+                      <label className="text-sm font-medium text-slate-700 block mb-2">Servicio</label>
+                      <div className="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-700 text-sm flex items-center justify-between">
+                        <span>Corte de cabello - $15.000</span>
+                        <ChevronRight className="w-4 h-4 text-slate-400" />
+                      </div>
+                    </div>
+
+                    {/* Fecha y Hora */}
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium text-slate-700 block mb-2">Fecha</label>
+                        <div className="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-700 text-sm">
+                          28 Oct 2025
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-slate-700 block mb-2">Hora</label>
+                        <div className="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-700 text-sm flex items-center justify-between">
+                          <span>10:00</span>
+                          <ChevronRight className="w-4 h-4 text-slate-400" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Botón */}
+                    <button className="w-full bg-gradient-to-r from-[rgb(var(--brand-start))] via-[rgb(var(--brand-mid))] to-[rgb(var(--brand-end))] text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                      Confirmar Reserva
+                    </button>
+
+                    {/* Legal */}
+                    <p className="text-xs text-slate-500 text-center">
+                      Al agendar, aceptas el uso de tus datos conforme a la <span className="text-blue-600">Ley 19.628</span>.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-            </div>
+          </div>
         </div>
       </section>
 
