@@ -110,7 +110,17 @@ function FeatherLogoSVG({ className }: { className?: string }) {
 
 function DemoInteractivo() {
   const [step, setStep] = useState(1);
+  const [selectedService, setSelectedService] = useState<{
+    name: string;
+    duration: number;
+    price: number;
+  } | null>(null);
   const totalSteps = 4;
+
+  const services = [
+    { id: 1, name: "Corte de cabello", duration: 45, price: 15000 },
+    { id: 2, name: "Manicure", duration: 60, price: 12000 },
+  ];
 
   const steps = [
     { number: 1, title: "Ver servicios", desc: "Tu cliente ve tus servicios" },
@@ -118,6 +128,11 @@ function DemoInteractivo() {
     { number: 3, title: "Completar datos", desc: "Nombre, teléfono, fecha y hora" },
     { number: 4, title: "¡Listo!", desc: "Reserva confirmada automáticamente" },
   ];
+
+  const handleServiceSelect = (service: typeof services[0]) => {
+    setSelectedService(service);
+    setStep(2);
+  };
 
   return (
     <section id="demo" className="relative py-14 md:py-20 scroll-mt-24 md:scroll-mt-32">
@@ -190,57 +205,65 @@ function DemoInteractivo() {
                     <h4 className="text-xl font-bold text-slate-900 mb-1">María González</h4>
                     <p className="text-sm text-slate-600">Salón de Belleza</p>
                   </div>
-                  <h5 className="font-semibold text-slate-900 mb-3">Servicios disponibles</h5>
+                  <h5 className="font-semibold text-slate-900 mb-3">Elige tu servicio</h5>
                   <div className="space-y-3">
-                    <div className="rounded-lg border border-slate-200 bg-white p-3 hover:shadow-md transition-shadow cursor-pointer">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="font-medium text-slate-900">Corte de cabello</div>
-                          <div className="text-xs text-slate-600 flex items-center gap-1 mt-1">
-                            <Clock className="w-3 h-3" />
-                            45 min
+                    {services.map((service) => (
+                      <button
+                        key={service.id}
+                        onClick={() => handleServiceSelect(service)}
+                        className="w-full rounded-lg border-2 border-slate-200 bg-white p-3 hover:border-[rgb(var(--brand-mid))] hover:shadow-md transition-all cursor-pointer"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="text-left">
+                            <div className="font-medium text-slate-900">{service.name}</div>
+                            <div className="text-xs text-slate-600 flex items-center gap-1 mt-1">
+                              <Clock className="w-3 h-3" />
+                              {service.duration} min
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="font-bold text-slate-900">${service.price.toLocaleString('es-CL')}</div>
+                            <ChevronRight className="w-5 h-5 text-slate-400" />
                           </div>
                         </div>
-                        <div className="font-bold text-slate-900">$15.000</div>
-                      </div>
-                    </div>
-                    <div className="rounded-lg border border-slate-200 bg-white p-3 hover:shadow-md transition-shadow cursor-pointer">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="font-medium text-slate-900">Manicure</div>
-                          <div className="text-xs text-slate-600 flex items-center gap-1 mt-1">
-                            <Clock className="w-3 h-3" />
-                            60 min
-                          </div>
-                        </div>
-                        <div className="font-bold text-slate-900">$12.000</div>
-                      </div>
-                    </div>
+                      </button>
+                    ))}
                   </div>
+                  <p className="text-xs text-slate-500 text-center mt-4">
+                    👆 Haz clic en un servicio para continuar
+                  </p>
                 </div>
               )}
 
               {/* Step 2: Seleccionar servicio */}
-              {step === 2 && (
+              {step === 2 && selectedService && (
                 <div className="flex-1">
                   <h5 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
                     <Calendar className="w-5 h-5" />
-                    Selecciona el servicio
+                    Servicio seleccionado
                   </h5>
                   <div className="space-y-3">
                     <div className="rounded-lg border-2 border-[rgb(var(--brand-mid))] bg-green-50 p-4 shadow-md">
                       <div className="flex items-center justify-between mb-2">
-                        <div className="font-semibold text-slate-900">Corte de cabello</div>
+                        <div className="font-semibold text-slate-900">{selectedService.name}</div>
                         <Check className="w-5 h-5 text-green-600" />
                       </div>
                       <div className="text-sm text-slate-600 space-y-1">
                         <div className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
-                          Duración: 45 minutos
+                          Duración: {selectedService.duration} minutos
                         </div>
-                        <div className="font-semibold text-slate-900">Precio: $15.000</div>
+                        <div className="font-semibold text-slate-900">
+                          Precio: ${selectedService.price.toLocaleString('es-CL')}
+                        </div>
                       </div>
                     </div>
+                    <button
+                      onClick={() => setStep(1)}
+                      className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                    >
+                      ← Cambiar servicio
+                    </button>
                   </div>
                 </div>
               )}
@@ -281,7 +304,7 @@ function DemoInteractivo() {
               )}
 
               {/* Step 4: Confirmación */}
-              {step === 4 && (
+              {step === 4 && selectedService && (
                 <div className="flex-1 flex flex-col items-center justify-center text-center">
                   <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
                     <Check className="w-8 h-8 text-green-600" />
@@ -292,10 +315,11 @@ function DemoInteractivo() {
                   </p>
                   <div className="w-full bg-slate-50 rounded-lg p-4 text-left">
                     <div className="text-xs text-slate-600 space-y-1">
-                      <div><span className="font-medium">Servicio:</span> Corte de cabello</div>
+                      <div><span className="font-medium">Servicio:</span> {selectedService.name}</div>
+                      <div><span className="font-medium">Duración:</span> {selectedService.duration} min</div>
                       <div><span className="font-medium">Fecha:</span> 28 Oct, 10:00</div>
                       <div><span className="font-medium">Cliente:</span> Juan Pérez</div>
-                      <div><span className="font-medium">Total:</span> $15.000</div>
+                      <div><span className="font-medium">Total:</span> ${selectedService.price.toLocaleString('es-CL')}</div>
                     </div>
                   </div>
                 </div>
@@ -316,7 +340,8 @@ function DemoInteractivo() {
                   <Button
                     size="sm"
                     onClick={() => setStep(Math.min(totalSteps, step + 1))}
-                    className="bg-gradient-to-r from-[rgb(var(--brand-start))] to-[rgb(var(--brand-mid))] text-white text-sm"
+                    disabled={step === 1 && !selectedService}
+                    className="bg-gradient-to-r from-[rgb(var(--brand-start))] to-[rgb(var(--brand-mid))] text-white text-sm disabled:opacity-50"
                   >
                     Siguiente
                     <ChevronRight className="w-4 h-4 ml-1" />
@@ -324,7 +349,10 @@ function DemoInteractivo() {
                 ) : (
                   <Button
                     size="sm"
-                    onClick={() => setStep(1)}
+                    onClick={() => {
+                      setStep(1);
+                      setSelectedService(null);
+                    }}
                     variant="outline"
                     className="text-sm"
                   >
