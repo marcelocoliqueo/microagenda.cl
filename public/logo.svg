@@ -1,0 +1,47 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Base shape - origami bird/fish style -->
+  <g id="logo">
+    <!-- Main body gradient -->
+    <defs>
+      <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#22C55E;stop-opacity:1" />
+        <stop offset="50%" style="stop-color:#10B981;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+      </linearGradient>
+      <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style="stop-color:#84CC16;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#22C55E;stop-opacity:1" />
+      </linearGradient>
+      <radialGradient id="eye" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" style="stop-color:#D1FAE5;stop-opacity:1" />
+        <stop offset="60%" style="stop-color:#D1FAE5;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#10B981;stop-opacity:0.3" />
+      </radialGradient>
+    </defs>
+    
+    <!-- Bottom fold -->
+    <path d="M 80 400 L 300 300 L 450 450 L 200 480 Z" fill="#059669" opacity="0.7"/>
+    
+    <!-- Left wing/fold -->
+    <path d="M 50 200 L 180 100 L 280 280 L 150 320 Z" fill="url(#grad1)" opacity="0.8"/>
+    
+    <!-- Main body -->
+    <path d="M 150 320 L 280 280 L 450 320 L 380 450 L 200 480 Z" fill="url(#grad1)"/>
+    
+    <!-- Upper fold -->
+    <path d="M 180 100 L 400 80 L 450 320 L 280 280 Z" fill="url(#grad2)"/>
+    
+    <!-- Head/eye section -->
+    <path d="M 280 150 L 450 180 L 450 320 L 350 280 Z" fill="#84CC16"/>
+    
+    <!-- Eye background -->
+    <circle cx="380" cy="230" r="55" fill="url(#eye)"/>
+    
+    <!-- Eye -->
+    <circle cx="380" cy="230" r="35" fill="#1F2937"/>
+    
+    <!-- Eye shine -->
+    <circle cx="390" cy="220" r="12" fill="#FFFFFF" opacity="0.9"/>
+  </g>
+</svg>
+

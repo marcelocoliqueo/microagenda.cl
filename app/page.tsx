@@ -90,24 +90,6 @@ const planBenefits = [
   },
 ];
 
-function FeatherLogoSVG({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 48 48"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      aria-hidden="true"
-    >
-      <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M8 40c10-2 18.5-8.5 26-22 1.8-3.2 3-6.6 4-10" opacity="0.9" />
-        <path d="M10 34c6-1 12-6 18-16" opacity="0.8" />
-        <path d="M14 28c4-1 8-4 12-10" opacity="0.7" />
-        <path d="M6 42l10-10" opacity="0.9" />
-      </g>
-    </svg>
-  );
-}
-
 function DemoInteractivo() {
   const [step, setStep] = useState(1);
   const [selectedService, setSelectedService] = useState<{
@@ -189,7 +171,11 @@ function DemoInteractivo() {
             <div className="border-b border-slate-200/70 bg-white/60 backdrop-blur px-4 py-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">🪶</span>
+                  <img 
+                    src="/logo.svg" 
+                    alt={`${APP_NAME} Logo`}
+                    className="h-6 w-6"
+                  />
                   <span className="text-sm font-bold text-slate-900">{APP_NAME}</span>
                 </div>
                 <span className="text-xs text-slate-500">Paso {step} de {totalSteps}</span>
@@ -445,7 +431,11 @@ function HeroPremium() {
             {/* Left: copy */}
             <div className="text-center md:text-left">
               <div className="flex justify-center md:justify-start mb-6">
-                <FeatherLogoSVG className="h-16 w-16 md:h-20 md:w-20 text-primary" />
+                <img 
+                  src="/logo.svg" 
+                  alt={`${APP_NAME} Logo`}
+                  className="h-16 w-16 md:h-20 md:w-20 drop-shadow-lg"
+                />
               </div>
 
               {/* eyebrow badge */}
@@ -597,9 +587,13 @@ export default function HomePage() {
       <header className="fixed top-0 inset-x-0 z-50 border-b border-white/20 bg-white/60 backdrop-blur-md">
         <div className="container mx-auto px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-1.5 sm:gap-2 group">
-              <div className="text-2xl sm:text-3xl group-hover:scale-110 transition-transform">🪶</div>
-              <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
+            <Link href="/" className="flex items-center gap-2 sm:gap-3 group">
+              <img 
+                src="/logo.svg" 
+                alt={`${APP_NAME} Logo`}
+                className="h-8 w-8 sm:h-10 sm:w-10 group-hover:scale-110 transition-transform"
+              />
+              <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 {APP_NAME}
               </span>
             </Link>
@@ -762,7 +756,11 @@ export default function HomePage() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="text-center md:text-left">
               <div className="flex items-center gap-2 justify-center md:justify-start mb-2">
-                <span className="text-2xl">🪶</span>
+                <img 
+                  src="/logo.svg" 
+                  alt={`${APP_NAME} Logo`}
+                  className="h-8 w-8"
+                />
                 <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{APP_NAME}</span>
               </div>
               <p className="text-sm text-slate-600">© 2025 {APP_NAME}. Todos los derechos reservados.</p>

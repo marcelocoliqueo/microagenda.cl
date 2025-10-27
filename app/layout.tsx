@@ -27,6 +27,15 @@ export const metadata: Metadata = {
     "psicólogo",
     "tatuador",
   ],
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+    apple: [
+      { url: '/logo.svg' },
+    ],
+  },
+  manifest: '/manifest.json',
 };
 
 export const viewport = {
