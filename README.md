@@ -13,7 +13,7 @@ Sistema de agendamiento profesional para profesionales independientes (manicuris
 ## Características
 
 - **Agenda Online**: Recibe reservas 24/7 desde cualquier dispositivo
-- **Confirmación Automática**: Ahorra tiempo con confirmaciones instantáneas
+- **Confirmación Flexible**: Elige entre confirmación automática o manual para tener control total
 - **Recordatorios WhatsApp**: Reduce inasistencias con recordatorios automáticos
 - **Notificaciones Email**: Mantén informados a tus clientes por correo
 - **Estadísticas**: Visualiza el crecimiento de tu negocio

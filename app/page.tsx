@@ -60,8 +60,8 @@ const planBenefits = [
   },
   {
     icon: "✅",
-    title: "Confirmación Automática",
-    description: "Las citas se confirman al instante, sin intervención manual.",
+    title: "Confirmación Flexible",
+    description: "Elige entre confirmación automática o manual. Tú decides si quieres control total o automatización completa.",
   },
   {
     icon: "💬",
@@ -276,17 +276,61 @@ function HeroPremium() {
                     <div className="h-3 w-3 rounded-full bg-amber-400 mr-1.5" />
                     <div className="h-3 w-3 rounded-full bg-emerald-400" />
                   </div>
-                  {/* content skeleton */}
-                  <div className="p-5">
-                    <div className="grid grid-cols-3 gap-3 mb-4">
-                      <div className="h-20 rounded-xl bg-slate-100" />
-                      <div className="h-20 rounded-xl bg-slate-100" />
-                      <div className="h-20 rounded-xl bg-slate-100" />
+                  {/* content real data */}
+                  <div className="p-4">
+                    {/* 4 stats cards */}
+                    <div className="grid grid-cols-4 gap-2 mb-3">
+                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
+                        <div className="text-[9px] text-slate-500 mb-0.5">Total</div>
+                        <div className="text-base font-bold text-slate-900">24</div>
+                      </div>
+                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
+                        <div className="text-[9px] text-slate-500 mb-0.5">Confirmadas</div>
+                        <div className="text-base font-bold text-emerald-600">18</div>
+                      </div>
+                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
+                        <div className="text-[9px] text-slate-500 mb-0.5">Pendientes</div>
+                        <div className="text-base font-bold text-yellow-600">3</div>
+                      </div>
+                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
+                        <div className="text-[9px] text-slate-500 mb-0.5">Ingresos</div>
+                        <div className="text-base font-bold text-slate-900">$245k</div>
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      {[...Array(5)].map((_, i) => (
-                        <div key={i} className="h-8 rounded-lg bg-slate-100" />
-                      ))}
+                    {/* appointments list */}
+                    <div className="space-y-1.5">
+                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <span className="text-[10px] font-medium text-slate-900">María González</span>
+                          <span className="text-[8px] px-1.5 py-0.5 bg-green-100 text-green-800 rounded">Confirmada</span>
+                        </div>
+                        <div className="text-[9px] text-slate-600">Corte de cabello</div>
+                        <div className="text-[8px] text-slate-500">28 Oct · 10:00</div>
+                      </div>
+                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <span className="text-[10px] font-medium text-slate-900">Juan Pérez</span>
+                          <span className="text-[8px] px-1.5 py-0.5 bg-yellow-100 text-yellow-800 rounded">Pendiente</span>
+                        </div>
+                        <div className="text-[9px] text-slate-600">Manicure</div>
+                        <div className="text-[8px] text-slate-500">28 Oct · 14:30</div>
+                      </div>
+                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <span className="text-[10px] font-medium text-slate-900">Carolina Silva</span>
+                          <span className="text-[8px] px-1.5 py-0.5 bg-green-100 text-green-800 rounded">Confirmada</span>
+                        </div>
+                        <div className="text-[9px] text-slate-600">Masaje relajante</div>
+                        <div className="text-[8px] text-slate-500">29 Oct · 09:00</div>
+                      </div>
+                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50 opacity-70">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <span className="text-[10px] font-medium text-slate-900">Roberto Muñoz</span>
+                          <span className="text-[8px] px-1.5 py-0.5 bg-green-100 text-green-800 rounded">Confirmada</span>
+                        </div>
+                        <div className="text-[9px] text-slate-600">Barba y afeitado</div>
+                        <div className="text-[8px] text-slate-500">29 Oct · 11:30</div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -301,7 +345,7 @@ function HeroPremium() {
                   }}
                 >
                   <div className="text-[10px] sm:text-xs text-slate-500 mb-1">Ingresos</div>
-                  <div className="text-lg sm:text-xl font-semibold text-slate-900">{formatCurrency(125000)}</div>
+                  <div className="text-lg sm:text-xl font-semibold text-slate-900">{formatCurrency(245000)}</div>
                   <div className="text-[10px] sm:text-xs text-emerald-600 mt-1">+18% esta semana</div>
                 </div>
               </div>

@@ -451,6 +451,48 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
+        {/* Settings Section */}
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Configuración</CardTitle>
+            <CardDescription>Personaliza cómo funciona tu agenda</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between py-4 border-b border-border">
+              <div className="space-y-1">
+                <h4 className="font-medium">Confirmación automática</h4>
+                <p className="text-sm text-muted">
+                  Las citas se confirman automáticamente sin tu intervención
+                </p>
+              </div>
+              <Button
+                variant={profile?.auto_confirm ? "default" : "outline"}
+                size="sm"
+                onClick={async () => {
+                  if (!user) return;
+                  const newValue = !profile?.auto_confirm;
+                  const { error } = await supabase
+                    .from("profiles")
+                    .update({ auto_confirm: newValue })
+                    .eq("id", user.id);
+                  
+                  if (!error) {
+                    setProfile({ ...profile!, auto_confirm: newValue });
+                    toast({
+                      title: "Configuración actualizada",
+                      description: newValue 
+                        ? "Las citas se confirmarán automáticamente" 
+                        : "Ahora debes confirmar manualmente cada cita",
+                    });
+                  }
+                }}
+              >
+                {profile?.auto_confirm ? "Activada" : "Desactivada"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Services Section */}
         <Card className="mt-6">
           <CardHeader>
