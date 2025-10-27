@@ -172,9 +172,9 @@ function DemoInteractivo() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <img 
-                    src="/logo.svg" 
+                    src="/logo.png" 
                     alt={`${APP_NAME} Logo`}
-                    className="h-6 w-6"
+                    className="h-6 w-6 object-contain"
                   />
                   <span className="text-sm font-bold text-slate-900">{APP_NAME}</span>
                 </div>
@@ -432,9 +432,9 @@ function HeroPremium() {
             <div className="text-center md:text-left">
               <div className="flex justify-center md:justify-start mb-6">
                 <img 
-                  src="/logo.svg" 
+                  src="/logo.png" 
                   alt={`${APP_NAME} Logo`}
-                  className="h-16 w-16 md:h-20 md:w-20 drop-shadow-lg"
+                  className="h-16 w-16 md:h-20 md:w-20 object-contain drop-shadow-lg"
                 />
               </div>
 
@@ -589,9 +589,9 @@ export default function HomePage() {
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2 sm:gap-3 group">
               <img 
-                src="/logo.svg" 
+                src="/logo.png" 
                 alt={`${APP_NAME} Logo`}
-                className="h-8 w-8 sm:h-10 sm:w-10 group-hover:scale-110 transition-transform"
+                className="h-8 w-8 sm:h-10 sm:w-10 object-contain group-hover:scale-110 transition-transform"
               />
               <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 {APP_NAME}
@@ -757,9 +757,9 @@ export default function HomePage() {
             <div className="text-center md:text-left">
               <div className="flex items-center gap-2 justify-center md:justify-start mb-2">
                 <img 
-                  src="/logo.svg" 
+                  src="/logo.png" 
                   alt={`${APP_NAME} Logo`}
-                  className="h-8 w-8"
+                  className="h-8 w-8 object-contain"
                 />
                 <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{APP_NAME}</span>
               </div>
