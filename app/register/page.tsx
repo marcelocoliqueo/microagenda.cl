@@ -55,20 +55,22 @@ export default function RegisterPage() {
       if (authError) throw authError;
 
       if (authData.user) {
-        // 2. Create profile
-        const { error: profileError } = await supabase.from("profiles").insert([
-          {
-            id: authData.user.id,
+        // 2. Update profile (el trigger ya lo creó, solo actualizamos los datos adicionales)
+        const { error: profileError } = await supabase
+          .from("profiles")
+          .update({
             name: formData.name,
-            email: formData.email,
             business_name: formData.businessName || null,
             whatsapp: formData.whatsapp || null,
             subscription_status: "trial",
             auto_confirm: true,
-          },
-        ]);
+          })
+          .eq("id", authData.user.id);
 
-        if (profileError) throw profileError;
+        if (profileError) {
+          console.error("Profile update error:", profileError);
+          // No lanzamos error aquí porque el perfil ya existe
+        }
 
         toast({
           title: "¡Cuenta creada!",
