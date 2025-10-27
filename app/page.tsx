@@ -126,37 +126,38 @@ function DemoInteractivo() {
 
         <div className="max-w-3xl mx-auto">
           {/* Stepper */}
-          <div className="flex items-center justify-between mb-8 px-4">
-            {steps.map((s, i) => (
-              <div key={s.number} className="flex items-center flex-1">
-                <button
-                  onClick={() => setStep(s.number)}
-                  className={`flex flex-col items-center gap-2 transition-all ${
-                    step === s.number ? 'scale-110' : 'opacity-50 hover:opacity-75'
-                  }`}
-                >
-                  <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${
-                      step === s.number
-                        ? 'bg-gradient-to-r from-[rgb(var(--brand-start))] to-[rgb(var(--brand-mid))] text-white shadow-lg'
-                        : step > s.number
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-slate-200 text-slate-500'
-                    }`}
-                  >
-                    {step > s.number ? <Check className="w-5 h-5" /> : s.number}
+          <div className="flex items-center justify-center mb-8 px-4">
+            <div className="flex items-center gap-3 sm:gap-4">
+              {steps.map((s, i) => (
+                <div key={s.number} className="flex items-center">
+                  <div className="flex flex-col items-center gap-2">
+                    <div
+                      className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center font-bold text-base sm:text-lg transition-all duration-300 ${
+                        step === s.number
+                          ? 'bg-gradient-to-r from-primary to-accent text-white shadow-lg scale-110'
+                          : step > s.number
+                          ? 'bg-green-100 text-green-700 ring-2 ring-green-200'
+                          : 'bg-slate-100 text-slate-400'
+                      }`}
+                    >
+                      {step > s.number ? <Check className="w-6 h-6" /> : s.number}
+                    </div>
+                    <span className={`text-xs sm:text-sm font-medium transition-colors text-center max-w-[80px] ${
+                      step === s.number ? 'text-slate-900' : 'text-slate-500'
+                    }`}>
+                      {s.title}
+                    </span>
                   </div>
-                  <span className="text-xs font-medium text-slate-700 hidden sm:block">{s.title}</span>
-                </button>
-                {i < steps.length - 1 && (
-                  <div
-                    className={`h-1 flex-1 mx-2 rounded transition-colors ${
-                      step > s.number ? 'bg-green-200' : 'bg-slate-200'
-                    }`}
-                  />
-                )}
-              </div>
-            ))}
+                  {i < steps.length - 1 && (
+                    <div
+                      className={`h-1 w-8 sm:w-12 mx-2 sm:mx-3 rounded transition-all duration-300 ${
+                        step > s.number ? 'bg-green-300' : 'bg-slate-200'
+                      }`}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Content Card */}
