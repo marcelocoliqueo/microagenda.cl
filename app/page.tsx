@@ -260,7 +260,7 @@ function DemoInteractivo() {
                     </div>
                     <button
                       onClick={() => setStep(1)}
-                      className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                      className="text-sm text-primary hover:underline flex items-center gap-1 font-medium"
                     >
                       ← Cambiar servicio
                     </button>
@@ -445,13 +445,13 @@ function HeroPremium() {
             {/* Left: copy */}
             <div className="text-center md:text-left">
               <div className="flex justify-center md:justify-start mb-6">
-                <FeatherLogoSVG className="h-16 w-16 md:h-20 md:w-20 text-slate-800" />
+                <FeatherLogoSVG className="h-16 w-16 md:h-20 md:w-20 text-primary" />
               </div>
 
               {/* eyebrow badge */}
               <div className="flex justify-center md:justify-start mb-4">
-                <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 backdrop-blur px-3 py-1 text-xs text-slate-700">
-                  <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
+                <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 backdrop-blur px-3 py-1 text-xs text-slate-700 font-medium">
+                  <span className="inline-block h-2 w-2 rounded-full bg-primary animate-pulse" />
                   Agenda premium para profesionales
                 </span>
               </div>
@@ -592,7 +592,7 @@ function HeroPremium() {
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* Navbar glass */}
       <header className="fixed top-0 inset-x-0 z-50 border-b border-white/20 bg-white/60 backdrop-blur-md">
         <div className="container mx-auto px-4 py-3 sm:py-4">
@@ -605,12 +605,12 @@ export default function HomePage() {
             </Link>
             <div className="flex items-center gap-2 sm:gap-3">
               <Link href="/login">
-                <Button variant="ghost" className="hidden sm:inline-flex text-slate-700">
+                <Button variant="ghost" className="hidden sm:inline-flex text-slate-700 hover:text-primary">
                   Iniciar Sesión
                 </Button>
               </Link>
               <Link href="/register">
-                <Button className="bg-slate-900 hover:bg-black text-white shadow-md text-sm sm:text-base px-4 sm:px-4">
+                <Button className="bg-gradient-to-r from-primary to-accent hover:brightness-110 text-white shadow-md text-sm sm:text-base px-4 sm:px-4 font-semibold">
                   Comenzar
                 </Button>
               </Link>
@@ -675,7 +675,7 @@ export default function HomePage() {
 
       {/* Plan único: glass pricing */}
       <section className="relative py-16 md:py-28">
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-white via-slate-50 to-white" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-white via-primary/5 to-white" />
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0 }}
@@ -757,21 +757,21 @@ export default function HomePage() {
       </section>
 
       {/* Footer minimal */}
-      <footer className="bg-slate-900 text-slate-300 py-12 mt-6">
+      <footer className="bg-white border-t border-slate-200 py-12 mt-6">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="text-center md:text-left">
               <div className="flex items-center gap-2 justify-center md:justify-start mb-2">
                 <span className="text-2xl">🪶</span>
-                <span className="text-xl font-bold text-white">{APP_NAME}</span>
+                <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{APP_NAME}</span>
               </div>
-              <p className="text-sm text-slate-400">© 2025 {APP_NAME}. Todos los derechos reservados.</p>
+              <p className="text-sm text-slate-600">© 2025 {APP_NAME}. Todos los derechos reservados.</p>
             </div>
             <div className="flex gap-8 text-sm">
-              <Link href="/privacy" className="text-slate-400 hover:text-white transition-colors">
+              <Link href="/privacy" className="text-slate-600 hover:text-primary transition-colors font-medium">
                 Política de Privacidad
               </Link>
-              <Link href="/terms" className="text-slate-400 hover:text-white transition-colors">
+              <Link href="/terms" className="text-slate-600 hover:text-primary transition-colors font-medium">
                 Términos y Condiciones
               </Link>
             </div>
