@@ -5,7 +5,7 @@ export const APP_DESCRIPTION =
   "Automatiza tus reservas sin perder cercanía - Sistema de agendamiento para profesionales independientes";
 export const SUPPORT_EMAIL = "soporte@microagenda.cl";
 
-export const PLAN_PRICE = 6490;
+export const PLAN_PRICE = 8500;
 export const PLAN_CURRENCY = "CLP";
 export const PLAN_NAME = "Único";
 

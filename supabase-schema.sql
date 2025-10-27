@@ -193,7 +193,7 @@ CREATE INDEX IF NOT EXISTS idx_subscriptions_status ON subscriptions(status);
 
 -- Insert default plan
 INSERT INTO plans (name, price, currency, period, is_active)
-VALUES ('Único', 6490, 'CLP', 'monthly', true)
+VALUES ('Único', 8500, 'CLP', 'monthly', true)
 ON CONFLICT DO NOTHING;
 
 -- ==============================================
