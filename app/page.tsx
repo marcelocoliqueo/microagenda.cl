@@ -90,24 +90,6 @@ const planBenefits = [
   },
 ];
 
-function LogoPlaceholder({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 120 28"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      aria-hidden="true"
-    >
-      {/* Wordmark */}
-      <rect x="6" y="10" width="18" height="8" rx="2" fill="currentColor" opacity="0.85" />
-      <rect x="28" y="10" width="16" height="8" rx="2" fill="currentColor" opacity="0.7" />
-      <rect x="48" y="10" width="24" height="8" rx="2" fill="currentColor" opacity="0.55" />
-      <rect x="76" y="10" width="18" height="8" rx="2" fill="currentColor" opacity="0.4" />
-      <circle cx="104" cy="14" r="4" fill="currentColor" opacity="0.35" />
-    </svg>
-  );
-}
-
 function FeatherLogoSVG({ className }: { className?: string }) {
   return (
     <svg
@@ -238,23 +220,9 @@ function HeroPremium() {
                 </Link>
               </div>
 
-              <p className="text-sm text-slate-500 mb-4">
+              <p className="text-sm text-slate-500">
                 {formatCurrency(PLAN_PRICE)}/mes · Sin tarjeta · Cancela cuando quieras
               </p>
-
-              {/* Social proof */}
-              <div className="flex flex-col sm:flex-row items-center gap-4 justify-center md:justify-start">
-              <div className="flex items-center gap-4 sm:gap-6 opacity-85 text-slate-400">
-                  {[1,2,3,4,5].map((i) => (
-                    <LogoPlaceholder key={i} className="h-5 w-20 sm:h-6 sm:w-24" />
-                  ))}
-                </div>
-                <div className="text-xs sm:text-sm text-slate-600">Confiado por profesionales independientes en Chile</div>
-                <span className="hidden sm:inline h-5 w-px bg-slate-300" />
-                <span className="text-[11px] sm:text-xs text-slate-600 rounded-full border border-slate-200 bg-white/70 backdrop-blur px-2 py-0.5 sm:px-2.5 sm:py-1">
-                  Cumplimiento Ley 19.628
-                </span>
-              </div>
             </div>
 
             {/* Right: parallax mockup */}
