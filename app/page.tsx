@@ -172,7 +172,7 @@ function DemoInteractivo() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <img 
-                    src="/logo.png" 
+                    src="/logo.svg" 
                     alt={`${APP_NAME} Logo`}
                     className="h-6 w-6 object-contain"
                   />
@@ -432,7 +432,7 @@ function HeroPremium() {
             <div className="text-center md:text-left">
               <div className="flex justify-center md:justify-start mb-6">
                 <img 
-                  src="/logo.png" 
+                  src="/logo.svg" 
                   alt={`${APP_NAME} Logo`}
                   className="h-16 w-16 md:h-20 md:w-20 object-contain drop-shadow-lg"
                 />
@@ -589,7 +589,7 @@ export default function HomePage() {
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2 sm:gap-3 group">
               <img 
-                src="/logo.png" 
+                src="/logo.svg" 
                 alt={`${APP_NAME} Logo`}
                 className="h-8 w-8 sm:h-10 sm:w-10 object-contain group-hover:scale-110 transition-transform"
               />
@@ -757,7 +757,7 @@ export default function HomePage() {
             <div className="text-center md:text-left">
               <div className="flex items-center gap-2 justify-center md:justify-start mb-2">
                 <img 
-                  src="/logo.png" 
+                  src="/logo.svg" 
                   alt={`${APP_NAME} Logo`}
                   className="h-8 w-8 object-contain"
                 />
