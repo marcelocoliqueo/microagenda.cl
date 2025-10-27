@@ -482,7 +482,105 @@ function HeroPremium() {
 
             {/* Right: parallax mockup */}
             <div className="relative mt-8 md:mt-0">
-            <div className="relative mx-auto md:mx-0 w-full md:w-[min(580px,100%)] h-[420px] sm:h-96 md:h-[360px] [perspective:1000px]">
+              
+              {/* MOBILE MOCK: iPhone */}
+              <div className="block md:hidden relative mx-auto w-[280px] h-[560px] [perspective:1000px]">
+                {/* iPhone frame */}
+                <div
+                  className="absolute inset-0 rounded-[3rem] bg-slate-900 shadow-2xl p-2"
+                  style={{
+                    transform: enableParallax
+                      ? `translate3d(${(mouse.x - dims.w / 2) * 0.015}px, ${(mouse.y - dims.h / 2) * 0.015}px, 0) rotateX(${-(mouse.y - dims.h / 2) * 0.008}deg) rotateY(${(mouse.x - dims.w / 2) * 0.008}deg)`
+                      : undefined,
+                    transformStyle: "preserve-3d",
+                  }}
+                >
+                  {/* Screen */}
+                  <div className="relative w-full h-full rounded-[2.7rem] bg-white overflow-hidden">
+                    {/* Notch */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-900 rounded-b-3xl z-10" />
+                    
+                    {/* Status bar */}
+                    <div className="h-12 pt-2 px-6 flex items-center justify-between text-[11px] text-slate-900 font-medium">
+                      <span>9:41</span>
+                      <div className="flex items-center gap-1">
+                        <span>●●●●</span>
+                        <span>100%</span>
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="px-4 pb-4">
+                      {/* Header */}
+                      <div className="mb-4">
+                        <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+                        <p className="text-sm text-slate-500">Hoy, 28 Oct 2025</p>
+                      </div>
+
+                      {/* Stats cards */}
+                      <div className="grid grid-cols-2 gap-3 mb-4">
+                        <div className="bg-white rounded-xl p-3 border border-slate-200 shadow-sm">
+                          <div className="text-xs text-slate-500 mb-1">Total Citas</div>
+                          <div className="text-2xl font-bold text-slate-900">24</div>
+                        </div>
+                        <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-3 border border-emerald-200 shadow-sm">
+                          <div className="text-xs text-emerald-700 mb-1">Confirmadas</div>
+                          <div className="text-2xl font-bold text-emerald-700">18</div>
+                        </div>
+                        <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-3 border border-amber-200 shadow-sm">
+                          <div className="text-xs text-amber-700 mb-1">Pendientes</div>
+                          <div className="text-2xl font-bold text-amber-700">3</div>
+                        </div>
+                        <div className="bg-white rounded-xl p-3 border border-slate-200 shadow-sm">
+                          <div className="text-xs text-slate-500 mb-1">Ingresos</div>
+                          <div className="text-2xl font-bold text-slate-900">$245k</div>
+                        </div>
+                      </div>
+
+                      {/* Appointments */}
+                      <div className="space-y-2">
+                        <h3 className="text-sm font-semibold text-slate-700 mb-2">Próximas citas</h3>
+                        
+                        <div className="bg-white rounded-xl p-3 border border-slate-200 shadow-sm">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <div className="text-sm font-semibold text-slate-900">María González</div>
+                              <div className="text-xs text-slate-500">Corte de cabello</div>
+                            </div>
+                            <span className="text-[10px] px-2 py-1 bg-green-100 text-green-800 rounded-full font-medium">Confirmada</span>
+                          </div>
+                          <div className="text-xs text-slate-500">Hoy · 10:00</div>
+                        </div>
+
+                        <div className="bg-white rounded-xl p-3 border border-slate-200 shadow-sm">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <div className="text-sm font-semibold text-slate-900">Juan Pérez</div>
+                              <div className="text-xs text-slate-500">Manicure</div>
+                            </div>
+                            <span className="text-[10px] px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full font-medium">Pendiente</span>
+                          </div>
+                          <div className="text-xs text-slate-500">Hoy · 14:30</div>
+                        </div>
+
+                        <div className="bg-white rounded-xl p-3 border border-slate-200 shadow-sm opacity-75">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <div className="text-sm font-semibold text-slate-900">Carolina Silva</div>
+                              <div className="text-xs text-slate-500">Masaje relajante</div>
+                            </div>
+                            <span className="text-[10px] px-2 py-1 bg-green-100 text-green-800 rounded-full font-medium">Confirmada</span>
+                          </div>
+                          <div className="text-xs text-slate-500">Mañana · 09:00</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* DESKTOP MOCK: Browser Window */}
+              <div className="hidden md:block relative mx-auto md:mx-0 w-full md:w-[min(580px,100%)] h-[360px] [perspective:1000px]">
                 {/* main dashboard card */}
                 <div
                   className="absolute inset-0 rounded-3xl bg-white/60 backdrop-blur-xl border border-slate-200/70 shadow-2xl overflow-hidden"
@@ -500,59 +598,59 @@ function HeroPremium() {
                     <div className="h-3 w-3 rounded-full bg-emerald-400" />
                   </div>
                   {/* content real data */}
-                  <div className="p-3 sm:p-4">
+                  <div className="p-4">
                     {/* 4 stats cards */}
-                    <div className="grid grid-cols-4 gap-1.5 sm:gap-2 mb-3 sm:mb-3">
-                      <div className="bg-white/70 rounded-lg p-2 sm:p-2 border border-slate-200/50">
-                        <div className="text-[10px] sm:text-[9px] text-slate-500 mb-0.5">Total</div>
-                        <div className="text-lg sm:text-base font-bold text-slate-900">24</div>
+                    <div className="grid grid-cols-4 gap-2 mb-3">
+                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
+                        <div className="text-[9px] text-slate-500 mb-0.5">Total</div>
+                        <div className="text-base font-bold text-slate-900">24</div>
                       </div>
-                      <div className="bg-white/70 rounded-lg p-2 sm:p-2 border border-slate-200/50">
-                        <div className="text-[10px] sm:text-[9px] text-slate-500 mb-0.5">Confirm.</div>
-                        <div className="text-lg sm:text-base font-bold text-emerald-600">18</div>
+                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
+                        <div className="text-[9px] text-slate-500 mb-0.5">Confirm.</div>
+                        <div className="text-base font-bold text-emerald-600">18</div>
                       </div>
-                      <div className="bg-white/70 rounded-lg p-2 sm:p-2 border border-slate-200/50">
-                        <div className="text-[10px] sm:text-[9px] text-slate-500 mb-0.5">Pend.</div>
-                        <div className="text-lg sm:text-base font-bold text-yellow-600">3</div>
+                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
+                        <div className="text-[9px] text-slate-500 mb-0.5">Pend.</div>
+                        <div className="text-base font-bold text-yellow-600">3</div>
                       </div>
-                      <div className="bg-white/70 rounded-lg p-2 sm:p-2 border border-slate-200/50">
-                        <div className="text-[10px] sm:text-[9px] text-slate-500 mb-0.5">Ingresos</div>
-                        <div className="text-lg sm:text-base font-bold text-slate-900">$245k</div>
+                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
+                        <div className="text-[9px] text-slate-500 mb-0.5">Ingresos</div>
+                        <div className="text-base font-bold text-slate-900">$245k</div>
                       </div>
                     </div>
                     {/* appointments list */}
-                    <div className="space-y-2 sm:space-y-1.5">
-                      <div className="bg-white/70 rounded-lg p-2.5 sm:p-2 border border-slate-200/50">
-                        <div className="flex items-center gap-1.5 mb-1 sm:mb-0.5">
-                          <span className="text-xs sm:text-[10px] font-medium text-slate-900">María González</span>
-                          <span className="text-[9px] sm:text-[8px] px-1.5 py-0.5 bg-green-100 text-green-800 rounded whitespace-nowrap">Confirmada</span>
+                    <div className="space-y-1.5">
+                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <span className="text-[10px] font-medium text-slate-900">María González</span>
+                          <span className="text-[8px] px-1.5 py-0.5 bg-green-100 text-green-800 rounded whitespace-nowrap">Confirmada</span>
                         </div>
-                        <div className="text-[11px] sm:text-[9px] text-slate-600">Corte de cabello</div>
-                        <div className="text-[10px] sm:text-[8px] text-slate-500">28 Oct · 10:00</div>
+                        <div className="text-[9px] text-slate-600">Corte de cabello</div>
+                        <div className="text-[8px] text-slate-500">28 Oct · 10:00</div>
                       </div>
-                      <div className="bg-white/70 rounded-lg p-2.5 sm:p-2 border border-slate-200/50">
-                        <div className="flex items-center gap-1.5 mb-1 sm:mb-0.5">
-                          <span className="text-xs sm:text-[10px] font-medium text-slate-900">Juan Pérez</span>
-                          <span className="text-[9px] sm:text-[8px] px-1.5 py-0.5 bg-yellow-100 text-yellow-800 rounded whitespace-nowrap">Pendiente</span>
+                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <span className="text-[10px] font-medium text-slate-900">Juan Pérez</span>
+                          <span className="text-[8px] px-1.5 py-0.5 bg-yellow-100 text-yellow-800 rounded whitespace-nowrap">Pendiente</span>
                         </div>
-                        <div className="text-[11px] sm:text-[9px] text-slate-600">Manicure</div>
-                        <div className="text-[10px] sm:text-[8px] text-slate-500">28 Oct · 14:30</div>
+                        <div className="text-[9px] text-slate-600">Manicure</div>
+                        <div className="text-[8px] text-slate-500">28 Oct · 14:30</div>
                       </div>
-                      <div className="bg-white/70 rounded-lg p-2.5 sm:p-2 border border-slate-200/50">
-                        <div className="flex items-center gap-1.5 mb-1 sm:mb-0.5">
-                          <span className="text-xs sm:text-[10px] font-medium text-slate-900">Carolina Silva</span>
-                          <span className="text-[9px] sm:text-[8px] px-1.5 py-0.5 bg-green-100 text-green-800 rounded whitespace-nowrap">Confirmada</span>
+                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <span className="text-[10px] font-medium text-slate-900">Carolina Silva</span>
+                          <span className="text-[8px] px-1.5 py-0.5 bg-green-100 text-green-800 rounded whitespace-nowrap">Confirmada</span>
                         </div>
-                        <div className="text-[11px] sm:text-[9px] text-slate-600">Masaje relajante</div>
-                        <div className="text-[10px] sm:text-[8px] text-slate-500">29 Oct · 09:00</div>
+                        <div className="text-[9px] text-slate-600">Masaje relajante</div>
+                        <div className="text-[8px] text-slate-500">29 Oct · 09:00</div>
                       </div>
-                      <div className="bg-white/70 rounded-lg p-2.5 sm:p-2 border border-slate-200/50 opacity-70">
-                        <div className="flex items-center gap-1.5 mb-1 sm:mb-0.5">
-                          <span className="text-xs sm:text-[10px] font-medium text-slate-900">Roberto Muñoz</span>
-                          <span className="text-[9px] sm:text-[8px] px-1.5 py-0.5 bg-green-100 text-green-800 rounded whitespace-nowrap">Confirmada</span>
+                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50 opacity-70">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <span className="text-[10px] font-medium text-slate-900">Roberto Muñoz</span>
+                          <span className="text-[8px] px-1.5 py-0.5 bg-green-100 text-green-800 rounded whitespace-nowrap">Confirmada</span>
                         </div>
-                        <div className="text-[11px] sm:text-[9px] text-slate-600">Barba y afeitado</div>
-                        <div className="text-[10px] sm:text-[8px] text-slate-500">29 Oct · 11:30</div>
+                        <div className="text-[9px] text-slate-600">Barba y afeitado</div>
+                        <div className="text-[8px] text-slate-500">29 Oct · 11:30</div>
                       </div>
                     </div>
                   </div>
@@ -560,16 +658,16 @@ function HeroPremium() {
 
                 {/* floating stats card */}
                 <div
-                  className="absolute right-3 bottom-3 md:-right-6 md:-bottom-8 w-40 sm:w-40 md:w-44 h-24 sm:h-24 md:h-28 rounded-2xl bg-white/80 backdrop-blur border border-slate-200/70 shadow-xl p-3 sm:p-4"
+                  className="absolute -right-6 -bottom-8 w-44 h-28 rounded-2xl bg-white/80 backdrop-blur border border-slate-200/70 shadow-xl p-4"
                   style={{
                     transform: enableParallax
                       ? `translate3d(${(mouse.x - dims.w / 2) * 0.04}px, ${(mouse.y - dims.h / 2) * 0.04}px, 0)`
                       : undefined,
                   }}
                 >
-                  <div className="text-xs sm:text-xs text-slate-500 mb-1">Ingresos</div>
-                  <div className="text-xl sm:text-xl font-semibold text-slate-900">{formatCurrency(245000)}</div>
-                  <div className="text-xs sm:text-xs text-emerald-600 mt-1">+18% esta semana</div>
+                  <div className="text-xs text-slate-500 mb-1">Ingresos</div>
+                  <div className="text-xl font-semibold text-slate-900">{formatCurrency(245000)}</div>
+                  <div className="text-xs text-emerald-600 mt-1">+18% esta semana</div>
                 </div>
               </div>
             </div>
