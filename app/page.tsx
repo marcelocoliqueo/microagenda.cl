@@ -137,7 +137,7 @@ function HeroPremium() {
 
   return (
     <section
-      className="relative overflow-hidden pt-24 pb-16 md:pt-36 md:pb-36 min-h-[90svh]"
+      className="relative overflow-hidden pt-20 pb-12 sm:pt-24 sm:pb-16 md:pt-36 md:pb-36 min-h-[85svh] sm:min-h-[90svh]"
       onMouseMove={(e) => {
         if (!enableParallax) return;
         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -191,43 +191,43 @@ function HeroPremium() {
                 </span>
               </div>
 
-              <h1 className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-slate-900 mb-6">
+              <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-slate-900 mb-4 sm:mb-6 leading-tight">
                 Gestiona reservas con una experiencia a la altura de tu marca
               </h1>
-              <p className="text-sm sm:text-base md:text-xl text-slate-600 mb-6 md:mb-10 max-w-2xl md:max-w-none mx-auto md:mx-0">
+              <p className="text-base sm:text-base md:text-xl text-slate-600 mb-6 md:mb-10 max-w-2xl md:max-w-none mx-auto md:mx-0 leading-relaxed">
                 Un solo plan. Reservas 24/7, confirmaciones y recordatorios inteligentes; todo sin esfuerzo.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start items-center mb-4">
-                <Link href="/register">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center md:justify-start items-stretch sm:items-center mb-5 sm:mb-4 w-full sm:w-auto">
+                <Link href="/register" className="w-full sm:w-auto">
                   <Button
                     size="lg"
-                    className="relative w-full sm:w-auto bg-gradient-to-r from-[rgb(var(--brand-start))] via-[rgb(var(--brand-mid))] to-[rgb(var(--brand-end))] hover:brightness-105 text-white px-6 sm:px-8 py-4 sm:py-6 text-base sm:text-lg shadow-lg hover:shadow-2xl transition-all rounded-[14px] ring-1 ring-white/10 overflow-hidden will-change-transform hover:-translate-y-0.5 hover:scale-[1.01]"
+                    className="relative w-full bg-gradient-to-r from-[rgb(var(--brand-start))] via-[rgb(var(--brand-mid))] to-[rgb(var(--brand-end))] hover:brightness-105 text-white px-8 py-5 sm:py-6 text-lg sm:text-lg font-semibold shadow-lg hover:shadow-2xl transition-all rounded-[14px] ring-1 ring-white/10 overflow-hidden will-change-transform hover:-translate-y-0.5 hover:scale-[1.01]"
                   >
                     <span className="absolute inset-0 opacity-35 bg-[radial-gradient(1200px_200px_at_0%_0%,rgba(255,255,255,0.25),transparent_40%)]" />
                     Probar Gratis
                     <ChevronRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>
-                <Link href="#demo">
+                <Link href="#demo" className="w-full sm:w-auto">
                   <Button
                     size="lg"
                     variant="outline"
-                    className="w-full sm:w-auto border-2 border-[rgb(var(--brand-mid))]/40 hover:border-[rgb(var(--brand-mid))] text-slate-800 px-6 sm:px-8 py-4 sm:py-6 text-base sm:text-lg rounded-[14px]"
+                    className="w-full border-2 border-[rgb(var(--brand-mid))]/40 hover:border-[rgb(var(--brand-mid))] text-slate-800 px-8 py-5 sm:py-6 text-lg sm:text-lg font-medium rounded-[14px]"
                   >
                     Ver demo en 30s
                   </Button>
                 </Link>
               </div>
 
-              <p className="text-sm text-slate-500">
+              <p className="text-sm sm:text-sm text-slate-500 text-center md:text-left">
                 {formatCurrency(PLAN_PRICE)}/mes · Sin tarjeta · Cancela cuando quieras
               </p>
             </div>
 
             {/* Right: parallax mockup */}
-            <div className="relative">
-            <div className="relative mx-auto md:mx-0 w-[min(580px,100%)] h-64 md:h-[360px] [perspective:1000px]">
+            <div className="relative mt-8 md:mt-0">
+            <div className="relative mx-auto md:mx-0 w-full md:w-[min(580px,100%)] h-[420px] sm:h-96 md:h-[360px] [perspective:1000px]">
                 {/* main dashboard card */}
                 <div
                   className="absolute inset-0 rounded-3xl bg-white/60 backdrop-blur-xl border border-slate-200/70 shadow-2xl overflow-hidden"
@@ -245,59 +245,59 @@ function HeroPremium() {
                     <div className="h-3 w-3 rounded-full bg-emerald-400" />
                   </div>
                   {/* content real data */}
-                  <div className="p-4">
+                  <div className="p-3 sm:p-4">
                     {/* 4 stats cards */}
-                    <div className="grid grid-cols-4 gap-2 mb-3">
-                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
-                        <div className="text-[9px] text-slate-500 mb-0.5">Total</div>
-                        <div className="text-base font-bold text-slate-900">24</div>
+                    <div className="grid grid-cols-4 gap-1.5 sm:gap-2 mb-3 sm:mb-3">
+                      <div className="bg-white/70 rounded-lg p-2 sm:p-2 border border-slate-200/50">
+                        <div className="text-[10px] sm:text-[9px] text-slate-500 mb-0.5">Total</div>
+                        <div className="text-lg sm:text-base font-bold text-slate-900">24</div>
                       </div>
-                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
-                        <div className="text-[9px] text-slate-500 mb-0.5">Confirmadas</div>
-                        <div className="text-base font-bold text-emerald-600">18</div>
+                      <div className="bg-white/70 rounded-lg p-2 sm:p-2 border border-slate-200/50">
+                        <div className="text-[10px] sm:text-[9px] text-slate-500 mb-0.5">Confirm.</div>
+                        <div className="text-lg sm:text-base font-bold text-emerald-600">18</div>
                       </div>
-                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
-                        <div className="text-[9px] text-slate-500 mb-0.5">Pendientes</div>
-                        <div className="text-base font-bold text-yellow-600">3</div>
+                      <div className="bg-white/70 rounded-lg p-2 sm:p-2 border border-slate-200/50">
+                        <div className="text-[10px] sm:text-[9px] text-slate-500 mb-0.5">Pend.</div>
+                        <div className="text-lg sm:text-base font-bold text-yellow-600">3</div>
                       </div>
-                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
-                        <div className="text-[9px] text-slate-500 mb-0.5">Ingresos</div>
-                        <div className="text-base font-bold text-slate-900">$245k</div>
+                      <div className="bg-white/70 rounded-lg p-2 sm:p-2 border border-slate-200/50">
+                        <div className="text-[10px] sm:text-[9px] text-slate-500 mb-0.5">Ingresos</div>
+                        <div className="text-lg sm:text-base font-bold text-slate-900">$245k</div>
                       </div>
                     </div>
                     {/* appointments list */}
-                    <div className="space-y-1.5">
-                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
-                        <div className="flex items-center gap-1.5 mb-0.5">
-                          <span className="text-[10px] font-medium text-slate-900">María González</span>
-                          <span className="text-[8px] px-1.5 py-0.5 bg-green-100 text-green-800 rounded">Confirmada</span>
+                    <div className="space-y-2 sm:space-y-1.5">
+                      <div className="bg-white/70 rounded-lg p-2.5 sm:p-2 border border-slate-200/50">
+                        <div className="flex items-center gap-1.5 mb-1 sm:mb-0.5">
+                          <span className="text-xs sm:text-[10px] font-medium text-slate-900">María González</span>
+                          <span className="text-[9px] sm:text-[8px] px-1.5 py-0.5 bg-green-100 text-green-800 rounded whitespace-nowrap">Confirmada</span>
                         </div>
-                        <div className="text-[9px] text-slate-600">Corte de cabello</div>
-                        <div className="text-[8px] text-slate-500">28 Oct · 10:00</div>
+                        <div className="text-[11px] sm:text-[9px] text-slate-600">Corte de cabello</div>
+                        <div className="text-[10px] sm:text-[8px] text-slate-500">28 Oct · 10:00</div>
                       </div>
-                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
-                        <div className="flex items-center gap-1.5 mb-0.5">
-                          <span className="text-[10px] font-medium text-slate-900">Juan Pérez</span>
-                          <span className="text-[8px] px-1.5 py-0.5 bg-yellow-100 text-yellow-800 rounded">Pendiente</span>
+                      <div className="bg-white/70 rounded-lg p-2.5 sm:p-2 border border-slate-200/50">
+                        <div className="flex items-center gap-1.5 mb-1 sm:mb-0.5">
+                          <span className="text-xs sm:text-[10px] font-medium text-slate-900">Juan Pérez</span>
+                          <span className="text-[9px] sm:text-[8px] px-1.5 py-0.5 bg-yellow-100 text-yellow-800 rounded whitespace-nowrap">Pendiente</span>
                         </div>
-                        <div className="text-[9px] text-slate-600">Manicure</div>
-                        <div className="text-[8px] text-slate-500">28 Oct · 14:30</div>
+                        <div className="text-[11px] sm:text-[9px] text-slate-600">Manicure</div>
+                        <div className="text-[10px] sm:text-[8px] text-slate-500">28 Oct · 14:30</div>
                       </div>
-                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
-                        <div className="flex items-center gap-1.5 mb-0.5">
-                          <span className="text-[10px] font-medium text-slate-900">Carolina Silva</span>
-                          <span className="text-[8px] px-1.5 py-0.5 bg-green-100 text-green-800 rounded">Confirmada</span>
+                      <div className="bg-white/70 rounded-lg p-2.5 sm:p-2 border border-slate-200/50">
+                        <div className="flex items-center gap-1.5 mb-1 sm:mb-0.5">
+                          <span className="text-xs sm:text-[10px] font-medium text-slate-900">Carolina Silva</span>
+                          <span className="text-[9px] sm:text-[8px] px-1.5 py-0.5 bg-green-100 text-green-800 rounded whitespace-nowrap">Confirmada</span>
                         </div>
-                        <div className="text-[9px] text-slate-600">Masaje relajante</div>
-                        <div className="text-[8px] text-slate-500">29 Oct · 09:00</div>
+                        <div className="text-[11px] sm:text-[9px] text-slate-600">Masaje relajante</div>
+                        <div className="text-[10px] sm:text-[8px] text-slate-500">29 Oct · 09:00</div>
                       </div>
-                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50 opacity-70">
-                        <div className="flex items-center gap-1.5 mb-0.5">
-                          <span className="text-[10px] font-medium text-slate-900">Roberto Muñoz</span>
-                          <span className="text-[8px] px-1.5 py-0.5 bg-green-100 text-green-800 rounded">Confirmada</span>
+                      <div className="bg-white/70 rounded-lg p-2.5 sm:p-2 border border-slate-200/50 opacity-70">
+                        <div className="flex items-center gap-1.5 mb-1 sm:mb-0.5">
+                          <span className="text-xs sm:text-[10px] font-medium text-slate-900">Roberto Muñoz</span>
+                          <span className="text-[9px] sm:text-[8px] px-1.5 py-0.5 bg-green-100 text-green-800 rounded whitespace-nowrap">Confirmada</span>
                         </div>
-                        <div className="text-[9px] text-slate-600">Barba y afeitado</div>
-                        <div className="text-[8px] text-slate-500">29 Oct · 11:30</div>
+                        <div className="text-[11px] sm:text-[9px] text-slate-600">Barba y afeitado</div>
+                        <div className="text-[10px] sm:text-[8px] text-slate-500">29 Oct · 11:30</div>
                       </div>
                     </div>
                   </div>
@@ -305,16 +305,16 @@ function HeroPremium() {
 
                 {/* floating stats card */}
                 <div
-                  className="absolute right-3 bottom-3 md:-right-6 md:-bottom-8 w-36 h-22 sm:w-40 sm:h-24 md:w-44 md:h-28 rounded-2xl bg-white/80 backdrop-blur border border-slate-200/70 shadow-xl p-3 sm:p-4"
+                  className="absolute right-3 bottom-3 md:-right-6 md:-bottom-8 w-40 sm:w-40 md:w-44 h-24 sm:h-24 md:h-28 rounded-2xl bg-white/80 backdrop-blur border border-slate-200/70 shadow-xl p-3 sm:p-4"
                   style={{
                     transform: enableParallax
                       ? `translate3d(${(mouse.x - dims.w / 2) * 0.04}px, ${(mouse.y - dims.h / 2) * 0.04}px, 0)`
                       : undefined,
                   }}
                 >
-                  <div className="text-[10px] sm:text-xs text-slate-500 mb-1">Ingresos</div>
-                  <div className="text-lg sm:text-xl font-semibold text-slate-900">{formatCurrency(245000)}</div>
-                  <div className="text-[10px] sm:text-xs text-emerald-600 mt-1">+18% esta semana</div>
+                  <div className="text-xs sm:text-xs text-slate-500 mb-1">Ingresos</div>
+                  <div className="text-xl sm:text-xl font-semibold text-slate-900">{formatCurrency(245000)}</div>
+                  <div className="text-xs sm:text-xs text-emerald-600 mt-1">+18% esta semana</div>
                 </div>
               </div>
             </div>
@@ -330,23 +330,23 @@ export default function HomePage() {
     <div className="min-h-screen bg-gray-50">
       {/* Navbar glass */}
       <header className="fixed top-0 inset-x-0 z-50 border-b border-white/20 bg-white/60 backdrop-blur-md">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="text-3xl group-hover:scale-110 transition-transform">🪶</div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
+            <Link href="/" className="flex items-center gap-1.5 sm:gap-2 group">
+              <div className="text-2xl sm:text-3xl group-hover:scale-110 transition-transform">🪶</div>
+              <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
                 {APP_NAME}
               </span>
             </Link>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <Link href="/login">
                 <Button variant="ghost" className="hidden sm:inline-flex text-slate-700">
                   Iniciar Sesión
                 </Button>
               </Link>
               <Link href="/register">
-                <Button className="bg-slate-900 hover:bg-black text-white shadow-md">
-                  Comenzar Gratis
+                <Button className="bg-slate-900 hover:bg-black text-white shadow-md text-sm sm:text-base px-4 sm:px-4">
+                  Comenzar
                 </Button>
               </Link>
             </div>
