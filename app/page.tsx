@@ -796,6 +796,92 @@ export default function HomePage() {
       {/* Hero premium */}
       <HeroPremium />
 
+      {/* Carrusel de profesionales */}
+      <section className="py-12 md:py-16 bg-gradient-to-b from-white via-slate-50/30 to-white overflow-hidden">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-8">
+            <p className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-2">Para profesionales independientes</p>
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Tu agenda, tu negocio</h2>
+          </div>
+          
+          {/* Carrusel infinito */}
+          <div className="relative">
+            <div className="flex gap-6 animate-scroll">
+              {/* Primera iteración */}
+              <div className="flex gap-6 min-w-max">
+                <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                  <span className="text-3xl">💇‍♀️</span>
+                  <span className="font-semibold text-slate-900">Peluquerías</span>
+                </div>
+                <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                  <span className="text-3xl">✂️</span>
+                  <span className="font-semibold text-slate-900">Barberías</span>
+                </div>
+                <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                  <span className="text-3xl">💅</span>
+                  <span className="font-semibold text-slate-900">Salones de Belleza</span>
+                </div>
+                <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                  <span className="text-3xl">🧠</span>
+                  <span className="font-semibold text-slate-900">Psicólogos</span>
+                </div>
+                <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                  <span className="text-3xl">💆</span>
+                  <span className="font-semibold text-slate-900">Kinesiólogos</span>
+                </div>
+                <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                  <span className="text-3xl">🎨</span>
+                  <span className="font-semibold text-slate-900">Tatuadores</span>
+                </div>
+                <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                  <span className="text-3xl">💪</span>
+                  <span className="font-semibold text-slate-900">Entrenadores</span>
+                </div>
+                <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                  <span className="text-3xl">🎵</span>
+                  <span className="font-semibold text-slate-900">Profesores</span>
+                </div>
+              </div>
+              {/* Segunda iteración (duplicado para loop infinito) */}
+              <div className="flex gap-6 min-w-max" aria-hidden="true">
+                <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                  <span className="text-3xl">💇‍♀️</span>
+                  <span className="font-semibold text-slate-900">Peluquerías</span>
+                </div>
+                <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                  <span className="text-3xl">✂️</span>
+                  <span className="font-semibold text-slate-900">Barberías</span>
+                </div>
+                <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                  <span className="text-3xl">💅</span>
+                  <span className="font-semibold text-slate-900">Salones de Belleza</span>
+                </div>
+                <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                  <span className="text-3xl">🧠</span>
+                  <span className="font-semibold text-slate-900">Psicólogos</span>
+                </div>
+                <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                  <span className="text-3xl">💆</span>
+                  <span className="font-semibold text-slate-900">Kinesiólogos</span>
+                </div>
+                <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                  <span className="text-3xl">🎨</span>
+                  <span className="font-semibold text-slate-900">Tatuadores</span>
+                </div>
+                <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                  <span className="text-3xl">💪</span>
+                  <span className="font-semibold text-slate-900">Entrenadores</span>
+                </div>
+                <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                  <span className="text-3xl">🎵</span>
+                  <span className="font-semibold text-slate-900">Profesores</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Demo 30s */}
       <DemoInteractivo />
 
