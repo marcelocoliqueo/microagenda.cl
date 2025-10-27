@@ -97,7 +97,21 @@ function DemoInteractivo() {
     duration: number;
     price: number;
   } | null>(null);
+  const [brandColor, setBrandColor] = useState("green");
   const totalSteps = 4;
+
+  const brandColors = [
+    { name: "Verde", value: "green", bg: "bg-emerald-500", text: "text-emerald-600", light: "bg-emerald-50", border: "border-emerald-200", ring: "ring-emerald-200", gradient: "from-emerald-500 to-emerald-600" },
+    { name: "Azul", value: "blue", bg: "bg-blue-500", text: "text-blue-600", light: "bg-blue-50", border: "border-blue-200", ring: "ring-blue-200", gradient: "from-blue-500 to-blue-600" },
+    { name: "Rojo", value: "red", bg: "bg-rose-500", text: "text-rose-600", light: "bg-rose-50", border: "border-rose-200", ring: "ring-rose-200", gradient: "from-rose-500 to-rose-600" },
+    { name: "Morado", value: "purple", bg: "bg-purple-500", text: "text-purple-600", light: "bg-purple-50", border: "border-purple-200", ring: "ring-purple-200", gradient: "from-purple-500 to-purple-600" },
+    { name: "Naranja", value: "orange", bg: "bg-orange-500", text: "text-orange-600", light: "bg-orange-50", border: "border-orange-200", ring: "ring-orange-200", gradient: "from-orange-500 to-orange-600" },
+    { name: "Rosado", value: "pink", bg: "bg-pink-500", text: "text-pink-600", light: "bg-pink-50", border: "border-pink-200", ring: "ring-pink-200", gradient: "from-pink-500 to-pink-600" },
+    { name: "Celeste", value: "cyan", bg: "bg-cyan-500", text: "text-cyan-600", light: "bg-cyan-50", border: "border-cyan-200", ring: "ring-cyan-200", gradient: "from-cyan-500 to-cyan-600" },
+    { name: "Amarillo", value: "yellow", bg: "bg-amber-500", text: "text-amber-600", light: "bg-amber-50", border: "border-amber-200", ring: "ring-amber-200", gradient: "from-amber-500 to-amber-600" },
+  ];
+
+  const currentColor = brandColors.find(c => c.value === brandColor) || brandColors[0];
 
   const services = [
     { id: 1, name: "Corte de cabello", duration: 45, price: 15000 },
@@ -134,9 +148,9 @@ function DemoInteractivo() {
                     <div
                       className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center font-bold text-base sm:text-lg transition-all duration-300 ${
                         step === s.number
-                          ? 'bg-gradient-to-r from-primary to-accent text-white shadow-lg scale-110'
+                          ? `bg-gradient-to-r ${currentColor.gradient} text-white shadow-lg scale-110`
                           : step > s.number
-                          ? 'bg-green-100 text-green-700 ring-2 ring-green-200'
+                          ? `${currentColor.light} ${currentColor.text} ring-2 ${currentColor.ring}`
                           : 'bg-slate-100 text-slate-400'
                       }`}
                     >
@@ -151,7 +165,7 @@ function DemoInteractivo() {
                   {i < steps.length - 1 && (
                     <div
                       className={`h-1 w-8 sm:w-12 mx-2 sm:mx-3 rounded transition-all duration-300 ${
-                        step > s.number ? 'bg-green-300' : 'bg-slate-200'
+                        step > s.number ? currentColor.bg.replace('500', '300') : 'bg-slate-200'
                       }`}
                     />
                   )}
@@ -192,13 +206,45 @@ function DemoInteractivo() {
                     <h4 className="text-xl font-bold text-slate-900 mb-1">María González</h4>
                     <p className="text-sm text-slate-600">Salón de Belleza</p>
                   </div>
+
+                  {/* Color Selector */}
+                  <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200">
+                    <div className="text-center mb-3">
+                      <h5 className="text-sm font-semibold text-slate-700 mb-1">🎨 Elige tu color de marca</h5>
+                      <p className="text-xs text-slate-500">Tu agenda se adaptará a este color</p>
+                    </div>
+                    <div className="flex items-center justify-center gap-2 flex-wrap">
+                      {brandColors.map((color) => (
+                        <button
+                          key={color.value}
+                          onClick={() => setBrandColor(color.value)}
+                          className={`group relative flex flex-col items-center gap-1 transition-all ${
+                            brandColor === color.value ? 'scale-110' : 'hover:scale-105'
+                          }`}
+                          title={color.name}
+                        >
+                          <div
+                            className={`w-10 h-10 rounded-full ${color.bg} shadow-md transition-all ${
+                              brandColor === color.value
+                                ? `ring-4 ${color.ring} shadow-lg`
+                                : 'hover:shadow-lg'
+                            }`}
+                          />
+                          {brandColor === color.value && (
+                            <span className="text-[10px] font-medium text-slate-700">{color.name}</span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   <h5 className="font-semibold text-slate-900 mb-3">Elige tu servicio</h5>
                   <div className="space-y-3">
                     {services.map((service) => (
                       <button
                         key={service.id}
                         onClick={() => handleServiceSelect(service)}
-                        className="w-full rounded-lg border-2 border-slate-200 bg-white p-3 hover:border-[rgb(var(--brand-mid))] hover:shadow-md transition-all cursor-pointer"
+                        className={`w-full rounded-lg border-2 border-slate-200 bg-white p-3 hover:${currentColor.border} hover:shadow-md transition-all cursor-pointer`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="text-left">
@@ -230,10 +276,10 @@ function DemoInteractivo() {
                     Servicio seleccionado
                   </h5>
                   <div className="space-y-3">
-                    <div className="rounded-lg border-2 border-[rgb(var(--brand-mid))] bg-green-50 p-4 shadow-md">
+                    <div className={`rounded-lg border-2 ${currentColor.border} ${currentColor.light} p-4 shadow-md`}>
                       <div className="flex items-center justify-between mb-2">
                         <div className="font-semibold text-slate-900">{selectedService.name}</div>
-                        <Check className="w-5 h-5 text-green-600" />
+                        <Check className={`w-5 h-5 ${currentColor.text}`} />
                       </div>
                       <div className="text-sm text-slate-600 space-y-1">
                         <div className="flex items-center gap-1">
@@ -247,7 +293,7 @@ function DemoInteractivo() {
                     </div>
                     <button
                       onClick={() => setStep(1)}
-                      className="text-sm text-primary hover:underline flex items-center gap-1 font-medium"
+                      className={`text-sm ${currentColor.text} hover:underline flex items-center gap-1 font-medium`}
                     >
                       ← Cambiar servicio
                     </button>
@@ -293,8 +339,8 @@ function DemoInteractivo() {
               {/* Step 4: Confirmación */}
               {step === 4 && selectedService && (
                 <div className="flex-1 flex flex-col items-center justify-center text-center">
-                  <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                    <Check className="w-8 h-8 text-green-600" />
+                  <div className={`w-16 h-16 rounded-full ${currentColor.light} flex items-center justify-center mb-4`}>
+                    <Check className={`w-8 h-8 ${currentColor.text}`} />
                   </div>
                   <h5 className="text-xl font-bold text-slate-900 mb-2">¡Reserva confirmada!</h5>
                   <p className="text-sm text-slate-600 mb-4">
@@ -328,7 +374,7 @@ function DemoInteractivo() {
                     size="sm"
                     onClick={() => setStep(Math.min(totalSteps, step + 1))}
                     disabled={step === 1 && !selectedService}
-                    className="bg-gradient-to-r from-[rgb(var(--brand-start))] to-[rgb(var(--brand-mid))] text-white text-sm disabled:opacity-50"
+                    className={`bg-gradient-to-r ${currentColor.gradient} text-white text-sm disabled:opacity-50`}
                   >
                     Siguiente
                     <ChevronRight className="w-4 h-4 ml-1" />
