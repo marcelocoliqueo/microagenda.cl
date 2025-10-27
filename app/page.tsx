@@ -108,6 +108,243 @@ function FeatherLogoSVG({ className }: { className?: string }) {
   );
 }
 
+function DemoInteractivo() {
+  const [step, setStep] = useState(1);
+  const totalSteps = 4;
+
+  const steps = [
+    { number: 1, title: "Ver servicios", desc: "Tu cliente ve tus servicios" },
+    { number: 2, title: "Elegir servicio", desc: "Selecciona lo que necesita" },
+    { number: 3, title: "Completar datos", desc: "Nombre, teléfono, fecha y hora" },
+    { number: 4, title: "¡Listo!", desc: "Reserva confirmada automáticamente" },
+  ];
+
+  return (
+    <section id="demo" className="relative py-14 md:py-20 scroll-mt-24 md:scroll-mt-32">
+      <div className="container mx-auto px-4">
+        <div className="max-w-3xl mx-auto text-center mb-8">
+          <h3 className="text-2xl md:text-3xl font-semibold text-slate-900 mb-2">Así de simple reservan</h3>
+          <p className="text-slate-600">3 pasos y listo. Sin complicaciones.</p>
+        </div>
+
+        <div className="max-w-3xl mx-auto">
+          {/* Stepper */}
+          <div className="flex items-center justify-between mb-8 px-4">
+            {steps.map((s, i) => (
+              <div key={s.number} className="flex items-center flex-1">
+                <button
+                  onClick={() => setStep(s.number)}
+                  className={`flex flex-col items-center gap-2 transition-all ${
+                    step === s.number ? 'scale-110' : 'opacity-50 hover:opacity-75'
+                  }`}
+                >
+                  <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${
+                      step === s.number
+                        ? 'bg-gradient-to-r from-[rgb(var(--brand-start))] to-[rgb(var(--brand-mid))] text-white shadow-lg'
+                        : step > s.number
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-slate-200 text-slate-500'
+                    }`}
+                  >
+                    {step > s.number ? <Check className="w-5 h-5" /> : s.number}
+                  </div>
+                  <span className="text-xs font-medium text-slate-700 hidden sm:block">{s.title}</span>
+                </button>
+                {i < steps.length - 1 && (
+                  <div
+                    className={`h-1 flex-1 mx-2 rounded transition-colors ${
+                      step > s.number ? 'bg-green-200' : 'bg-slate-200'
+                    }`}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Content Card */}
+          <motion.div
+            key={step}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
+            className="rounded-2xl border border-slate-200/70 bg-white/70 backdrop-blur shadow-xl overflow-hidden"
+          >
+            {/* Header */}
+            <div className="border-b border-slate-200/70 bg-white/60 backdrop-blur px-4 py-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🪶</span>
+                  <span className="text-sm font-bold text-slate-900">{APP_NAME}</span>
+                </div>
+                <span className="text-xs text-slate-500">Paso {step} de {totalSteps}</span>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 min-h-[320px] flex flex-col">
+              {/* Step 1: Servicios */}
+              {step === 1 && (
+                <div className="flex-1">
+                  <div className="text-center mb-6">
+                    <h4 className="text-xl font-bold text-slate-900 mb-1">María González</h4>
+                    <p className="text-sm text-slate-600">Salón de Belleza</p>
+                  </div>
+                  <h5 className="font-semibold text-slate-900 mb-3">Servicios disponibles</h5>
+                  <div className="space-y-3">
+                    <div className="rounded-lg border border-slate-200 bg-white p-3 hover:shadow-md transition-shadow cursor-pointer">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-medium text-slate-900">Corte de cabello</div>
+                          <div className="text-xs text-slate-600 flex items-center gap-1 mt-1">
+                            <Clock className="w-3 h-3" />
+                            45 min
+                          </div>
+                        </div>
+                        <div className="font-bold text-slate-900">$15.000</div>
+                      </div>
+                    </div>
+                    <div className="rounded-lg border border-slate-200 bg-white p-3 hover:shadow-md transition-shadow cursor-pointer">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-medium text-slate-900">Manicure</div>
+                          <div className="text-xs text-slate-600 flex items-center gap-1 mt-1">
+                            <Clock className="w-3 h-3" />
+                            60 min
+                          </div>
+                        </div>
+                        <div className="font-bold text-slate-900">$12.000</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 2: Seleccionar servicio */}
+              {step === 2 && (
+                <div className="flex-1">
+                  <h5 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                    <Calendar className="w-5 h-5" />
+                    Selecciona el servicio
+                  </h5>
+                  <div className="space-y-3">
+                    <div className="rounded-lg border-2 border-[rgb(var(--brand-mid))] bg-green-50 p-4 shadow-md">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="font-semibold text-slate-900">Corte de cabello</div>
+                        <Check className="w-5 h-5 text-green-600" />
+                      </div>
+                      <div className="text-sm text-slate-600 space-y-1">
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          Duración: 45 minutos
+                        </div>
+                        <div className="font-semibold text-slate-900">Precio: $15.000</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 3: Completar datos */}
+              {step === 3 && (
+                <div className="flex-1">
+                  <h5 className="font-semibold text-slate-900 mb-4">Completa tus datos</h5>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-xs font-medium text-slate-700 block mb-1">Nombre</label>
+                      <div className="px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-700">
+                        Juan Pérez
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-slate-700 block mb-1">WhatsApp</label>
+                      <div className="px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-700">
+                        +56912345678
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs font-medium text-slate-700 block mb-1">Fecha</label>
+                        <div className="px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-700">
+                          28 Oct
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-slate-700 block mb-1">Hora</label>
+                        <div className="px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-700">
+                          10:00
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 4: Confirmación */}
+              {step === 4 && (
+                <div className="flex-1 flex flex-col items-center justify-center text-center">
+                  <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
+                    <Check className="w-8 h-8 text-green-600" />
+                  </div>
+                  <h5 className="text-xl font-bold text-slate-900 mb-2">¡Reserva confirmada!</h5>
+                  <p className="text-sm text-slate-600 mb-4">
+                    Juan recibirá confirmación por WhatsApp y email
+                  </p>
+                  <div className="w-full bg-slate-50 rounded-lg p-4 text-left">
+                    <div className="text-xs text-slate-600 space-y-1">
+                      <div><span className="font-medium">Servicio:</span> Corte de cabello</div>
+                      <div><span className="font-medium">Fecha:</span> 28 Oct, 10:00</div>
+                      <div><span className="font-medium">Cliente:</span> Juan Pérez</div>
+                      <div><span className="font-medium">Total:</span> $15.000</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Navigation */}
+              <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-200">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setStep(Math.max(1, step - 1))}
+                  disabled={step === 1}
+                  className="text-sm"
+                >
+                  Anterior
+                </Button>
+                {step < totalSteps ? (
+                  <Button
+                    size="sm"
+                    onClick={() => setStep(Math.min(totalSteps, step + 1))}
+                    className="bg-gradient-to-r from-[rgb(var(--brand-start))] to-[rgb(var(--brand-mid))] text-white text-sm"
+                  >
+                    Siguiente
+                    <ChevronRight className="w-4 h-4 ml-1" />
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    onClick={() => setStep(1)}
+                    variant="outline"
+                    className="text-sm"
+                  >
+                    Ver de nuevo
+                  </Button>
+                )}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Info */}
+          <p className="text-center text-sm text-slate-600 mt-6">
+            {steps[step - 1].desc}
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function HeroPremium() {
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
   const [dims, setDims] = useState({ w: 0, h: 0 });
@@ -358,125 +595,7 @@ export default function HomePage() {
       <HeroPremium />
 
       {/* Demo 30s */}
-      <section id="demo" className="relative py-14 md:py-20 scroll-mt-24 md:scroll-mt-32">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center mb-8">
-            <h3 className="text-2xl md:text-3xl font-semibold text-slate-900 mb-2">Demo en 30 segundos</h3>
-            <p className="text-slate-600">Así de simple agendan tus clientes</p>
-          </div>
-          <div className="max-w-4xl mx-auto">
-            {/* Mock fiel de la página pública de agendamiento */}
-            <div className="rounded-2xl border border-slate-200/70 bg-white/70 backdrop-blur shadow-xl overflow-hidden">
-              {/* Header */}
-              <div className="border-b border-slate-200/70 bg-white/60 backdrop-blur px-6 py-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">🪶</span>
-                  <span className="text-lg font-bold text-slate-900">{APP_NAME}</span>
-                </div>
-              </div>
-              
-              {/* Content */}
-              <div className="p-6 md:p-8">
-                {/* Professional Info */}
-                <div className="text-center mb-8">
-                  <h2 className="text-3xl font-bold text-slate-900 mb-2">María González</h2>
-                  <p className="text-slate-600">Salón de Belleza Profesional</p>
-                </div>
-
-                {/* Services Grid */}
-                <div className="mb-8">
-                  <h3 className="text-xl font-bold text-slate-900 mb-4 text-center">Servicios</h3>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="rounded-xl border border-slate-200/70 bg-white/70 p-4 hover:shadow-md transition-shadow">
-                      <h4 className="font-semibold text-slate-900 mb-2">Corte de cabello</h4>
-                      <div className="flex items-center justify-between text-sm text-slate-600">
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
-                          <span>45 min</span>
-                        </div>
-                        <span className="font-semibold text-slate-900 text-base">$15.000</span>
-                      </div>
-                    </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/70 p-4 hover:shadow-md transition-shadow">
-                      <h4 className="font-semibold text-slate-900 mb-2">Manicure completa</h4>
-                      <div className="flex items-center justify-between text-sm text-slate-600">
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
-                          <span>60 min</span>
-                        </div>
-                        <span className="font-semibold text-slate-900 text-base">$12.000</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Booking Form */}
-                <div className="rounded-xl border border-slate-200/70 bg-white/70 p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Calendar className="w-5 h-5 text-slate-700" />
-                    <h3 className="text-lg font-semibold text-slate-900">Reservar una cita</h3>
-                  </div>
-                  <p className="text-sm text-slate-600 mb-6">Completa el formulario para agendar tu cita</p>
-                  
-                  <div className="space-y-4">
-                    {/* Nombre */}
-                    <div>
-                      <label className="text-sm font-medium text-slate-700 block mb-2">Tu nombre completo</label>
-                      <div className="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-400 text-sm">
-                        Juan Pérez
-                      </div>
-                    </div>
-
-                    {/* Teléfono */}
-                    <div>
-                      <label className="text-sm font-medium text-slate-700 block mb-2">Tu teléfono (WhatsApp)</label>
-                      <div className="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-400 text-sm">
-                        +56912345678
-                      </div>
-                    </div>
-
-                    {/* Servicio */}
-                    <div>
-                      <label className="text-sm font-medium text-slate-700 block mb-2">Servicio</label>
-                      <div className="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-700 text-sm flex items-center justify-between">
-                        <span>Corte de cabello - $15.000</span>
-                        <ChevronRight className="w-4 h-4 text-slate-400" />
-                      </div>
-                    </div>
-
-                    {/* Fecha y Hora */}
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-sm font-medium text-slate-700 block mb-2">Fecha</label>
-                        <div className="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-700 text-sm">
-                          28 Oct 2025
-                        </div>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-slate-700 block mb-2">Hora</label>
-                        <div className="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-700 text-sm flex items-center justify-between">
-                          <span>10:00</span>
-                          <ChevronRight className="w-4 h-4 text-slate-400" />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Botón */}
-                    <button className="w-full bg-gradient-to-r from-[rgb(var(--brand-start))] via-[rgb(var(--brand-mid))] to-[rgb(var(--brand-end))] text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                      Confirmar Reserva
-                    </button>
-
-                    {/* Legal */}
-                    <p className="text-xs text-slate-500 text-center">
-                      Al agendar, aceptas el uso de tus datos conforme a la <span className="text-blue-600">Ley 19.628</span>.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <DemoInteractivo />
 
       {/* Diferenciales implícitos */}
       <section id="diferenciales" className="py-16 md:py-24">
