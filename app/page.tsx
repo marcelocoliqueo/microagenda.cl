@@ -31,8 +31,8 @@ const differentiators = [
   },
   {
     icon: Clock,
-    title: "Hecho para WhatsApp",
-    description: "Recordatorios inteligentes donde tus clientes realmente responden.",
+    title: "Hecho para móviles",
+    description: "Diseño responsive. Tus clientes agendan desde cualquier dispositivo.",
   },
   {
     icon: TrendingUp,
@@ -65,9 +65,9 @@ const planBenefits = [
     description: "Elige entre confirmación automática o manual. Tú decides si quieres control total o automatización completa.",
   },
   {
-    icon: "💬",
-    title: "Recordatorios por WhatsApp",
-    description: "Envío automático de recordatorios para reducir inasistencias. Mensajes personalizables con nombre, hora y servicio.",
+    icon: "📧",
+    title: "Recordatorios por Email",
+    description: "Envío automático de recordatorios por email para reducir inasistencias. Mensajes personalizables con nombre, hora y servicio.",
   },
   {
     icon: "📧",
@@ -314,9 +314,9 @@ function DemoInteractivo() {
                       </div>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-slate-700 block mb-1">WhatsApp</label>
+                      <label className="text-xs font-medium text-slate-700 block mb-1">Email</label>
                       <div className="px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-700">
-                        +56912345678
+                        juan@email.com
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
@@ -345,7 +345,7 @@ function DemoInteractivo() {
                   </div>
                   <h5 className="text-xl font-bold text-slate-900 mb-2">¡Reserva confirmada!</h5>
                   <p className="text-sm text-slate-600 mb-4">
-                    Juan recibirá confirmación por WhatsApp y email
+                    Juan recibirá confirmación por email
                   </p>
                   <div className="w-full bg-slate-50 rounded-lg p-4 text-left">
                     <div className="text-xs text-slate-600 space-y-1">
@@ -549,7 +549,7 @@ function HeroPremium() {
                     <div className="absolute top-4 left-1/2 -translate-x-1/2 w-28 h-8 bg-slate-950 rounded-full z-10 flex items-center justify-center gap-2 shadow-lg">
                       <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
                       <div className="w-1.5 h-1.5 rounded-full bg-slate-700" />
-                    </div>
+                </div>
                     
                     {/* Status bar */}
                     <div className="h-14 pt-3 px-8 flex items-center justify-between text-[10px] text-slate-700 font-semibold">
@@ -565,8 +565,8 @@ function HeroPremium() {
                           <rect x="1" y="1" width="18" height="10" rx="2"/>
                           <rect x="20" y="4" width="3" height="4" rx="1"/>
                         </svg>
-                      </div>
-                    </div>
+              </div>
+            </div>
 
                     {/* Content */}
                     <div className="px-5 pb-4">
@@ -687,11 +687,11 @@ function HeroPremium() {
                       <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
                         <div className="text-[9px] text-slate-500 mb-0.5">Total</div>
                         <div className="text-base font-bold text-slate-900">24</div>
-                      </div>
+                    </div>
                       <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
                         <div className="text-[9px] text-slate-500 mb-0.5">Confirm.</div>
                         <div className="text-base font-bold text-emerald-600">18</div>
-                      </div>
+                    </div>
                       <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
                         <div className="text-[9px] text-slate-500 mb-0.5">Pend.</div>
                         <div className="text-base font-bold text-yellow-600">3</div>
@@ -814,19 +814,19 @@ export default function HomePage() {
                   <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap">
                     <span className="text-3xl">💇‍♀️</span>
                     <span className="font-semibold text-slate-900">Peluquerías</span>
-                  </div>
+                </div>
                   <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap">
                     <span className="text-3xl">✂️</span>
                     <span className="font-semibold text-slate-900">Barberías</span>
-                  </div>
+                </div>
                   <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap">
                     <span className="text-3xl">💅</span>
                     <span className="font-semibold text-slate-900">Salones de Belleza</span>
-                  </div>
+              </div>
                   <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap">
                     <span className="text-3xl">🧠</span>
                     <span className="font-semibold text-slate-900">Psicólogos</span>
-                  </div>
+            </div>
                   <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap">
                     <span className="text-3xl">💆</span>
                     <span className="font-semibold text-slate-900">Kinesiólogos</span>
@@ -846,7 +846,7 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-          </div>
+            </div>
         </div>
       </section>
 
@@ -1026,13 +1026,13 @@ export default function HomePage() {
                       </div>
                       <div className="flex flex-col gap-2 mt-2">
                         <div className="flex items-center gap-2 text-slate-500">
-                          <span>Sin permanencia · Cancela cuando quieras</span>
-                          <div className="group relative">
-                            <Info className="w-4 h-4 text-slate-400" />
-                            <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 mt-2 w-48 rounded-md border border-slate-200 bg-white/95 backdrop-blur px-3 py-2 text-xs text-slate-700 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                              Precio final con IVA incluido. Sin cargos ocultos ni comisiones adicionales.
-                            </div>
+                        <span>Sin permanencia · Cancela cuando quieras</span>
+                        <div className="group relative">
+                          <Info className="w-4 h-4 text-slate-400" />
+                          <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 mt-2 w-48 rounded-md border border-slate-200 bg-white/95 backdrop-blur px-3 py-2 text-xs text-slate-700 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                            Precio final con IVA incluido. Sin cargos ocultos ni comisiones adicionales.
                           </div>
+                        </div>
                         </div>
                         <p className="text-sm text-slate-600 font-medium">
                           💰 Ahorra hasta 40% vs otras agendas
@@ -1137,7 +1137,7 @@ export default function HomePage() {
                 <div className="text-2xl">💬</div>
                 <div>
                   <div className="font-medium text-slate-900">Recordatorios ilimitados</div>
-                  <div className="text-sm text-slate-600">WhatsApp incluido</div>
+                  <div className="text-sm text-slate-600">Por email incluido</div>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-lg">

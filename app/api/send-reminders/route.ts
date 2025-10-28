@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 import { sendEmail, getAppointmentReminderEmail } from "@/lib/resendClient";
-import {
-  sendWhatsAppMessage,
-  getAppointmentReminderMessage,
-} from "@/lib/whatsappClient";
 import { formatDate, formatTime } from "@/lib/utils";
 
 // Este endpoint puede ser llamado por un cron job (ej: Vercel Cron)
@@ -67,16 +63,14 @@ export async function POST(request: NextRequest) {
           businessName,
         };
 
-        // Enviar email (si hay email disponible - agregar campo si es necesario)
-        // Por ahora solo WhatsApp
+        // Enviar email (recordatorio principal)
+        const emailResult = await sendEmail({
+          to: appointment.client_phone, // Temporal: usar campo email cuando esté disponible en BD
+          subject: `Recordatorio: ${reminderData.serviceName} - ${reminderData.date}`,
+          html: getAppointmentReminderEmail(reminderData),
+        });
 
-        // Enviar WhatsApp
-        const whatsappResult = await sendWhatsAppMessage(
-          appointment.client_phone,
-          getAppointmentReminderMessage(reminderData)
-        );
-
-        if (whatsappResult.success) {
+        if (emailResult.success) {
           sentCount++;
         } else {
           errorCount++;
