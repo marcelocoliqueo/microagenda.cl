@@ -931,23 +931,23 @@ export default function HomePage() {
                     <ul className="space-y-2 text-sm text-slate-600">
                       <li className="flex items-start gap-2">
                         <span className="mt-0.5">•</span>
-                        <span>Precios desde $15.000/mes + comisiones</span>
+                        <span>Planes desde $15.000/mes</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="mt-0.5">•</span>
-                        <span>Diseñadas para salones grandes</span>
+                        <span>Configuración con múltiples pasos</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="mt-0.5">•</span>
-                        <span>Soporte en inglés o chatbot</span>
+                        <span>Funciones más complejas de lo necesario</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="mt-0.5">•</span>
-                        <span>Curva de aprendizaje alta</span>
+                        <span>WhatsApp requiere configuración extra</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="mt-0.5">•</span>
-                        <span>Cobran extra por WhatsApp</span>
+                        <span>Múltiples tarifas según uso</span>
                       </li>
                     </ul>
                   </CardContent>
@@ -963,23 +963,23 @@ export default function HomePage() {
                     <ul className="space-y-2 text-sm text-slate-600">
                       <li className="flex items-start gap-2">
                         <span className="mt-0.5">•</span>
-                        <span>$8.500/mes, todo incluido, sin comisiones</span>
+                        <span><strong>$8.500/mes</strong>, todo incluido</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="mt-0.5">•</span>
-                        <span>Hecha para profesionales independientes</span>
+                        <span>Configuración instantánea en 5 minutos</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="mt-0.5">•</span>
-                        <span>Soporte en español, respuesta real</span>
+                        <span>Solo las funciones que realmente necesitas</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="mt-0.5">•</span>
-                        <span>Configuración en 5 minutos</span>
+                        <span>Soporte directo y en tu idioma</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="mt-0.5">•</span>
-                        <span>WhatsApp ilimitado incluido</span>
+                        <span>Precio fijo, sin sorpresas ni extras</span>
                       </li>
                     </ul>
                   </CardContent>
