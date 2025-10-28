@@ -6,7 +6,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-green?logo=supabase)](https://supabase.com)
 
-Sistema de agendamiento profesional para profesionales independientes (manicuristas, barberos, masajistas, psicólogos, tatuadores, etc.) que gestionan sus citas por WhatsApp.
+Sistema de agendamiento profesional para profesionales independientes (manicuristas, barberos, masajistas, psicólogos, tatuadores, etc.) con recordatorios automáticos por email.
 
 **Estado:** ✅ Producción Ready | **Versión:** 2.0.0 | **Repositorio:** [github.com/marcelocoliqueo/microagenda.cl](https://github.com/marcelocoliqueo/microagenda.cl)
 
@@ -14,7 +14,7 @@ Sistema de agendamiento profesional para profesionales independientes (manicuris
 
 - **Agenda Online**: Recibe reservas 24/7 desde cualquier dispositivo
 - **Confirmación Flexible**: Elige entre confirmación automática o manual para tener control total
-- **Recordatorios WhatsApp**: Reduce inasistencias con recordatorios automáticos
+- **Recordatorios por Email**: Reduce inasistencias con recordatorios automáticos por email
 - **Notificaciones Email**: Mantén informados a tus clientes por correo
 - **Estadísticas**: Visualiza el crecimiento de tu negocio
 - **Cumplimiento Legal**: Conforme a la Ley 19.628 de Protección de Datos Personales (Chile)
@@ -26,7 +26,7 @@ Sistema de agendamiento profesional para profesionales independientes (manicuris
 - **Backend/DB**: Supabase (PostgreSQL + Auth + Realtime)
 - **Emails**: Resend
 - **Pagos**: MercadoPago (Chile, Sandbox)
-- **Notificaciones**: WhatsApp Cloud API
+- **Notificaciones**: Resend (Email, opcional WhatsApp)
 - **Hosting**: Vercel
 
 ## Requisitos Previos
@@ -35,7 +35,7 @@ Sistema de agendamiento profesional para profesionales independientes (manicuris
 - Cuenta en Supabase
 - Cuenta en Resend (para emails)
 - Cuenta en MercadoPago Developer (modo sandbox)
-- (Opcional) WhatsApp Business API
+- (Opcional) WhatsApp Business API para recordatorios adicionales
 
 ## Instalación y Configuración
 
