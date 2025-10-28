@@ -72,13 +72,17 @@ export default function RegisterPage() {
           // No lanzamos error aquí porque el perfil ya existe
         }
 
+        // Wait a bit for session to establish
+        await new Promise(resolve => setTimeout(resolve, 500));
+
         toast({
           title: "¡Cuenta creada!",
-          description: "Tu cuenta ha sido creada exitosamente",
+          description: "Redirigiendo al dashboard...",
         });
 
         // Redirect to dashboard
         router.push("/dashboard");
+        router.refresh(); // Force refresh to get session
       }
     } catch (error: any) {
       console.error("Registration error:", error);
