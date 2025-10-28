@@ -72,17 +72,26 @@ export default function RegisterPage() {
           // No lanzamos error aquí porque el perfil ya existe
         }
 
-        // Wait a bit for session to establish
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Check if email confirmation is required
+        const isEmailConfirmed = authData.user.email_confirmed_at !== null;
 
         toast({
-          title: "¡Cuenta creada!",
-          description: "Redirigiendo al dashboard...",
+          title: isEmailConfirmed ? "¡Cuenta creada!" : "¡Revise su email!",
+          description: isEmailConfirmed 
+            ? "Redirigiendo al dashboard..." 
+            : "Le enviamos un enlace de confirmación",
         });
 
-        // Redirect to dashboard
-        router.push("/dashboard");
-        router.refresh(); // Force refresh to get session
+        // Redirect based on email confirmation status
+        if (isEmailConfirmed) {
+          // Email already confirmed (shouldn't happen on new registration, but handle it)
+          await new Promise(resolve => setTimeout(resolve, 500));
+          router.push("/dashboard");
+          router.refresh();
+        } else {
+          // Email needs confirmation
+          router.push("/verify-email");
+        }
       }
     } catch (error: any) {
       console.error("Registration error:", error);
