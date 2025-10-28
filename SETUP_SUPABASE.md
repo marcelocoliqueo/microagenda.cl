@@ -77,7 +77,10 @@ Esto permitirá que el dashboard se actualice automáticamente cuando hay cambio
 
 1. Ve a **Authentication** → **Providers**
 2. Asegúrate que **Email** esté habilitado (debería estar por defecto)
-3. En **Email Templates**, personaliza si quieres:
+3. ⚠️ **IMPORTANTE**: Ve a **Authentication** → **Settings**
+4. Desmarca **"Enable email confirmations"** para permitir login inmediato
+5. Esto evita que usuarios tengan que confirmar email antes de usar la app
+6. En **Email Templates**, personaliza si quieres (opcional):
    - **Confirm signup**: Email de confirmación
    - **Magic Link**: Link mágico de inicio de sesión
 
