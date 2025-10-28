@@ -61,6 +61,7 @@ const planBenefits = [
   {
     icon: "✅",
     title: "Confirmación Flexible",
+    badge: "ÚNICO",
     description: "Elige entre confirmación automática o manual. Tú decides si quieres control total o automatización completa.",
   },
   {
@@ -497,7 +498,7 @@ function HeroPremium() {
                 Gestiona reservas con una experiencia a la altura de tu marca
               </h1>
               <p className="text-base sm:text-base md:text-xl text-slate-600 mb-6 md:mb-10 max-w-2xl md:max-w-none mx-auto md:mx-0 leading-relaxed">
-                Un solo plan. Reservas 24/7, confirmaciones y recordatorios inteligentes; todo sin esfuerzo.
+                La alternativa simple a las agendas complicadas y caras. 40% más barato · 100% más fácil. Todo sin esfuerzo.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center md:justify-start items-stretch sm:items-center mb-5 sm:mb-4 w-full sm:w-auto">
@@ -900,6 +901,95 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Por qué MicroAgenda - Comparación */}
+      <section className="py-16 md:py-20 bg-gradient-to-b from-white to-slate-50/30">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 mb-3">
+                ¿Por qué MicroAgenda?
+              </h2>
+              <p className="text-base md:text-lg text-slate-600 max-w-2xl mx-auto">
+                La alternativa simple para profesionales independientes
+              </p>
+            </div>
+
+            <div className="max-w-4xl mx-auto">
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Otros */}
+                <Card className="border-2 border-slate-200/70 bg-white/70">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="text-xl">❌</div>
+                      <h3 className="font-semibold text-slate-900">Otras agendas</h3>
+                    </div>
+                    <ul className="space-y-2 text-sm text-slate-600">
+                      <li className="flex items-start gap-2">
+                        <span className="mt-0.5">•</span>
+                        <span>Precios desde $15.000/mes + comisiones</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="mt-0.5">•</span>
+                        <span>Diseñadas para salones grandes</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="mt-0.5">•</span>
+                        <span>Soporte en inglés o chatbot</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="mt-0.5">•</span>
+                        <span>Curva de aprendizaje alta</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="mt-0.5">•</span>
+                        <span>Cobran extra por WhatsApp</span>
+                      </li>
+                    </ul>
+                  </CardContent>
+                </Card>
+
+                {/* Nosotros */}
+                <Card className="border-2 border-[rgb(var(--brand-mid))]/40 bg-gradient-to-br from-white to-[rgb(var(--brand-start))]/5">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="text-xl">✅</div>
+                      <h3 className="font-semibold text-slate-900">MicroAgenda</h3>
+                    </div>
+                    <ul className="space-y-2 text-sm text-slate-600">
+                      <li className="flex items-start gap-2">
+                        <span className="mt-0.5">•</span>
+                        <span>$8.500/mes, todo incluido, sin comisiones</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="mt-0.5">•</span>
+                        <span>Hecha para profesionales independientes</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="mt-0.5">•</span>
+                        <span>Soporte en español, respuesta real</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="mt-0.5">•</span>
+                        <span>Configuración en 5 minutos</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="mt-0.5">•</span>
+                        <span>WhatsApp ilimitado incluido</span>
+                      </li>
+                    </ul>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Plan único: glass pricing */}
       <section className="relative py-16 md:py-28">
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-white via-primary/5 to-white" />
@@ -934,14 +1024,19 @@ export default function HomePage() {
                       </span>
                       <span className="text-xl text-slate-600">/ mes</span>
                       </div>
-                      <div className="flex items-center gap-2 text-slate-500 mt-2">
-                        <span>Sin permanencia · Cancela cuando quieras</span>
-                        <div className="group relative">
-                          <Info className="w-4 h-4 text-slate-400" />
-                          <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 mt-2 w-48 rounded-md border border-slate-200 bg-white/95 backdrop-blur px-3 py-2 text-xs text-slate-700 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                            Precio final con IVA incluido. Sin cargos ocultos ni comisiones adicionales.
+                      <div className="flex flex-col gap-2 mt-2">
+                        <div className="flex items-center gap-2 text-slate-500">
+                          <span>Sin permanencia · Cancela cuando quieras</span>
+                          <div className="group relative">
+                            <Info className="w-4 h-4 text-slate-400" />
+                            <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 mt-2 w-48 rounded-md border border-slate-200 bg-white/95 backdrop-blur px-3 py-2 text-xs text-slate-700 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                              Precio final con IVA incluido. Sin cargos ocultos ni comisiones adicionales.
+                            </div>
                           </div>
                         </div>
+                        <p className="text-sm text-slate-600 font-medium">
+                          💰 Ahorra hasta 40% vs otras agendas
+                        </p>
                       </div>
                     </div>
                     <Link href="/register" className="block md:min-w-[240px]">
@@ -970,7 +1065,14 @@ export default function HomePage() {
                           {benefit.icon}
                         </div>
                         <div className="flex-1">
-                          <h4 className="font-semibold text-slate-900 mb-1">{benefit.title}</h4>
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="font-semibold text-slate-900">{benefit.title}</h4>
+                            {benefit.badge && (
+                              <span className="text-[10px] font-bold px-2 py-0.5 bg-gradient-to-r from-[rgb(var(--brand-start))] to-[rgb(var(--brand-mid))] text-white rounded-full">
+                                {benefit.badge}
+                              </span>
+                            )}
+                          </div>
                           <p className="text-sm text-slate-600 leading-relaxed">{benefit.description}</p>
                         </div>
                       </motion.li>
@@ -978,6 +1080,73 @@ export default function HomePage() {
                   </ul>
                 </CardContent>
               </Card>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Qué incluye 1 cuenta */}
+      <section className="py-12 md:py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="max-w-3xl mx-auto"
+          >
+            <div className="text-center mb-8">
+              <h3 className="text-2xl md:text-3xl font-semibold text-slate-900 mb-2">
+                ¿Qué incluye 1 cuenta?
+              </h3>
+              <p className="text-sm text-slate-600">
+                Todo lo que necesitas para gestionar tu negocio
+              </p>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-lg">
+                <div className="text-2xl">👤</div>
+                <div>
+                  <div className="font-medium text-slate-900">1 profesional</div>
+                  <div className="text-sm text-slate-600">Tu cuenta personal</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-lg">
+                <div className="text-2xl">📋</div>
+                <div>
+                  <div className="font-medium text-slate-900">Servicios ilimitados</div>
+                  <div className="text-sm text-slate-600">Agrega todos los que necesites</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-lg">
+                <div className="text-2xl">🗓️</div>
+                <div>
+                  <div className="font-medium text-slate-900">Citas ilimitadas</div>
+                  <div className="text-sm text-slate-600">Sin restricciones mensuales</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-lg">
+                <div className="text-2xl">👥</div>
+                <div>
+                  <div className="font-medium text-slate-900">Clientes ilimitados</div>
+                  <div className="text-sm text-slate-600">Base de datos completa</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-lg">
+                <div className="text-2xl">💬</div>
+                <div>
+                  <div className="font-medium text-slate-900">Recordatorios ilimitados</div>
+                  <div className="text-sm text-slate-600">WhatsApp incluido</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-lg">
+                <div className="text-2xl">💰</div>
+                <div>
+                  <div className="font-medium text-slate-900">0% comisiones</div>
+                  <div className="text-sm text-slate-600">Solo pagas el plan</div>
+                </div>
+              </div>
             </div>
           </motion.div>
         </div>
