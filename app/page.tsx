@@ -518,7 +518,7 @@ function HeroPremium() {
                     variant="outline"
                     className="w-full border-2 border-[rgb(var(--brand-mid))]/40 hover:border-[rgb(var(--brand-mid))] text-slate-800 px-8 py-5 sm:py-6 text-lg sm:text-lg font-medium rounded-[14px]"
                   >
-                    Ver demo en 30s
+                    Ver demo
                   </Button>
                 </Link>
               </div>
@@ -780,7 +780,7 @@ export default function HomePage() {
             </Link>
             <div className="flex items-center gap-2 sm:gap-3">
               <Link href="/login">
-                <Button variant="ghost" className="hidden sm:inline-flex text-slate-700 hover:text-primary">
+                <Button variant="outline" className="hidden sm:inline-flex border-2 border-[rgb(var(--brand-mid))]/40 hover:border-[rgb(var(--brand-mid))] text-slate-800 px-4 sm:px-6 font-medium rounded-[14px]">
                   Iniciar Sesión
                 </Button>
               </Link>
