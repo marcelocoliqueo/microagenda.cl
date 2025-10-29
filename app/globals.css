@@ -8,6 +8,10 @@
     --brand-start: 16 185 129; /* #10B981 */
     --brand-mid: 34 197 94;  /* #22C55E */
     --brand-end: 132 204 22; /* #84CC16 */
+    
+    /* Theme colors (dynamically updated by ThemeContext) */
+    --color-primary: #10B981; /* Default emerald */
+    --color-accent: #84CC16;  /* Default lime */
   }
 
   * {

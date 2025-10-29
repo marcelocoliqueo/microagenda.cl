@@ -266,50 +266,32 @@ export default function DashboardPage() {
     .reduce((sum, a) => sum + (a.service?.price || 0), 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
-      {/* Premium Header with Glassmorphism */}
-      <header className="sticky top-0 z-50 border-b border-slate-200/50 bg-white/80 backdrop-blur-xl shadow-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="flex items-center gap-4"
-            >
-              <div className="flex items-center gap-3">
-                <img 
-                  src="/logo.png" 
-                  alt={APP_NAME}
-                  className="h-10 w-10 object-contain"
-                />
-                <div>
-                  <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                    {APP_NAME}
-                  </h1>
-                  {profile && (
-                    <p className="text-xs text-slate-600">
-                      Hola, <span className="font-semibold text-slate-900">{profile.name}</span>
-                    </p>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="flex items-center gap-2"
-            >
-              <Button variant="outline" size="sm" onClick={handleLogout}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Salir
-              </Button>
-            </motion.div>
-          </div>
+    <div className="min-h-screen">
+      {/* User Welcome Header */}
+      <div className="border-b border-slate-200/70 bg-white/80 backdrop-blur-sm">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 max-w-7xl">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center justify-between"
+          >
+            <div>
+              <h2 className="text-2xl font-bold text-slate-900">
+                ¡Hola, {profile?.name || "Usuario"}! 👋
+              </h2>
+              <p className="text-slate-600 text-sm mt-1">
+                Así va tu negocio hoy
+              </p>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleLogout}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Salir
+            </Button>
+          </motion.div>
         </div>
-      </header>
+      </div>
 
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
         {/* Premium Subscription Banner */}
         {profile && profile.subscription_status !== "active" && (
           <motion.div
@@ -327,10 +309,12 @@ export default function DashboardPage() {
                     </div>
                     <div>
                       <h3 className="font-bold text-lg mb-1">
-                        {profile.subscription_status === "trial" ? "🎉 Prueba Gratuita Activa" : "⚠️ Suscripción Inactiva"}
+                        {profile.subscription_status === "trial" ? "🎉 Prueba Gratuita de 3 Días Activa" : "⚠️ Suscripción Inactiva"}
                       </h3>
                       <p className="text-sm text-slate-600 mb-2">
-                        Activa tu plan por solo {formatCurrency(PLAN_PRICE)}/mes y desbloquea todo el potencial
+                        {profile.subscription_status === "trial" 
+                          ? "Disfruta de todas las funciones premium durante 3 días. Luego solo " + formatCurrency(PLAN_PRICE) + "/mes"
+                          : "Activa tu plan por solo " + formatCurrency(PLAN_PRICE) + "/mes y desbloquea todo el potencial"}
                       </p>
                       <div className="flex flex-wrap gap-2">
                         <span className="text-xs px-2 py-1 bg-white rounded-full text-slate-700 font-medium">✓ Citas ilimitadas</span>

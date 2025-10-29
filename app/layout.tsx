@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthHandler } from "@/components/AuthHandler";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { APP_NAME, APP_DESCRIPTION } from "@/lib/constants";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -54,9 +55,11 @@ export default function RootLayout({
   return (
     <html lang="es" className="overflow-x-hidden">
       <body className={`${inter.variable} font-sans`}>
-        <AuthHandler />
-        {children}
-        <Toaster />
+        <ThemeProvider>
+          <AuthHandler />
+          {children}
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
