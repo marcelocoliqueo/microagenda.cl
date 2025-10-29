@@ -63,7 +63,7 @@ export function useRealtime(
     isSettingUpRef.current = false;
 
     // Definir setupRealtimeSubscription dentro del useEffect para evitar problemas de closure
-    const setupRealtimeSubscription = () => {
+    const setupRealtimeSubscription = async () => {
       // Prevenir múltiples setups simultáneos
       if (!isMountedRef.current || !userId || isSettingUpRef.current) {
         return;
@@ -88,6 +88,15 @@ export function useRealtime(
       }
 
       try {
+        // Verificar que hay una sesión activa antes de suscribirse
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          console.warn(`⚠️ No hay sesión activa, Realtime para ${table} no se conectará`);
+          setIsConnected(false);
+          isSettingUpRef.current = false;
+          return;
+        }
+
         const channel = supabase
           .channel(`${table}_changes_${userId}`, {
             config: {
@@ -110,58 +119,82 @@ export function useRealtime(
               }
             }
           )
-          .subscribe((status) => {
+          .subscribe((status, err) => {
             if (!isMountedRef.current) return;
             
             if (status === 'SUBSCRIBED') {
               setIsConnected(true);
-              retryCountRef.current = 0; // Reset contador de reintentos en éxito
+              retryCountRef.current = 0;
               lastErrorRef.current = 0;
               isSettingUpRef.current = false;
               
-              if (process.env.NODE_ENV === 'development') {
-                console.log(`✅ Realtime conectado para ${table}`);
-              }
-            } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+              console.log(`✅ Realtime conectado para ${table}`);
+            } else if (status === 'CHANNEL_ERROR') {
               setIsConnected(false);
-              isSettingUpRef.current = false; // Permitir reintentos
+              isSettingUpRef.current = false;
+              
+              // Mostrar error útil para debugging
+              console.error(`❌ Error en Realtime para ${table}:`, err || 'Error desconocido');
               
               const now = Date.now();
-              
-              // Solo reintentar si ha pasado suficiente tiempo desde el último error
-              // Esto evita acumulación de errores
-              if (now - lastErrorRef.current > 5000) { // 5 segundos entre reintentos
+              if (now - lastErrorRef.current > 5000) {
                 lastErrorRef.current = now;
                 retryCountRef.current++;
                 
-                // Backoff exponencial: 2s, 4s, 8s, 16s, 32s, máximo 60s
                 const delay = Math.min(2000 * Math.pow(2, retryCountRef.current - 1), 60000);
                 
-                if (retryCountRef.current <= 5) { // Máximo 5 reintentos rápidos
+                if (retryCountRef.current <= 5) {
+                  console.log(`🔄 Reintentando conexión Realtime para ${table} en ${delay}ms (intento ${retryCountRef.current})`);
                   retryTimeoutRef.current = setTimeout(() => {
                     if (isMountedRef.current && !isSettingUpRef.current && userId) {
                       setupRealtimeSubscription();
                     }
                   }, delay);
                 } else {
-                  // Después de 5 intentos, solo reintenta cada 2 minutos
+                  console.warn(`⚠️ Múltiples fallos en Realtime para ${table}. Reintentando cada 2 minutos.`);
                   retryTimeoutRef.current = setTimeout(() => {
-                    retryCountRef.current = 0; // Reset contador para empezar de nuevo
+                    retryCountRef.current = 0;
                     if (isMountedRef.current && !isSettingUpRef.current && userId) {
                       setupRealtimeSubscription();
                     }
-                  }, 120000); // 2 minutos
+                  }, 120000);
                 }
+              }
+            } else if (status === 'TIMED_OUT' || status === 'CLOSED') {
+              setIsConnected(false);
+              isSettingUpRef.current = false;
+              
+              console.warn(`⚠️ Realtime ${status.toLowerCase()} para ${table}. Intentando reconectar...`);
+              
+              const now = Date.now();
+              if (now - lastErrorRef.current > 5000) {
+                lastErrorRef.current = now;
+                retryTimeoutRef.current = setTimeout(() => {
+                  if (isMountedRef.current && !isSettingUpRef.current && userId) {
+                    setupRealtimeSubscription();
+                  }
+                }, 2000);
               }
             }
           });
 
         channelRef.current = channel;
-        isSettingUpRef.current = false; // Setup completado
+        isSettingUpRef.current = false;
       } catch (error: any) {
         setIsConnected(false);
-        isSettingUpRef.current = false; // Permitir reintentos
-        // Error silenciado - el hook manejará los reintentos automáticamente
+        isSettingUpRef.current = false;
+        console.error(`❌ Error al configurar Realtime para ${table}:`, error.message || error);
+        
+        // Reintentar después de un delay
+        const now = Date.now();
+        if (now - lastErrorRef.current > 5000) {
+          lastErrorRef.current = now;
+          retryTimeoutRef.current = setTimeout(() => {
+            if (isMountedRef.current && !isSettingUpRef.current && userId) {
+              setupRealtimeSubscription();
+            }
+          }, 3000);
+        }
       }
     };
 

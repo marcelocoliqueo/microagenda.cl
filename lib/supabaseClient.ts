@@ -7,12 +7,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn("⚠️ Missing Supabase environment variables. Please configure .env.local");
 }
 
-// Configuración de Realtime para mejor manejo de errores
+// Configuración de Realtime optimizada para conexiones estables
 const realtimeOptions: SupabaseClientOptions<"public">["realtime"] = {
   params: {
-    eventsPerSecond: 10, // Límite de eventos por segundo
+    eventsPerSecond: 10,
   },
-  // Configuración para manejar mejor los errores de conexión
+  // Habilitar logging para debugging (solo en desarrollo)
   log_level: process.env.NODE_ENV === 'development' ? 'info' : 'error',
 };
 
@@ -22,9 +22,10 @@ export const supabase = createClient(
   supabaseAnonKey || "placeholder-key",
   {
     realtime: realtimeOptions,
-    // Configuración adicional para mejorar estabilidad
-    global: {
-      headers: {},
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
     },
   }
 );
