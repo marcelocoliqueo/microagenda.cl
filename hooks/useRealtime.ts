@@ -11,16 +11,32 @@ export function useRealtime(
 ) {
   const channelRef = useRef<RealtimeChannel | null>(null);
   const isMountedRef = useRef(true);
+  const onUpdateRef = useRef(onUpdate);
+
+  // Actualizar la referencia de la función sin causar re-suscripciones
+  useEffect(() => {
+    onUpdateRef.current = onUpdate;
+  }, [onUpdate]);
 
   useEffect(() => {
     if (!userId) return;
 
     isMountedRef.current = true;
 
+    // Limpiar canal anterior si existe
+    if (channelRef.current) {
+      try {
+        supabase.removeChannel(channelRef.current);
+      } catch (error) {
+        // Ignorar errores al limpiar
+      }
+      channelRef.current = null;
+    }
+
     const setupRealtimeSubscription = () => {
       try {
         const channel = supabase
-          .channel(`${table}_changes_${Date.now()}`)
+          .channel(`${table}_changes_${userId}`)
           .on(
             "postgres_changes",
             {
@@ -31,7 +47,7 @@ export function useRealtime(
             },
             () => {
               if (isMountedRef.current) {
-                onUpdate();
+                onUpdateRef.current();
               }
             }
           )
@@ -55,7 +71,7 @@ export function useRealtime(
     };
 
     // Usar setTimeout para evitar errores de WebSocket en el render inicial
-    const timeoutId = setTimeout(setupRealtimeSubscription, 0);
+    const timeoutId = setTimeout(setupRealtimeSubscription, 100);
 
     return () => {
       clearTimeout(timeoutId);
@@ -70,5 +86,5 @@ export function useRealtime(
         channelRef.current = null;
       }
     };
-  }, [table, userId, onUpdate]);
+  }, [table, userId]); // Removido onUpdate de las dependencias
 }

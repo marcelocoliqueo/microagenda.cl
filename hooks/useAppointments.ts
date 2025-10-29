@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase, type Appointment } from "@/lib/supabaseClient";
 
 export function useAppointments(userId: string | null) {
@@ -6,16 +6,12 @@ export function useAppointments(userId: string | null) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchAppointments = useCallback(async () => {
     if (!userId) {
       setLoading(false);
       return;
     }
-
-    fetchAppointments();
-  }, [userId]);
-
-  async function fetchAppointments() {
+    
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -24,7 +20,7 @@ export function useAppointments(userId: string | null) {
           *,
           service:services(*)
         `)
-        .eq("user_id", userId!)
+        .eq("user_id", userId)
         .order("date", { ascending: true })
         .order("time", { ascending: true });
 
@@ -35,7 +31,11 @@ export function useAppointments(userId: string | null) {
     } finally {
       setLoading(false);
     }
-  }
+  }, [userId]);
+
+  useEffect(() => {
+    fetchAppointments();
+  }, [fetchAppointments]);
 
   async function createAppointment(appointment: Omit<Appointment, "id" | "created_at">) {
     try {
