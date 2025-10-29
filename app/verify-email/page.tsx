@@ -19,7 +19,7 @@ export default function VerifyEmailPage() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex flex-col items-center gap-3 group">
             <img 
-              src="/logo.svg" 
+              src="/logo.png" 
               alt={`${APP_NAME} Logo`}
               className="h-16 w-16 object-contain group-hover:scale-110 transition-transform"
             />

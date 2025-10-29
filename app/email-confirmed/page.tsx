@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
+import { APP_NAME } from "@/lib/constants";
 
 export default function EmailConfirmedPage() {
   const router = useRouter();
@@ -45,13 +47,32 @@ export default function EmailConfirmedPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[rgb(var(--brand-start))]/5 via-white to-white flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
-            <Loader2 className="w-12 h-12 text-[rgb(var(--brand-mid))] animate-spin" />
-            <h2 className="text-xl font-semibold text-slate-900">Verificando tu email...</h2>
-            <p className="text-sm text-slate-600">Un momento por favor</p>
-          </CardContent>
-        </Card>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md"
+        >
+          <div className="text-center mb-8">
+            <Link href="/" className="inline-flex flex-col items-center gap-3">
+              <img 
+                src="/logo.png" 
+                alt={`${APP_NAME} Logo`}
+                className="h-16 w-16 object-contain"
+              />
+              <span className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                {APP_NAME}
+              </span>
+            </Link>
+          </div>
+          <Card className="w-full max-w-md">
+            <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
+              <Loader2 className="w-12 h-12 text-[rgb(var(--brand-mid))] animate-spin" />
+              <h2 className="text-xl font-semibold text-slate-900">Verificando tu email...</h2>
+              <p className="text-sm text-slate-600">Un momento por favor</p>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
     );
   }
@@ -59,16 +80,35 @@ export default function EmailConfirmedPage() {
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[rgb(var(--brand-start))]/5 via-white to-white flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardContent className="p-8">
-            <div className="text-center space-y-4">
-              <p className="text-red-600">{error}</p>
-              <Button onClick={() => router.push("/login")} className="w-full">
-                Ir al inicio de sesión
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md"
+        >
+          <div className="text-center mb-8">
+            <Link href="/" className="inline-flex flex-col items-center gap-3">
+              <img 
+                src="/logo.png" 
+                alt={`${APP_NAME} Logo`}
+                className="h-16 w-16 object-contain"
+              />
+              <span className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                {APP_NAME}
+              </span>
+            </Link>
+          </div>
+          <Card className="w-full max-w-md">
+            <CardContent className="p-8">
+              <div className="text-center space-y-4">
+                <p className="text-red-600">{error}</p>
+                <Button onClick={() => router.push("/login")} className="w-full">
+                  Ir al inicio de sesión
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
     );
   }
@@ -81,6 +121,18 @@ export default function EmailConfirmedPage() {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
+        <div className="text-center mb-8">
+          <Link href="/" className="inline-flex flex-col items-center gap-3">
+            <img 
+              src="/logo.png" 
+              alt={`${APP_NAME} Logo`}
+              className="h-16 w-16 object-contain"
+            />
+            <span className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              {APP_NAME}
+            </span>
+          </Link>
+        </div>
         <Card>
           <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
             <div className="w-16 h-16 rounded-full bg-[rgb(var(--brand-start))]/10 flex items-center justify-center">
