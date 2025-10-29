@@ -3,9 +3,19 @@ import { supabase } from "@/lib/supabaseClient";
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
+  
+  // Supabase puede enviar el token en hash fragment o query params
   const code = requestUrl.searchParams.get("code");
-  const next = requestUrl.searchParams.get("next") || "/email-confirmed";
+  const accessToken = requestUrl.hash ? new URLSearchParams(requestUrl.hash.substring(1)).get("access_token") : null;
+  const next = requestUrl.searchParams.get("next") || "/dashboard";
 
+  // Si hay access_token en el hash (confirmación de email)
+  if (accessToken) {
+    // Redirigir al dashboard con el hash para que el cliente maneje la sesión
+    return NextResponse.redirect(new URL("/dashboard" + requestUrl.hash, requestUrl.origin));
+  }
+
+  // Si hay code (flow normal)
   if (code) {
     try {
       // Exchange code for session
@@ -16,7 +26,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.redirect(new URL("/login?error=auth_error", requestUrl.origin));
       }
 
-      // Successfully exchanged code, redirect to confirmation page
+      // Successfully exchanged code, redirect to dashboard
       return NextResponse.redirect(new URL(next, requestUrl.origin));
     } catch (err) {
       console.error("Callback error:", err);
