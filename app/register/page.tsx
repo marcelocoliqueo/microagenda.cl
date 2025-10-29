@@ -74,6 +74,13 @@ export default function RegisterPage() {
 
         // Check if email confirmation is required
         const isEmailConfirmed = authData.user.email_confirmed_at !== null;
+        
+        // Debug log
+        console.log("🔍 Registration debug:", {
+          email: authData.user.email,
+          email_confirmed_at: authData.user.email_confirmed_at,
+          isEmailConfirmed,
+        });
 
         toast({
           title: isEmailConfirmed ? "¡Cuenta creada!" : "¡Revise su email!",
@@ -82,15 +89,17 @@ export default function RegisterPage() {
             : "Le enviamos un enlace de confirmación",
         });
 
-        // Redirect based on email confirmation status
-        if (isEmailConfirmed) {
-          // Email already confirmed (shouldn't happen on new registration, but handle it)
+        // Always redirect to verify-email when email is not confirmed
+        if (!isEmailConfirmed) {
+          // Email needs confirmation
+          console.log("➡️ Redirecting to /verify-email");
+          router.push("/verify-email");
+        } else {
+          // Email already confirmed (shouldn't happen on new registration)
+          console.log("➡️ Redirecting to /dashboard");
           await new Promise(resolve => setTimeout(resolve, 500));
           router.push("/dashboard");
           router.refresh();
-        } else {
-          // Email needs confirmation
-          router.push("/verify-email");
         }
       }
     } catch (error: any) {
