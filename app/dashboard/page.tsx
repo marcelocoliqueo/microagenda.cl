@@ -60,6 +60,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [showNewAppointmentDialog, setShowNewAppointmentDialog] = useState(false);
   const [showNewServiceDialog, setShowNewServiceDialog] = useState(false);
+  const [showUsernameDialog, setShowUsernameDialog] = useState(false);
+  const [newUsername, setNewUsername] = useState("");
 
   const { appointments, loading: appointmentsLoading, updateAppointment, deleteAppointment, refresh } = useAppointments(user?.id);
 
@@ -123,6 +125,64 @@ export default function DashboardPage() {
   async function handleLogout() {
     await supabase.auth.signOut();
     router.push("/");
+  }
+
+  async function handleUpdateUsername() {
+    if (!user || !newUsername.trim()) {
+      toast({
+        title: "Error",
+        description: "Por favor ingresa un nombre de usuario",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate username format
+    if (!/^[a-z0-9_-]+$/.test(newUsername)) {
+      toast({
+        title: "Error",
+        description: "Solo puedes usar letras minúsculas, números, guiones y guiones bajos",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ username: newUsername.toLowerCase() })
+        .eq("id", user.id);
+
+      if (error) {
+        if (error.code === '23505') { // Unique violation
+          toast({
+            title: "Error",
+            description: "Este nombre de usuario ya está en uso",
+            variant: "destructive",
+          });
+        } else {
+          throw error;
+        }
+        return;
+      }
+
+      // Update local profile
+      setProfile({ ...profile!, username: newUsername.toLowerCase() });
+      setShowUsernameDialog(false);
+      setNewUsername("");
+
+      toast({
+        title: "¡Perfecto!",
+        description: "Tu nombre de usuario ha sido actualizado",
+      });
+    } catch (error: any) {
+      console.error("Update username error:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar el nombre de usuario",
+        variant: "destructive",
+      });
+    }
   }
 
   async function handleSubscribe() {
@@ -255,7 +315,9 @@ export default function DashboardPage() {
     );
   }
 
-  const publicUrl = profile ? `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/u/${profile.email.split('@')[0]}` : "";
+  const publicUrl = profile && profile.username
+    ? `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/u/${profile.username}`
+    : "";
 
   // Calculate stats
   const totalAppointments = appointments.length;
@@ -343,34 +405,71 @@ export default function DashboardPage() {
           >
             <Card className="border-slate-200/70 bg-white/70 backdrop-blur shadow-lg hover:shadow-xl transition-shadow">
               <CardContent className="p-6">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                  <div className="flex-1 w-full">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <ExternalLink className="w-5 h-5 text-primary" />
+                {profile.username ? (
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div className="flex-1 w-full">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(var(--color-primary), 0.1)' }}>
+                          <ExternalLink className="w-5 h-5" style={{ color: 'var(--color-primary)' }} />
+                        </div>
+                        <div>
+                          <Label className="text-sm font-semibold text-slate-900">Tu Agenda Pública</Label>
+                          <p className="text-xs text-slate-500">Comparte este enlace con tus clientes</p>
+                        </div>
                       </div>
-                      <div>
-                        <Label className="text-sm font-semibold text-slate-900">Tu Agenda Pública</Label>
-                        <p className="text-xs text-slate-500">Comparte este enlace con tus clientes</p>
-                      </div>
+                      <code className="block text-sm bg-slate-100 px-4 py-3 rounded-lg border border-slate-200 font-mono break-all" style={{ color: 'var(--color-primary)' }}>
+                        {publicUrl}
+                      </code>
                     </div>
-                    <code className="block text-sm bg-slate-100 px-4 py-3 rounded-lg border border-slate-200 font-mono text-primary break-all">
-                      {publicUrl}
-                    </code>
+                    <div className="flex flex-col gap-2">
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        onClick={() => {
+                          navigator.clipboard.writeText(publicUrl);
+                          toast({ title: "¡Copiado!", description: "Enlace copiado al portapapeles" });
+                        }}
+                        className="whitespace-nowrap"
+                      >
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        Copiar Enlace
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setNewUsername(profile.username || "");
+                          setShowUsernameDialog(true);
+                        }}
+                        className="text-xs"
+                      >
+                        Editar nombre de usuario
+                      </Button>
+                    </div>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    onClick={() => {
-                      navigator.clipboard.writeText(publicUrl);
-                      toast({ title: "¡Copiado!", description: "Enlace copiado al portapapeles" });
-                    }}
-                    className="whitespace-nowrap"
-                  >
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    Copiar Enlace
-                  </Button>
-                </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
+                      <ExternalLink className="w-8 h-8 text-amber-600" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                      Configura tu nombre de usuario
+                    </h3>
+                    <p className="text-sm text-slate-600 mb-4">
+                      Elige un nombre único para tu página de reservas
+                    </p>
+                    <Button
+                      onClick={() => setShowUsernameDialog(true)}
+                      className="bg-gradient-to-r from-primary to-accent hover:brightness-110"
+                      style={{
+                        backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-accent))`
+                      }}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Configurar Ahora
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </motion.div>
@@ -640,6 +739,56 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Username Configuration Dialog */}
+      <Dialog open={showUsernameDialog} onOpenChange={setShowUsernameDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Configurar Nombre de Usuario</DialogTitle>
+            <DialogDescription>
+              Elige un nombre único para tu página de reservas. Solo puedes usar letras minúsculas, números, guiones (-) y guiones bajos (_).
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">Nombre de Usuario</Label>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-slate-500">microagenda.cl/u/</span>
+                <Input
+                  id="username"
+                  placeholder="tu-nombre"
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
+                  className="flex-1"
+                />
+              </div>
+              <p className="text-xs text-slate-500">
+                Ejemplo: juan-perez, maria_garcia, consultoraluz
+              </p>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowUsernameDialog(false);
+                  setNewUsername("");
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleUpdateUsername}
+                className="bg-gradient-to-r from-primary to-accent hover:brightness-110"
+                style={{
+                  backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-accent))`
+                }}
+              >
+                Guardar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

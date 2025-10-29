@@ -18,6 +18,7 @@ export type Profile = {
   id: string;
   name: string;
   email: string;
+  username: string | null;
   whatsapp: string | null;
   photo_url: string | null;
   auto_confirm: boolean;

@@ -49,24 +49,23 @@ export default function PublicAgendaPage({
     try {
       setLoading(true);
 
-      // Find profile by username (extracted from email)
-      const { data: profiles, error: profileError } = await supabase
+      // Find profile by username
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("*")
-        .ilike("email", `${resolvedParams.username}%`);
+        .eq("username", resolvedParams.username)
+        .single();
 
-      if (profileError) throw profileError;
-
-      if (!profiles || profiles.length === 0) {
+      if (profileError || !profile) {
         toast({
           title: "Error",
-          description: "Profesional no encontrado",
+          description: "Profesional no encontrado. Verifica que el enlace sea correcto.",
           variant: "destructive",
         });
         return;
       }
 
-      const professionalProfile = profiles[0];
+      const professionalProfile = profile;
       setProfile(professionalProfile);
 
       // Fetch services

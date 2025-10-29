@@ -37,9 +37,6 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Mobile overlay */}
-      <div className="lg:hidden fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm" />
-
       {/* Sidebar */}
       <motion.aside
         animate={{ width: isCollapsed ? "80px" : "280px" }}
