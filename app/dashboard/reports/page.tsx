@@ -198,6 +198,59 @@ export default function ReportsPage() {
     }
   }
 
+  function handleExport() {
+    if (!stats) {
+      toast({
+        title: "Error",
+        description: "No hay datos para exportar",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Crear CSV con estadísticas
+    const csvRows = [
+      ["Métrica", "Valor"],
+      ["Total de Citas", stats.totalAppointments.toString()],
+      ["Citas Confirmadas", stats.confirmedAppointments.toString()],
+      ["Citas Completadas", stats.completedAppointments.toString()],
+      ["Citas Canceladas", stats.cancelledAppointments.toString()],
+      ["Citas Pendientes", stats.pendingAppointments.toString()],
+      ["Ingresos Totales", formatCurrency(stats.totalRevenue)],
+      ["Promedio por Cita", formatCurrency(stats.avgRevenuePerAppointment)],
+      ["Tasa de Conversión", `${stats.conversionRate.toFixed(2)}%`],
+      [""],
+      ["Servicio Más Popular", stats.topService ? `${stats.topService.name} (${stats.topService.count} citas)` : "N/A"],
+      ["Hora Pico", stats.peakHour ? `${stats.peakHour.hour} (${stats.peakHour.count} citas)` : "N/A"],
+      ["Día Más Concurrido", stats.peakDay ? `${stats.peakDay.day} (${stats.peakDay.count} citas)` : "N/A"],
+    ];
+
+    const csvContent = csvRows.map(row => row.map(cell => `"${cell}"`).join(",")).join("\n");
+
+    // Descargar archivo
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `informes-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({
+      title: "¡Exportado!",
+      description: "Informes exportados correctamente",
+    });
+  }
+
+  function handlePeriodChange() {
+    toast({
+      title: "Cambio de período",
+      description: "La funcionalidad de filtros por período estará disponible próximamente.",
+    });
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -237,11 +290,20 @@ export default function ReportsPage() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline">
+            <Button 
+              variant="outline"
+              onClick={handlePeriodChange}
+            >
               <Filter className="w-4 h-4 mr-2" />
               Periodo
             </Button>
-            <Button className="bg-gradient-to-r from-primary to-accent hover:brightness-110">
+            <Button 
+              onClick={handleExport}
+              className="bg-gradient-to-r from-primary to-accent hover:brightness-110"
+              style={{
+                backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-accent))`
+              }}
+            >
               <Download className="w-4 h-4 mr-2" />
               Exportar
             </Button>

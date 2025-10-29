@@ -1,21 +1,26 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { RealtimeChannel } from "@supabase/supabase-js";
 
+// Realtime es completamente opcional - la app funciona sin él
+// Los errores de WebSocket son esperados si Realtime no está habilitado en Supabase
 export function useRealtime(
   table: string,
   userId: string | null,
   onUpdate: () => void
 ) {
+  const channelRef = useRef<RealtimeChannel | null>(null);
+  const isMountedRef = useRef(true);
+
   useEffect(() => {
     if (!userId) return;
 
-    let channel: RealtimeChannel;
+    isMountedRef.current = true;
 
-    const setupRealtimeSubscription = async () => {
+    const setupRealtimeSubscription = () => {
       try {
-        channel = supabase
-          .channel(`${table}_changes`)
+        const channel = supabase
+          .channel(`${table}_changes_${Date.now()}`)
           .on(
             "postgres_changes",
             {
@@ -25,27 +30,44 @@ export function useRealtime(
               filter: `user_id=eq.${userId}`,
             },
             () => {
-              onUpdate();
+              if (isMountedRef.current) {
+                onUpdate();
+              }
             }
           )
           .subscribe((status) => {
+            if (!isMountedRef.current) return;
+            
             if (status === 'SUBSCRIBED') {
-              console.log(`✅ Realtime conectado para ${table}`);
-            } else if (status === 'CHANNEL_ERROR') {
-              console.warn(`⚠️ Error en Realtime para ${table}, continuando sin actualizaciones en tiempo real`);
+              if (process.env.NODE_ENV === 'development') {
+                console.log(`✅ Realtime conectado para ${table}`);
+              }
             }
+            // Todos los demás estados (ERROR, TIMED_OUT, CLOSED) son esperados
+            // si Realtime no está habilitado en el proyecto de Supabase
+            // La app continúa funcionando normalmente sin actualizaciones en tiempo real
           });
+
+        channelRef.current = channel;
       } catch (error) {
-        // Silenciar errores de WebSocket - la app funciona sin Realtime
-        console.warn(`⚠️ No se pudo conectar a Realtime para ${table}, continuando sin actualizaciones en tiempo real`);
+        // Error silenciado - Realtime es opcional
       }
     };
 
-    setupRealtimeSubscription();
+    // Usar setTimeout para evitar errores de WebSocket en el render inicial
+    const timeoutId = setTimeout(setupRealtimeSubscription, 0);
 
     return () => {
-      if (channel) {
-        supabase.removeChannel(channel);
+      clearTimeout(timeoutId);
+      isMountedRef.current = false;
+      
+      if (channelRef.current) {
+        try {
+          supabase.removeChannel(channelRef.current);
+        } catch (error) {
+          // Ignorar errores al limpiar
+        }
+        channelRef.current = null;
       }
     };
   }, [table, userId, onUpdate]);

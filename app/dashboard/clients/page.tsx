@@ -38,6 +38,7 @@ export default function ClientsPage() {
   const [filteredClients, setFilteredClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -140,6 +141,39 @@ export default function ClientsPage() {
     }
   }
 
+  function handleExport() {
+    // Crear CSV
+    const headers = ["Nombre", "Teléfono", "Total Citas", "Ingresos Totales", "Última Cita"];
+    const rows = filteredClients.map(client => [
+      client.client_name,
+      client.client_phone,
+      client.totalAppointments.toString(),
+      formatCurrency(client.totalSpent),
+      formatDate(client.lastAppointment)
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(","))
+    ].join("\n");
+
+    // Descargar archivo
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `clientes-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({
+      title: "¡Exportado!",
+      description: "Lista de clientes exportada correctamente",
+    });
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -183,7 +217,13 @@ export default function ClientsPage() {
               Gestiona y analiza tu base de clientes
             </p>
           </div>
-          <Button className="bg-gradient-to-r from-primary to-accent hover:brightness-110">
+          <Button 
+            onClick={handleExport}
+            className="bg-gradient-to-r from-primary to-accent hover:brightness-110"
+            style={{
+              backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-accent))`
+            }}
+          >
             <Download className="w-4 h-4 mr-2" />
             Exportar
           </Button>
@@ -290,7 +330,15 @@ export default function ClientsPage() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Button variant="outline">
+              <Button 
+                variant="outline"
+                onClick={() => {
+                  toast({
+                    title: "Filtros avanzados",
+                    description: "Los filtros avanzados estarán disponibles próximamente. Por ahora puedes usar la búsqueda arriba.",
+                  });
+                }}
+              >
                 <Filter className="w-4 h-4 mr-2" />
                 Filtros
               </Button>
