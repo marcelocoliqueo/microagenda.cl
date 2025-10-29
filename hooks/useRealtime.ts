@@ -1,9 +1,18 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { RealtimeChannel } from "@supabase/supabase-js";
 
-// Realtime es completamente opcional - la app funciona sin él
-// Los errores de WebSocket son esperados si Realtime no está habilitado en Supabase
+/**
+ * Hook para suscribirse a cambios en tiempo real de Supabase
+ * 
+ * IMPORTANTE: Para que funcione, Realtime debe estar habilitado en tu proyecto de Supabase:
+ * 1. Ve a tu Dashboard de Supabase
+ * 2. Settings > Database > Replication
+ * 3. Asegúrate de que "Realtime" esté habilitado
+ * 
+ * Si no está habilitado, la app funcionará normalmente pero sin actualizaciones en tiempo real.
+ * Los errores de WebSocket son silenciados si Realtime no está disponible.
+ */
 export function useRealtime(
   table: string,
   userId: string | null,
@@ -12,6 +21,7 @@ export function useRealtime(
   const channelRef = useRef<RealtimeChannel | null>(null);
   const isMountedRef = useRef(true);
   const onUpdateRef = useRef(onUpdate);
+  const [isConnected, setIsConnected] = useState(false);
 
   // Actualizar la referencia de la función sin causar re-suscripciones
   useEffect(() => {
@@ -19,9 +29,13 @@ export function useRealtime(
   }, [onUpdate]);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      setIsConnected(false);
+      return;
+    }
 
     isMountedRef.current = true;
+    setIsConnected(false);
 
     // Limpiar canal anterior si existe
     if (channelRef.current) {
@@ -36,7 +50,14 @@ export function useRealtime(
     const setupRealtimeSubscription = () => {
       try {
         const channel = supabase
-          .channel(`${table}_changes_${userId}`)
+          .channel(`${table}_changes_${userId}`, {
+            config: {
+              // Configuración para manejar errores silenciosamente
+              presence: {
+                key: userId,
+              },
+            },
+          })
           .on(
             "postgres_changes",
             {
@@ -55,18 +76,27 @@ export function useRealtime(
             if (!isMountedRef.current) return;
             
             if (status === 'SUBSCRIBED') {
+              setIsConnected(true);
               if (process.env.NODE_ENV === 'development') {
                 console.log(`✅ Realtime conectado para ${table}`);
               }
+            } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+              setIsConnected(false);
+              // Los errores son esperados si Realtime no está habilitado
+              // La app continúa funcionando normalmente sin actualizaciones en tiempo real
             }
-            // Todos los demás estados (ERROR, TIMED_OUT, CLOSED) son esperados
-            // si Realtime no está habilitado en el proyecto de Supabase
-            // La app continúa funcionando normalmente sin actualizaciones en tiempo real
           });
 
         channelRef.current = channel;
-      } catch (error) {
+      } catch (error: any) {
         // Error silenciado - Realtime es opcional
+        setIsConnected(false);
+        // Solo loggear en desarrollo si es un error no esperado
+        if (process.env.NODE_ENV === 'development' && 
+            !error?.message?.includes('WebSocket') && 
+            !error?.message?.includes('realtime')) {
+          console.warn(`⚠️ Error al configurar Realtime para ${table}:`, error);
+        }
       }
     };
 
@@ -76,6 +106,7 @@ export function useRealtime(
     return () => {
       clearTimeout(timeoutId);
       isMountedRef.current = false;
+      setIsConnected(false);
       
       if (channelRef.current) {
         try {
@@ -87,4 +118,6 @@ export function useRealtime(
       }
     };
   }, [table, userId]); // Removido onUpdate de las dependencias
+
+  return { isConnected };
 }
