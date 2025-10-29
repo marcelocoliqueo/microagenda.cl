@@ -50,10 +50,12 @@ import {
   PLAN_PRICE,
 } from "@/lib/constants";
 import { createSubscriptionPreference } from "@/lib/mercadopagoClient";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function DashboardPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { brandColor } = useTheme();
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [services, setServices] = useState<Service[]>([]);
@@ -67,6 +69,14 @@ export default function DashboardPage() {
 
   // Real-time updates
   useRealtime("appointments", user?.id, refresh);
+
+  // Helper para convertir hex a rgba
+  const hexToRgba = (hex: string, alpha: number) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
 
   useEffect(() => {
     checkAuth();
@@ -489,7 +499,7 @@ export default function DashboardPage() {
                   <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Calendar className="w-6 h-6 text-slate-700" />
                   </div>
-                  <TrendingUp className="w-5 h-5 text-green-600" />
+                  <TrendingUp className="w-5 h-5" style={{ color: 'var(--color-primary)' }} />
                 </div>
                 <p className="text-sm text-slate-600 font-medium mb-1">Total Citas</p>
                 <p className="text-3xl font-bold text-slate-900">{totalAppointments}</p>
@@ -503,19 +513,37 @@ export default function DashboardPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Card className="border-emerald-200/70 bg-gradient-to-br from-emerald-50/50 to-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <Card 
+              className="border-slate-200/70 bg-gradient-to-br from-white to-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden group"
+              style={{ 
+                borderColor: hexToRgba(brandColor.primary, 0.3),
+                background: `linear-gradient(to bottom right, ${hexToRgba(brandColor.primary, 0.1)}, white)`
+              }}
+            >
+              <div 
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{ background: `linear-gradient(to bottom right, ${hexToRgba(brandColor.primary, 0.1)}, transparent)` }}
+              />
               <CardContent className="p-6 relative">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+                  <div 
+                    className="w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"
+                    style={{ backgroundColor: hexToRgba(brandColor.primary, 0.15) }}
+                  >
+                    <CheckCircle2 className="w-6 h-6" style={{ color: brandColor.primary }} />
                   </div>
-                  <span className="text-xs font-semibold px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full">
+                  <span 
+                    className="text-xs font-semibold px-2 py-1 rounded-full"
+                    style={{ 
+                      backgroundColor: hexToRgba(brandColor.primary, 0.15),
+                      color: brandColor.primary
+                    }}
+                  >
                     {totalAppointments > 0 ? Math.round((confirmedAppointments / totalAppointments) * 100) : 0}%
                   </span>
                 </div>
                 <p className="text-sm text-slate-600 font-medium mb-1">Confirmadas</p>
-                <p className="text-3xl font-bold text-emerald-600">{confirmedAppointments}</p>
+                <p className="text-3xl font-bold" style={{ color: brandColor.primary }}>{confirmedAppointments}</p>
                 <p className="text-xs text-slate-500 mt-2">Tasa de confirmación</p>
               </CardContent>
             </Card>
