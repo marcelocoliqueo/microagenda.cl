@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthHandler } from "@/components/AuthHandler";
+import { RealtimeErrorSuppressor } from "@/components/RealtimeErrorSuppressor";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { APP_NAME, APP_DESCRIPTION } from "@/lib/constants";
 
@@ -56,6 +57,7 @@ export default function RootLayout({
     <html lang="es" className="overflow-x-hidden">
       <body className={`${inter.variable} font-sans`}>
         <ThemeProvider>
+          <RealtimeErrorSuppressor />
           <AuthHandler />
           {children}
           <Toaster />
