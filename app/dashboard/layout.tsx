@@ -8,10 +8,10 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-gradient-to-b from-slate-50 to-white">
+    <div className="flex h-screen bg-gradient-to-b from-slate-50 to-white overflow-hidden">
       <Sidebar />
       {/* Main Content - Scroll independiente del sidebar */}
-      <main className="flex-1 ml-[280px] overflow-y-auto h-screen">
+      <main className="flex-1 ml-[280px] overflow-y-auto">
         {children}
       </main>
     </div>

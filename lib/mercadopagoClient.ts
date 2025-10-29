@@ -1,7 +1,8 @@
 const MERCADOPAGO_ACCESS_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN;
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-if (!MERCADOPAGO_ACCESS_TOKEN) {
+// Solo mostrar warning en desarrollo
+if (!MERCADOPAGO_ACCESS_TOKEN && process.env.NODE_ENV === 'development') {
   console.warn(
     "⚠️ MERCADOPAGO_ACCESS_TOKEN no configurado. Los pagos no funcionarán."
   );

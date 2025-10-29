@@ -13,21 +13,32 @@ export function useRealtime(
     let channel: RealtimeChannel;
 
     const setupRealtimeSubscription = async () => {
-      channel = supabase
-        .channel(`${table}_changes`)
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: table,
-            filter: `user_id=eq.${userId}`,
-          },
-          () => {
-            onUpdate();
-          }
-        )
-        .subscribe();
+      try {
+        channel = supabase
+          .channel(`${table}_changes`)
+          .on(
+            "postgres_changes",
+            {
+              event: "*",
+              schema: "public",
+              table: table,
+              filter: `user_id=eq.${userId}`,
+            },
+            () => {
+              onUpdate();
+            }
+          )
+          .subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+              console.log(`✅ Realtime conectado para ${table}`);
+            } else if (status === 'CHANNEL_ERROR') {
+              console.warn(`⚠️ Error en Realtime para ${table}, continuando sin actualizaciones en tiempo real`);
+            }
+          });
+      } catch (error) {
+        // Silenciar errores de WebSocket - la app funciona sin Realtime
+        console.warn(`⚠️ No se pudo conectar a Realtime para ${table}, continuando sin actualizaciones en tiempo real`);
+      }
     };
 
     setupRealtimeSubscription();
