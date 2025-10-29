@@ -27,6 +27,28 @@ export function useRealtime(
     onUpdateRef.current = onUpdate;
   }, [onUpdate]);
 
+  // Listener para actualizar el token de Realtime cuando la sesión cambia
+  useEffect(() => {
+    if (!userId) return;
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'TOKEN_REFRESHED' && session?.access_token) {
+        // Actualizar el token de Realtime cuando se refresca
+        supabase.realtime.setAuth(session.access_token);
+        console.log('🔄 Token de Realtime actualizado');
+      } else if (event === 'SIGNED_IN' && session?.access_token) {
+        // Configurar token al iniciar sesión
+        supabase.realtime.setAuth(session.access_token);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [userId]);
+
   const cleanupAll = () => {
     // Limpiar timeout de reintento
     if (retryTimeoutRef.current) {
@@ -89,13 +111,17 @@ export function useRealtime(
 
       try {
         // Verificar que hay una sesión activa antes de suscribirse
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-          console.warn(`⚠️ No hay sesión activa, Realtime para ${table} no se conectará`);
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (!session || sessionError) {
+          console.warn(`⚠️ No hay sesión activa, Realtime para ${table} no se conectará`, sessionError);
           setIsConnected(false);
           isSettingUpRef.current = false;
           return;
         }
+
+        // Configurar el token JWT de autenticación para Realtime
+        // Esto es necesario para que Realtime valide la conexión con RLS
+        supabase.realtime.setAuth(session.access_token);
 
         const channel = supabase
           .channel(`${table}_changes_${userId}`, {
