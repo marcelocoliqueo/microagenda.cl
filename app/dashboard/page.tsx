@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -67,8 +67,11 @@ export default function DashboardPage() {
 
   const { appointments, loading: appointmentsLoading, updateAppointment, deleteAppointment, refresh } = useAppointments(user?.id);
 
-  // Real-time updates
-  useRealtime("appointments", user?.id, refresh);
+  // Memoizar userId para evitar re-suscripciones innecesarias
+  const userId = useMemo(() => user?.id || null, [user?.id]);
+
+  // Real-time updates - solo cuando user.id está disponible y es estable
+  useRealtime("appointments", userId, refresh);
 
   // Helper para convertir hex a rgba
   const hexToRgba = (hex: string, alpha: number) => {

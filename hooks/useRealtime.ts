@@ -48,9 +48,11 @@ export function useRealtime(
   };
 
   useEffect(() => {
+    // Limpiar todo inmediatamente cuando cambian las dependencias
+    cleanupAll();
+
     if (!userId) {
       setIsConnected(false);
-      cleanupAll();
       return;
     }
 
@@ -59,9 +61,6 @@ export function useRealtime(
     retryCountRef.current = 0;
     lastErrorRef.current = 0;
     isSettingUpRef.current = false;
-
-    // Limpiar cualquier suscripción o timeout anterior antes de crear nueva
-    cleanupAll();
 
     // Definir setupRealtimeSubscription dentro del useEffect para evitar problemas de closure
     const setupRealtimeSubscription = () => {
@@ -72,7 +71,7 @@ export function useRealtime(
 
       isSettingUpRef.current = true;
       
-      // Limpiar cualquier suscripción o timeout anterior
+      // Limpiar cualquier suscripción o timeout anterior ANTES de crear nueva
       if (retryTimeoutRef.current) {
         clearTimeout(retryTimeoutRef.current);
         retryTimeoutRef.current = null;
@@ -81,10 +80,11 @@ export function useRealtime(
       if (channelRef.current) {
         try {
           supabase.removeChannel(channelRef.current);
+          channelRef.current = null;
         } catch (error) {
           // Ignorar errores al limpiar
+          channelRef.current = null;
         }
-        channelRef.current = null;
       }
 
       try {
