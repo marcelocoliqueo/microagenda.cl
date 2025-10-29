@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClientOptions } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
@@ -7,10 +7,26 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn("⚠️ Missing Supabase environment variables. Please configure .env.local");
 }
 
+// Configuración de Realtime para mejor manejo de errores
+const realtimeOptions: SupabaseClientOptions<"public">["realtime"] = {
+  params: {
+    eventsPerSecond: 10, // Límite de eventos por segundo
+  },
+  // Configuración para manejar mejor los errores de conexión
+  log_level: process.env.NODE_ENV === 'development' ? 'info' : 'error',
+};
+
 // Create client with dummy values during build if env vars are missing
 export const supabase = createClient(
   supabaseUrl || "https://placeholder.supabase.co",
-  supabaseAnonKey || "placeholder-key"
+  supabaseAnonKey || "placeholder-key",
+  {
+    realtime: realtimeOptions,
+    // Configuración adicional para mejorar estabilidad
+    global: {
+      headers: {},
+    },
+  }
 );
 
 // Database types

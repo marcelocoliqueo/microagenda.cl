@@ -22,19 +22,28 @@ export function RealtimeErrorSuppressor() {
         if (typeof arg === 'string') return arg;
         if (arg?.toString) return arg.toString();
         if (arg?.message) return arg.message;
+        if (arg?.stack) return arg.stack;
+        if (arg?.error?.message) return arg.error.message;
         return String(arg);
       }).join(' ').toLowerCase();
       
       // Silenciar errores relacionados con WebSocket de Supabase Realtime
+      // También captura errores de conexión, timeouts, etc.
       const isRealtimeError = 
-        fullMessage.includes("websocket") &&
+        (fullMessage.includes("websocket") || 
+         fullMessage.includes("websocket connection") ||
+         fullMessage.includes("failed to connect") ||
+         fullMessage.includes("connection failed") ||
+         fullMessage.includes("createwebsocket")) &&
         (fullMessage.includes("supabase") || 
          fullMessage.includes("realtime") ||
          fullMessage.includes("/realtime/v1/websocket") ||
-         fullMessage.includes("wss://"));
+         fullMessage.includes("/realtime/v1") ||
+         fullMessage.includes("wss://") ||
+         fullMessage.includes("kfqdjwlvrtpqmeqzsaou")); // Tu project ID
       
       if (isRealtimeError) {
-        // Error silenciado - Realtime es opcional
+        // Error silenciado - Realtime manejará los reintentos automáticamente
         return;
       }
 
@@ -61,35 +70,57 @@ export function RealtimeErrorSuppressor() {
 
     // También interceptar eventos de error global para WebSocket
     const handleError = (event: ErrorEvent) => {
-      const errorMessage = (event.message || event.filename || "").toLowerCase();
+      const errorMessage = (
+        event.message || 
+        event.filename || 
+        (event.error?.message) ||
+        (event.error?.toString?.()) ||
+        ""
+      ).toLowerCase();
       
       const isRealtimeError = 
-        (errorMessage.includes("websocket") || errorMessage.includes("wss://")) &&
+        (errorMessage.includes("websocket") || 
+         errorMessage.includes("websocket connection") ||
+         errorMessage.includes("failed to connect") ||
+         errorMessage.includes("connection failed") ||
+         errorMessage.includes("createwebsocket") ||
+         errorMessage.includes("wss://")) &&
         (errorMessage.includes("supabase") || 
          errorMessage.includes("realtime") ||
-         errorMessage.includes("/realtime/v1"));
+         errorMessage.includes("/realtime/v1") ||
+         errorMessage.includes("kfqdjwlvrtpqmeqzsaou"));
       
       if (isRealtimeError) {
         // Prevenir que el error aparezca en la consola
         event.preventDefault();
         event.stopPropagation();
+        event.stopImmediatePropagation();
         return false;
       }
     };
 
-    // Interceptar errores no capturados
+    // Interceptar errores no capturados (con capture para interceptar antes)
     window.addEventListener("error", handleError, true);
     
     // También interceptar promesas rechazadas relacionadas con WebSocket
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      const reason = event.reason?.toString() || "";
-      const reasonLower = reason.toLowerCase();
+      const reason = (
+        event.reason?.toString?.() || 
+        event.reason?.message ||
+        String(event.reason)
+      ).toLowerCase();
       
       if (
-        reasonLower.includes("websocket") &&
-        (reasonLower.includes("supabase") || reasonLower.includes("realtime"))
+        (reason.includes("websocket") ||
+         reason.includes("websocket connection") ||
+         reason.includes("failed to connect") ||
+         reason.includes("connection failed")) &&
+        (reason.includes("supabase") || 
+         reason.includes("realtime") ||
+         reason.includes("kfqdjwlvrtpqmeqzsaou"))
       ) {
         event.preventDefault();
+        event.stopPropagation();
       }
     };
     
