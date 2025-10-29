@@ -13,8 +13,6 @@ import {
   Clock,
   DollarSign,
   ExternalLink,
-  CheckCircle2,
-  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -237,20 +235,11 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center"
-        >
-          <div className="relative mb-4">
-            <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-              <Calendar className="w-6 h-6 text-primary animate-pulse" />
-            </div>
-          </div>
-          <p className="text-slate-600 font-medium">Cargando tu dashboard...</p>
-        </motion.div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-muted">Cargando...</p>
+        </div>
       </div>
     );
   }
@@ -266,82 +255,49 @@ export default function DashboardPage() {
     .reduce((sum, a) => sum + (a.service?.price || 0), 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
-      {/* Premium Header with Glassmorphism */}
-      <header className="sticky top-0 z-50 border-b border-slate-200/50 bg-white/80 backdrop-blur-xl shadow-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="flex items-center gap-4"
-            >
-              <div className="flex items-center gap-3">
-                <img 
-                  src="/logo.png" 
-                  alt={APP_NAME}
-                  className="h-10 w-10 object-contain"
-                />
-                <div>
-                  <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                    {APP_NAME}
-                  </h1>
-                  {profile && (
-                    <p className="text-xs text-slate-600">
-                      Hola, <span className="font-semibold text-slate-900">{profile.name}</span>
-                    </p>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="flex items-center gap-2"
-            >
-              <Button variant="outline" size="sm" onClick={handleLogout}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Salir
-              </Button>
-            </motion.div>
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b border-border bg-surface sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl font-bold text-primary">{APP_NAME}</h1>
+            {profile && (
+              <span className="text-sm text-muted">
+                Hola, {profile.name}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleLogout}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Salir
+            </Button>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Premium Subscription Banner */}
+      <div className="container mx-auto px-4 py-8">
+        {/* Subscription Banner */}
         {profile && profile.subscription_status !== "active" && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
+            className="mb-6"
           >
-            <Card className="border-2 border-primary/20 bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 overflow-hidden relative shadow-lg">
-              <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] opacity-10" />
-              <CardContent className="p-6 relative">
+            <Card className="border-primary bg-primary/5">
+              <CardContent className="pt-6">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0">
-                      <TrendingUp className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-lg mb-1">
-                        {profile.subscription_status === "trial" ? "🎉 Prueba Gratuita Activa" : "⚠️ Suscripción Inactiva"}
-                      </h3>
-                      <p className="text-sm text-slate-600 mb-2">
-                        Activa tu plan por solo {formatCurrency(PLAN_PRICE)}/mes y desbloquea todo el potencial
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        <span className="text-xs px-2 py-1 bg-white rounded-full text-slate-700 font-medium">✓ Citas ilimitadas</span>
-                        <span className="text-xs px-2 py-1 bg-white rounded-full text-slate-700 font-medium">✓ Recordatorios automáticos</span>
-                        <span className="text-xs px-2 py-1 bg-white rounded-full text-slate-700 font-medium">✓ Estadísticas detalladas</span>
-                      </div>
-                    </div>
+                  <div>
+                    <h3 className="font-semibold mb-1">
+                      {profile.subscription_status === "trial" ? "Período de prueba" : "Suscripción inactiva"}
+                    </h3>
+                    <p className="text-sm text-muted">
+                      Activa tu suscripción por solo {formatCurrency(PLAN_PRICE)}/mes y desbloquea todas las funciones
+                    </p>
                   </div>
-                  <Button onClick={handleSubscribe} size="lg" className="bg-gradient-to-r from-primary to-accent hover:brightness-110 whitespace-nowrap shadow-lg">
+                  <Button onClick={handleSubscribe}>
                     <DollarSign className="w-4 h-4 mr-2" />
-                    Activar Plan
+                    Activar Suscripción
                   </Button>
                 </div>
               </CardContent>
@@ -349,42 +305,31 @@ export default function DashboardPage() {
           </motion.div>
         )}
 
-        {/* Premium Public URL Card */}
+        {/* Public Link */}
         {profile && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="mb-8"
+            className="mb-6"
           >
-            <Card className="border-slate-200/70 bg-white/70 backdrop-blur shadow-lg hover:shadow-xl transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                  <div className="flex-1 w-full">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <ExternalLink className="w-5 h-5 text-primary" />
-                      </div>
-                      <div>
-                        <Label className="text-sm font-semibold text-slate-900">Tu Agenda Pública</Label>
-                        <p className="text-xs text-slate-500">Comparte este enlace con tus clientes</p>
-                      </div>
-                    </div>
-                    <code className="block text-sm bg-slate-100 px-4 py-3 rounded-lg border border-slate-200 font-mono text-primary break-all">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                  <div className="flex-1">
+                    <Label className="text-sm text-muted mb-2 block">Tu agenda pública:</Label>
+                    <code className="text-sm bg-background px-3 py-2 rounded-lg border border-border block">
                       {publicUrl}
                     </code>
                   </div>
                   <Button
                     variant="outline"
-                    size="lg"
                     onClick={() => {
                       navigator.clipboard.writeText(publicUrl);
-                      toast({ title: "¡Copiado!", description: "Enlace copiado al portapapeles" });
+                      toast({ title: "Copiado", description: "Enlace copiado al portapapeles" });
                     }}
-                    className="whitespace-nowrap"
                   >
                     <ExternalLink className="w-4 h-4 mr-2" />
-                    Copiar Enlace
+                    Copiar
                   </Button>
                 </div>
               </CardContent>
@@ -392,95 +337,43 @@ export default function DashboardPage() {
           </motion.div>
         )}
 
-        {/* Premium Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <Card className="border-slate-200/70 bg-white/70 backdrop-blur hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-slate-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <CardContent className="p-6 relative">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Calendar className="w-6 h-6 text-slate-700" />
-                  </div>
-                  <TrendingUp className="w-5 h-5 text-green-600" />
-                </div>
-                <p className="text-sm text-slate-600 font-medium mb-1">Total Citas</p>
-                <p className="text-3xl font-bold text-slate-900">{totalAppointments}</p>
-                <p className="text-xs text-slate-500 mt-2">Este mes</p>
-              </CardContent>
-            </Card>
-          </motion.div>
+        {/* Stats Grid */}
+        <div className="grid md:grid-cols-4 gap-6 mb-8">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted">Total Citas</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">{totalAppointments}</div>
+            </CardContent>
+          </Card>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <Card className="border-emerald-200/70 bg-gradient-to-br from-emerald-50/50 to-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <CardContent className="p-6 relative">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <CheckCircle2 className="w-6 h-6 text-emerald-600" />
-                  </div>
-                  <span className="text-xs font-semibold px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full">
-                    {totalAppointments > 0 ? Math.round((confirmedAppointments / totalAppointments) * 100) : 0}%
-                  </span>
-                </div>
-                <p className="text-sm text-slate-600 font-medium mb-1">Confirmadas</p>
-                <p className="text-3xl font-bold text-emerald-600">{confirmedAppointments}</p>
-                <p className="text-xs text-slate-500 mt-2">Tasa de confirmación</p>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted">Confirmadas</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-accent">{confirmedAppointments}</div>
+            </CardContent>
+          </Card>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <Card className="border-amber-200/70 bg-gradient-to-br from-amber-50/50 to-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-amber-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <CardContent className="p-6 relative">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <AlertCircle className="w-6 h-6 text-amber-600" />
-                  </div>
-                  {pendingAppointments > 0 && (
-                    <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
-                  )}
-                </div>
-                <p className="text-sm text-slate-600 font-medium mb-1">Pendientes</p>
-                <p className="text-3xl font-bold text-amber-600">{pendingAppointments}</p>
-                <p className="text-xs text-slate-500 mt-2">Requieren confirmación</p>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted">Pendientes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-yellow-600">{pendingAppointments}</div>
+            </CardContent>
+          </Card>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <CardContent className="p-6 relative">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <DollarSign className="w-6 h-6 text-primary" />
-                  </div>
-                  <TrendingUp className="w-5 h-5 text-primary" />
-                </div>
-                <p className="text-sm text-slate-600 font-medium mb-1">Ingresos</p>
-                <p className="text-3xl font-bold text-primary">{formatCurrency(totalRevenue)}</p>
-                <p className="text-xs text-slate-500 mt-2">Citas completadas</p>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted">Ingresos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">{formatCurrency(totalRevenue)}</div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Appointments List */}
