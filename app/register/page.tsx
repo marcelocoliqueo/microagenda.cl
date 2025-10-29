@@ -73,7 +73,7 @@ export default function RegisterPage() {
         }
 
         // Check if email confirmation is required
-        const isEmailConfirmed = authData.user.email_confirmed_at !== null;
+        const isEmailConfirmed = !!authData.user.email_confirmed_at;
         
         // Debug log
         console.log("🔍 Registration debug:", {
