@@ -20,6 +20,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase, type Profile, type Service } from "@/lib/supabaseClient";
 import { formatCurrency, formatDate, formatDateFriendly, generateTimeSlots, generateAvailableSlots, getDayName, sanitizePhone } from "@/lib/utils";
 import { APP_NAME } from "@/lib/constants";
+import { SimpleDatePicker } from "@/components/SimpleDatePicker";
 
 export default function PublicAgendaPage() {
   const params = useParams();
@@ -453,15 +454,11 @@ export default function PublicAgendaPage() {
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="date">Fecha</Label>
-                      <Input
-                        id="date"
-                        type="date"
-                        required
-                        min={new Date().toISOString().split("T")[0]}
+                      <SimpleDatePicker
                         value={formData.date}
-                        onChange={(e) =>
-                          setFormData({ ...formData, date: e.target.value })
-                        }
+                        onChange={(date) => setFormData({ ...formData, date, time: "" })}
+                        minDate={new Date().toISOString().split("T")[0]}
+                        availability={availability}
                       />
                     </div>
 
