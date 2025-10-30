@@ -56,8 +56,6 @@ export default function AppointmentsPage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showNewAppointmentDialog, setShowNewAppointmentDialog] = useState(false);
-  
   // Filtros y búsqueda
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -411,13 +409,6 @@ export default function AppointmentsPage() {
                     ? "Crea tu primera cita usando el botón de arriba"
                     : "Intenta cambiar los filtros o la búsqueda"}
                 </p>
-                {appointments.length === 0 && (
-                  <NewAppointmentDialog
-                    services={services}
-                    userId={user?.id}
-                    onSuccess={refresh}
-                  />
-                )}
               </div>
             ) : (
               <div className="space-y-3">
@@ -494,14 +485,6 @@ export default function AppointmentsPage() {
         </Card>
       </motion.div>
 
-      {/* New Appointment Dialog */}
-      <NewAppointmentDialog
-        services={services}
-        userId={user?.id}
-        onSuccess={refresh}
-        open={showNewAppointmentDialog}
-        onOpenChange={setShowNewAppointmentDialog}
-      />
     </div>
   );
 }
