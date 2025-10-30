@@ -13,10 +13,19 @@ import {
   Filter,
   Download,
   UserPlus,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabaseClient";
 import { formatCurrency, formatDate } from "@/lib/constants";
@@ -39,23 +48,53 @@ export default function ClientsPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [sortBy, setSortBy] = useState<"appointments" | "revenue" | "name" | "lastDate">("appointments");
+  const [revenueFilter, setRevenueFilter] = useState<"all" | "high" | "medium" | "low">("all");
 
   useEffect(() => {
     checkAuth();
   }, []);
 
   useEffect(() => {
+    let filtered = [...clients];
+
+    // Aplicar búsqueda
     if (searchTerm) {
-      const filtered = clients.filter(
+      filtered = filtered.filter(
         (client) =>
           client.client_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           client.client_phone.includes(searchTerm)
       );
-      setFilteredClients(filtered);
-    } else {
-      setFilteredClients(clients);
     }
-  }, [searchTerm, clients]);
+
+    // Aplicar filtro de ingresos
+    if (revenueFilter !== "all") {
+      filtered = filtered.filter((client) => {
+        if (revenueFilter === "high") return client.totalSpent > 50000;
+        if (revenueFilter === "medium") return client.totalSpent >= 20000 && client.totalSpent <= 50000;
+        if (revenueFilter === "low") return client.totalSpent < 20000;
+        return true;
+      });
+    }
+
+    // Aplicar ordenamiento
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case "appointments":
+          return b.totalAppointments - a.totalAppointments;
+        case "revenue":
+          return b.totalSpent - a.totalSpent;
+        case "name":
+          return a.client_name.localeCompare(b.client_name);
+        case "lastDate":
+          return new Date(b.lastAppointment).getTime() - new Date(a.lastAppointment).getTime();
+        default:
+          return 0;
+      }
+    });
+
+    setFilteredClients(filtered);
+  }, [searchTerm, clients, sortBy, revenueFilter]);
 
   async function checkAuth() {
     try {
@@ -330,21 +369,78 @@ export default function ClientsPage() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Button 
+              <Button
                 variant="outline"
-                onClick={() => {
-                  toast({
-                    title: "Filtros avanzados",
-                    description: "Los filtros avanzados estarán disponibles próximamente. Por ahora puedes usar la búsqueda arriba.",
-                  });
-                }}
+                onClick={() => setShowFilters(!showFilters)}
               >
                 <Filter className="w-4 h-4 mr-2" />
                 Filtros
+                {(sortBy !== "appointments" || revenueFilter !== "all") && (
+                  <span className="ml-2 w-2 h-2 bg-primary rounded-full"></span>
+                )}
               </Button>
             </div>
           </CardContent>
         </Card>
+
+        {/* Advanced Filters Panel */}
+        {showFilters && (
+          <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-white mt-4">
+            <CardContent className="p-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-slate-700">Ordenar por</Label>
+                  <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="appointments">Más citas</SelectItem>
+                      <SelectItem value="revenue">Más ingresos</SelectItem>
+                      <SelectItem value="name">Alfabético (A-Z)</SelectItem>
+                      <SelectItem value="lastDate">Última cita</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-slate-700">Filtrar por ingresos</Label>
+                  <Select value={revenueFilter} onValueChange={(value: any) => setRevenueFilter(value)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos los clientes</SelectItem>
+                      <SelectItem value="high">Alto ({formatCurrency(50000)}+)</SelectItem>
+                      <SelectItem value="medium">Medio ({formatCurrency(20000)} - {formatCurrency(50000)})</SelectItem>
+                      <SelectItem value="low">Bajo (menos de {formatCurrency(20000)})</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {(sortBy !== "appointments" || revenueFilter !== "all") && (
+                <div className="mt-4 pt-4 border-t border-slate-200">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setSortBy("appointments");
+                      setRevenueFilter("all");
+                      toast({
+                        title: "Filtros reiniciados",
+                        description: "Se eliminaron todos los filtros aplicados",
+                      });
+                    }}
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Limpiar filtros
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </motion.div>
 
       {/* Clients List */}
