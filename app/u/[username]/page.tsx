@@ -464,43 +464,48 @@ export default function PublicAgendaPage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="time">Hora</Label>
-                      <Select
-                        value={formData.time}
-                        onValueChange={(value) =>
-                          setFormData({ ...formData, time: value })
-                        }
-                        required
-                        disabled={!formData.date}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder={
-                            !formData.date 
-                              ? "Primero selecciona una fecha" 
-                              : getAvailableTimeSlots().length === 0
-                              ? "No hay horarios disponibles"
-                              : "Selecciona hora"
-                          } />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {getAvailableTimeSlots().length === 0 ? (
-                            <SelectItem value="" disabled>
-                              {!formData.date 
-                                ? "Selecciona una fecha primero" 
-                                : "No hay horarios disponibles para este día"}
-                            </SelectItem>
-                          ) : (
-                            getAvailableTimeSlots().map((slot) => (
-                              <SelectItem key={slot} value={slot}>
-                                {slot}
-                              </SelectItem>
-                            ))
+                      {getAvailableTimeSlots().length === 0 && formData.date ? (
+                        <div className="space-y-2">
+                          <Select disabled>
+                            <SelectTrigger>
+                              <SelectValue placeholder="No hay horarios disponibles" />
+                            </SelectTrigger>
+                          </Select>
+                          <p className="text-sm text-amber-600">
+                            ⚠️ No hay horarios disponibles para este día. Por favor, selecciona otra fecha.
+                          </p>
+                        </div>
+                      ) : (
+                        <>
+                          <Select
+                            value={formData.time}
+                            onValueChange={(value) =>
+                              setFormData({ ...formData, time: value })
+                            }
+                            required
+                            disabled={!formData.date}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder={
+                                !formData.date 
+                                  ? "Primero selecciona una fecha" 
+                                  : "Selecciona hora"
+                              } />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {getAvailableTimeSlots().map((slot) => (
+                                <SelectItem key={slot} value={slot}>
+                                  {slot}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {formData.date && getAvailableTimeSlots().length > 0 && (
+                            <p className="text-xs text-slate-500">
+                              {getAvailableTimeSlots().length} horario{getAvailableTimeSlots().length !== 1 ? "s" : ""} disponible{getAvailableTimeSlots().length !== 1 ? "s" : ""}
+                            </p>
                           )}
-                        </SelectContent>
-                      </Select>
-                      {formData.date && getAvailableTimeSlots().length > 0 && (
-                        <p className="text-xs text-slate-500">
-                          {getAvailableTimeSlots().length} horario{getAvailableTimeSlots().length !== 1 ? "s" : ""} disponible{getAvailableTimeSlots().length !== 1 ? "s" : ""}
-                        </p>
+                        </>
                       )}
                     </div>
                   </div>
