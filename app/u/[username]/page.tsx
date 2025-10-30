@@ -422,12 +422,19 @@ export default function PublicAgendaPage() {
       {/* Footer */}
       <footer className="border-t border-border bg-surface py-8 mt-16">
         <div className="container mx-auto px-4 text-center">
-          <p className="text-sm text-muted mb-2">
-            Agenda powered by{" "}
-            <Link href="/" className="text-primary hover:underline">
-              {APP_NAME}
-            </Link>
-          </p>
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <img 
+              src="/logo.png" 
+              alt={`${APP_NAME} Logo`}
+              className="h-6 w-6 object-contain"
+            />
+            <p className="text-sm text-muted">
+              Agenda powered by{" "}
+              <Link href="/" className="text-primary hover:underline font-medium">
+                {APP_NAME}
+              </Link>
+            </p>
+          </div>
           <div className="flex justify-center gap-4 text-xs text-muted">
             <Link href="/privacy" className="hover:text-text">
               Privacidad
