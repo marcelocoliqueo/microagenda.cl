@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase, type Profile, type Service } from "@/lib/supabaseClient";
-import { formatCurrency, formatDate, generateTimeSlots, sanitizePhone } from "@/lib/utils";
+import { formatCurrency, formatDate, formatDateFriendly, generateTimeSlots, generateAvailableSlots, getDayName, sanitizePhone } from "@/lib/utils";
 import { APP_NAME } from "@/lib/constants";
 
 export default function PublicAgendaPage() {
@@ -27,8 +27,11 @@ export default function PublicAgendaPage() {
   const { toast } = useToast();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [services, setServices] = useState<Service[]>([]);
+  const [availability, setAvailability] = useState<Record<string, Array<{ start: string; end: string }>>>({});
+  const [bookedSlots, setBookedSlots] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
   const [formData, setFormData] = useState({
     client_name: "",
     client_phone: "",
@@ -37,7 +40,22 @@ export default function PublicAgendaPage() {
     time: "",
   });
 
-  const timeSlots = generateTimeSlots();
+  // Calcular horarios disponibles basados en configuración
+  const getAvailableTimeSlots = (): string[] => {
+    if (!formData.date) return [];
+
+    const dayName = getDayName(formData.date);
+    const dayAvailability = availability[dayName];
+
+    if (!dayAvailability || dayAvailability.length === 0) {
+      return []; // Día no disponible
+    }
+
+    const availableSlots = generateAvailableSlots(dayAvailability);
+    
+    // Filtrar horarios ya reservados
+    return availableSlots.filter(slot => !bookedSlots.includes(slot));
+  };
 
   useEffect(() => {
     if (username) {
@@ -80,6 +98,31 @@ export default function PublicAgendaPage() {
       if (servicesError) throw servicesError;
 
       setServices(servicesData || []);
+
+      // Fetch availability
+      const { data: availabilityData, error: availabilityError } = await supabase
+        .from("availability")
+        .select("*")
+        .eq("user_id", professionalProfile.id)
+        .eq("enabled", true)
+        .order("day_of_week")
+        .order("start_time");
+
+      if (!availabilityError && availabilityData) {
+        // Agrupar por día
+        const availabilityMap: Record<string, Array<{ start: string; end: string }>> = {};
+        availabilityData.forEach((item) => {
+          const day = item.day_of_week;
+          if (!availabilityMap[day]) {
+            availabilityMap[day] = [];
+          }
+          availabilityMap[day].push({
+            start: item.start_time.substring(0, 5),
+            end: item.end_time.substring(0, 5),
+          });
+        });
+        setAvailability(availabilityMap);
+      }
     } catch (error: any) {
       console.error("Fetch error:", error);
       toast({
@@ -92,11 +135,46 @@ export default function PublicAgendaPage() {
     }
   }
 
+  // Cargar horarios ocupados cuando se selecciona una fecha
+  useEffect(() => {
+    if (formData.date && profile) {
+      fetchBookedSlots(formData.date, profile.id);
+    } else {
+      setBookedSlots([]);
+    }
+  }, [formData.date, profile]);
+
+  async function fetchBookedSlots(date: string, userId: string) {
+    try {
+      const { data, error } = await supabase
+        .from("appointments")
+        .select("time")
+        .eq("user_id", userId)
+        .eq("date", date)
+        .in("status", ["pending", "confirmed"]);
+
+      if (error) throw error;
+
+      const booked = (data || []).map(apt => apt.time.substring(0, 5));
+      setBookedSlots(booked);
+    } catch (error) {
+      console.error("Error fetching booked slots:", error);
+      setBookedSlots([]);
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     if (!profile) return;
 
+    // Mostrar resumen antes de confirmar
+    if (!showSummary) {
+      setShowSummary(true);
+      return;
+    }
+
+    // Confirmar reserva
     try {
       setLoading(true);
 
@@ -126,6 +204,7 @@ export default function PublicAgendaPage() {
         date: "",
         time: "",
       });
+      setShowSummary(false);
 
       toast({
         title: "¡Reserva exitosa!",
@@ -394,23 +473,107 @@ export default function PublicAgendaPage() {
                           setFormData({ ...formData, time: value })
                         }
                         required
+                        disabled={!formData.date}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecciona hora" />
+                          <SelectValue placeholder={
+                            !formData.date 
+                              ? "Primero selecciona una fecha" 
+                              : getAvailableTimeSlots().length === 0
+                              ? "No hay horarios disponibles"
+                              : "Selecciona hora"
+                          } />
                         </SelectTrigger>
                         <SelectContent>
-                          {timeSlots.map((slot) => (
-                            <SelectItem key={slot} value={slot}>
-                              {slot}
+                          {getAvailableTimeSlots().length === 0 ? (
+                            <SelectItem value="" disabled>
+                              {!formData.date 
+                                ? "Selecciona una fecha primero" 
+                                : "No hay horarios disponibles para este día"}
                             </SelectItem>
-                          ))}
+                          ) : (
+                            getAvailableTimeSlots().map((slot) => (
+                              <SelectItem key={slot} value={slot}>
+                                {slot}
+                              </SelectItem>
+                            ))
+                          )}
                         </SelectContent>
                       </Select>
+                      {formData.date && getAvailableTimeSlots().length > 0 && (
+                        <p className="text-xs text-slate-500">
+                          {getAvailableTimeSlots().length} horario{getAvailableTimeSlots().length !== 1 ? "s" : ""} disponible{getAvailableTimeSlots().length !== 1 ? "s" : ""}
+                        </p>
+                      )}
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Reservando..." : "Confirmar Reserva"}
+                  {/* Resumen antes de confirmar */}
+                  {showSummary && formData.service_id && formData.date && formData.time && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 bg-gradient-to-br from-primary/5 to-accent/5 rounded-lg border-2 border-primary/20 space-y-3"
+                    >
+                      <h3 className="font-semibold text-slate-900 flex items-center gap-2">
+                        <Calendar className="w-5 h-5" />
+                        Resumen de tu Reserva
+                      </h3>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-slate-600">Servicio:</span>
+                          <span className="font-semibold">
+                            {services.find(s => s.id === formData.service_id)?.name}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-600">Fecha:</span>
+                          <span className="font-semibold">
+                            {formatDateFriendly(formData.date)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-600">Hora:</span>
+                          <span className="font-semibold">{formData.time}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-600">Duración:</span>
+                          <span className="font-semibold">
+                            {services.find(s => s.id === formData.service_id)?.duration} min
+                          </span>
+                        </div>
+                        <div className="flex justify-between pt-2 border-t border-slate-200">
+                          <span className="text-slate-900 font-semibold">Total:</span>
+                          <span className="text-lg font-bold text-primary">
+                            {formatCurrency(services.find(s => s.id === formData.service_id)?.price || 0)}
+                          </span>
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowSummary(false)}
+                        className="w-full"
+                      >
+                        Modificar
+                      </Button>
+                    </motion.div>
+                  )}
+
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={loading || !formData.service_id || !formData.date || !formData.time}
+                    style={showSummary ? {
+                      backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-accent))`
+                    } : undefined}
+                  >
+                    {loading 
+                      ? "Reservando..." 
+                      : showSummary 
+                      ? "Confirmar Reserva" 
+                      : "Revisar y Confirmar"}
                   </Button>
 
                   <p className="text-xs text-muted text-center">

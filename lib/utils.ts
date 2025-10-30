@@ -39,9 +39,66 @@ export function generateTimeSlots(
         .toString()
         .padStart(2, "0")}`;
       slots.push(timeString);
-    }
   }
   return slots;
+}
+
+/**
+ * Genera horarios disponibles basados en bloques de disponibilidad configurados
+ */
+export function generateAvailableSlots(
+  availabilityBlocks: Array<{ start: string; end: string }>,
+  intervalMinutes: number = 30
+): string[] {
+  const slots: string[] = [];
+
+  availabilityBlocks.forEach((block) => {
+    const [startHour, startMin] = block.start.split(":").map(Number);
+    const [endHour, endMin] = block.end.split(":").map(Number);
+    
+    const startTime = startHour * 60 + startMin;
+    const endTime = endHour * 60 + endMin;
+
+    for (let time = startTime; time < endTime; time += intervalMinutes) {
+      const hours = Math.floor(time / 60);
+      const minutes = time % 60;
+      const timeString = `${hours.toString().padStart(2, "0")}:${minutes
+        .toString()
+        .padStart(2, "0")}`;
+      slots.push(timeString);
+    }
+  });
+
+  // Eliminar duplicados y ordenar
+  return [...new Set(slots)].sort();
+}
+
+/**
+ * Obtiene el nombre del día de la semana en español
+ */
+export function getDayName(date: Date | string): string {
+  const d = typeof date === "string" ? new Date(date) : date;
+  const days = ["domingo", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+  return days[d.getDay()] || "monday";
+}
+
+/**
+ * Formatea fecha para mostrar de forma amigable
+ */
+export function formatDateFriendly(date: Date | string): string {
+  const d = typeof date === "string" ? new Date(date) : date;
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  if (d.toDateString() === today.toDateString()) {
+    return "Hoy";
+  }
+  if (d.toDateString() === tomorrow.toDateString()) {
+    return "Mañana";
+  }
+
+  return formatDate(d);
 }
 
 export function sanitizePhone(phone: string): string {
