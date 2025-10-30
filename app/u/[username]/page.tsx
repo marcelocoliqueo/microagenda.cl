@@ -243,6 +243,15 @@ export default function PublicAgendaPage() {
         >
           {/* Professional Info */}
           <div className="text-center mb-12">
+            {profile.business_logo_url && (
+              <div className="mb-6 flex justify-center">
+                <img
+                  src={profile.business_logo_url}
+                  alt={`${profile.business_name || profile.name} Logo`}
+                  className="h-24 w-auto object-contain max-w-xs rounded-lg"
+                />
+              </div>
+            )}
             <h1 className="text-4xl font-bold mb-2">
               {profile.business_name || profile.name}
             </h1>

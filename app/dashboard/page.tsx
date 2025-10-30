@@ -15,6 +15,10 @@ import {
   ExternalLink,
   CheckCircle2,
   AlertCircle,
+  Building2,
+  Upload,
+  X,
+  Image as ImageIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -62,7 +66,12 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [showNewAppointmentDialog, setShowNewAppointmentDialog] = useState(false);
   const [showUsernameDialog, setShowUsernameDialog] = useState(false);
+  const [showBusinessConfigDialog, setShowBusinessConfigDialog] = useState(false);
   const [newUsername, setNewUsername] = useState("");
+  const [newBusinessName, setNewBusinessName] = useState("");
+  const [businessLogoFile, setBusinessLogoFile] = useState<File | null>(null);
+  const [businessLogoPreview, setBusinessLogoPreview] = useState<string | null>(null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   
   // Función para normalizar el username (reemplazar espacios con guiones y limpiar)
   const normalizeUsername = (input: string): string => {
@@ -122,6 +131,11 @@ export default function DashboardPage() {
 
       if (profileError) throw profileError;
       setProfile(profileData);
+      // Inicializar valores para configuración de negocio
+      if (profileData) {
+        setNewBusinessName(profileData.business_name || "");
+        setBusinessLogoPreview(profileData.business_logo_url || null);
+      }
 
       // Fetch services
       await fetchServices(session.user.id);
@@ -252,6 +266,147 @@ export default function DashboardPage() {
         variant: "destructive",
       });
     }
+  }
+
+  async function handleLogoUpload(file: File): Promise<string | null> {
+    if (!user) return null;
+
+    try {
+      setUploadingLogo(true);
+
+      // Validar tipo de archivo
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Error",
+          description: "Por favor selecciona una imagen",
+          variant: "destructive",
+        });
+        return null;
+      }
+
+      // Validar tamaño (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "Error",
+          description: "La imagen debe ser menor a 5MB",
+          variant: "destructive",
+        });
+        return null;
+      }
+
+      // Crear nombre único para el archivo
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      const filePath = `business-logos/${fileName}`;
+
+      // Subir a Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('public-assets')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        // Si el bucket no existe, intentar crearlo y luego subir
+        if (uploadError.message.includes('Bucket not found')) {
+          toast({
+            title: "Error",
+            description: "El sistema de almacenamiento no está configurado. Contacta al soporte.",
+            variant: "destructive",
+          });
+          return null;
+        }
+        throw uploadError;
+      }
+
+      // Obtener URL pública
+      const { data } = supabase.storage
+        .from('public-assets')
+        .getPublicUrl(filePath);
+
+      return data.publicUrl;
+    } catch (error: any) {
+      console.error("Logo upload error:", error);
+      toast({
+        title: "Error",
+        description: error.message || "No se pudo subir el logo",
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setUploadingLogo(false);
+    }
+  }
+
+  async function handleUpdateBusinessInfo() {
+    if (!user) return;
+
+    try {
+      let logoUrl = businessLogoPreview;
+
+      // Si hay un nuevo archivo, subirlo primero
+      if (businessLogoFile) {
+        const uploadedUrl = await handleLogoUpload(businessLogoFile);
+        if (uploadedUrl) {
+          logoUrl = uploadedUrl;
+        } else {
+          return; // Error al subir, no continuar
+        }
+      }
+
+      // Actualizar perfil
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          business_name: newBusinessName.trim() || null,
+          business_logo_url: logoUrl,
+        })
+        .eq("id", user.id);
+
+      if (error) throw error;
+
+      // Actualizar perfil local
+      setProfile({
+        ...profile!,
+        business_name: newBusinessName.trim() || null,
+        business_logo_url: logoUrl,
+      });
+
+      setShowBusinessConfigDialog(false);
+      setBusinessLogoFile(null);
+
+      toast({
+        title: "¡Perfecto!",
+        description: "La información de tu negocio ha sido actualizada",
+      });
+    } catch (error: any) {
+      console.error("Update business info error:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar la información del negocio",
+        variant: "destructive",
+      });
+    }
+  }
+
+  function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setBusinessLogoFile(file);
+
+    // Crear preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setBusinessLogoPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handleRemoveLogo() {
+    setBusinessLogoFile(null);
+    setBusinessLogoPreview(null);
   }
 
   async function handleSubscribe() {
@@ -586,6 +741,75 @@ export default function DashboardPage() {
                     </Button>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
+        {/* Business Configuration Card */}
+        {profile && profile.username && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="mb-8"
+          >
+            <Card className="border-slate-200/70 bg-white/70 backdrop-blur shadow-lg hover:shadow-xl transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                  <div className="flex-1 w-full">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(var(--color-primary), 0.1)' }}>
+                        <Building2 className="w-5 h-5" style={{ color: 'var(--color-primary)' }} />
+                      </div>
+                      <div>
+                        <Label className="text-sm font-semibold text-slate-900">Información del Negocio</Label>
+                        <p className="text-xs text-slate-500">Personaliza cómo apareces en tu agenda pública</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      {profile.business_name && (
+                        <p className="text-sm text-slate-700">
+                          <span className="font-medium">Nombre:</span> {profile.business_name}
+                        </p>
+                      )}
+                      {profile.business_logo_url && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-slate-700">Logo:</span>
+                          <img
+                            src={profile.business_logo_url}
+                            alt="Logo del negocio"
+                            className="h-12 w-12 object-contain rounded-lg border border-slate-200"
+                          />
+                        </div>
+                      )}
+                      {!profile.business_name && !profile.business_logo_url && (
+                        <p className="text-sm text-slate-500 italic">
+                          No has configurado información del negocio aún
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setNewBusinessName(profile.business_name || "");
+                        setBusinessLogoPreview(profile.business_logo_url || null);
+                        setBusinessLogoFile(null);
+                        setShowBusinessConfigDialog(true);
+                      }}
+                      className="whitespace-nowrap"
+                      type="button"
+                    >
+                      <Building2 className="w-4 h-4 mr-2" />
+                      {profile.business_name || profile.business_logo_url ? "Editar" : "Configurar"}
+                    </Button>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </motion.div>
