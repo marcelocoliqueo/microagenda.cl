@@ -47,7 +47,7 @@ export function InlineDatePicker({
   const dayNames = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sá"];
 
   // Obtener horarios disponibles para una fecha
-  const getTimeSlotsForDate = (dateStr: string): string[] => {
+  const getTimeSlotsForDate = (dateStr: string, isDetailedLog: boolean = false): string[] => {
     if (!dateStr) return [];
     
     const dayName = getDayName(dateStr);
@@ -57,16 +57,19 @@ export function InlineDatePicker({
       return [];
     }
     
-    // Debug solo cuando hay fecha seleccionada y coincide con dateStr
-    if (value === dateStr) {
-      console.log(`📋 [InlineDatePicker] Bloques para ${dayName}:`, JSON.parse(JSON.stringify(dayAvailability)));
+    // Debug solo cuando hay fecha seleccionada y coincide con dateStr o se solicita explícitamente
+    if (isDetailedLog || value === dateStr) {
+      console.log(`📋 [InlineDatePicker] Bloques para ${dayName} (${dateStr}):`, JSON.stringify(dayAvailability, null, 2));
       console.log(`⏱️ [InlineDatePicker] Duración del servicio:`, serviceDuration);
+      if (isDetailedLog) {
+        console.log(`🔍 [InlineDatePicker] Disponibilidad completa:`, JSON.stringify(availability, null, 2));
+      }
     }
     
     // Usar los bloques exactos configurados con la duración del servicio
     const availableSlots = generateAvailableSlots(dayAvailability, 30, serviceDuration);
     
-    if (value === dateStr) {
+    if (isDetailedLog || value === dateStr) {
       console.log(`✅ [InlineDatePicker] Slots generados para ${dayName}:`, availableSlots);
       console.log(`🚫 [InlineDatePicker] Slots ocupados:`, bookedSlots);
     }
@@ -74,7 +77,7 @@ export function InlineDatePicker({
     // Filtrar horarios ya reservados
     const filtered = availableSlots.filter(slot => !bookedSlots.includes(slot));
     
-    if (value === dateStr) {
+    if (isDetailedLog || value === dateStr) {
       console.log(`🎯 [InlineDatePicker] Slots finales disponibles para ${dayName}:`, filtered);
     }
     
