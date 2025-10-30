@@ -38,6 +38,21 @@ if (typeof window !== 'undefined') {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.access_token) {
+        // Cerrar cualquier conexión existente antes de configurar el token
+        try {
+          const channels = supabase.getChannels();
+          channels.forEach(ch => {
+            try {
+              supabase.removeChannel(ch);
+            } catch (e) {
+              // Ignorar errores
+            }
+          });
+        } catch (e) {
+          // Ignorar errores
+        }
+        
+        // Configurar el token después de limpiar
         supabase.realtime.setAuth(session.access_token);
         if (process.env.NODE_ENV === 'development') {
           console.log('🔐 Token de Realtime configurado al inicializar cliente');
@@ -49,11 +64,26 @@ if (typeof window !== 'undefined') {
   };
   
   // Ejecutar después de que el cliente esté listo
-  setTimeout(initRealtimeAuth, 0);
+  setTimeout(initRealtimeAuth, 100);
   
   // También escuchar cambios de autenticación para actualizar el token
   supabase.auth.onAuthStateChange((event, session) => {
     if (session?.access_token && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+      // Desconectar canales existentes antes de actualizar el token
+      try {
+        const channels = supabase.getChannels();
+        channels.forEach(ch => {
+          try {
+            supabase.removeChannel(ch);
+          } catch (e) {
+            // Ignorar errores
+          }
+        });
+      } catch (e) {
+        // Ignorar errores
+      }
+      
+      // Configurar el nuevo token
       supabase.realtime.setAuth(session.access_token);
       if (process.env.NODE_ENV === 'development') {
         console.log('🔄 Token de Realtime actualizado por cambio de autenticación');

@@ -102,14 +102,36 @@ export function useRealtime(
 
         // IMPORTANTE: Configurar el token JWT ANTES de crear cualquier canal
         // El cliente de Supabase necesita este token para autenticar el WebSocket correctamente
+        
+        // Desconectar cualquier conexión WebSocket existente antes de configurar el token
+        // Esto asegura que la nueva conexión use el token correcto desde el inicio
+        try {
+          const existingChannels = supabase.getChannels();
+          if (existingChannels.length > 0) {
+            // Cerrar todos los canales existentes para forzar reconexión con nuevo token
+            existingChannels.forEach(ch => {
+              try {
+                supabase.removeChannel(ch);
+              } catch (e) {
+                // Ignorar errores al cerrar canales
+              }
+            });
+            // Esperar a que se cierren las conexiones
+            await new Promise(resolve => setTimeout(resolve, 200));
+          }
+        } catch (e) {
+          // Ignorar errores al limpiar canales
+        }
+        
+        // Configurar el token JWT
         supabase.realtime.setAuth(session.access_token);
         
         if (process.env.NODE_ENV === 'development') {
           console.log(`🔐 Configurando Realtime para ${table} con token de usuario ${userId?.substring(0, 8)}...`);
         }
         
-        // Pequeño delay para asegurar que el token se configure antes de crear el canal
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Delay más largo para asegurar que el token se configure y cualquier conexión anterior se cierre
+        await new Promise(resolve => setTimeout(resolve, 300));
 
         const channel = supabase
           .channel(`${table}_changes_${userId}`, {
