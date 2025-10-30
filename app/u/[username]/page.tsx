@@ -20,7 +20,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase, type Profile, type Service } from "@/lib/supabaseClient";
 import { formatCurrency, formatDate, formatDateFriendly, generateTimeSlots, generateAvailableSlots, getDayName, sanitizePhone } from "@/lib/utils";
 import { APP_NAME } from "@/lib/constants";
-import { SimpleDatePicker } from "@/components/SimpleDatePicker";
+import { InlineDatePicker } from "@/components/InlineDatePicker";
 import { cn } from "@/lib/utils";
 
 export default function PublicAgendaPage() {
@@ -661,10 +661,24 @@ export default function PublicAgendaPage() {
                       </div>
                     )}
 
-                    <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="date" className="text-base font-medium">Fecha</Label>
-                        <SimpleDatePicker
+                        <Label className="text-base font-medium">Selecciona Fecha y Hora</Label>
+                        <input
+                          type="hidden"
+                          id="date"
+                          name="date"
+                          value={formData.date}
+                          required
+                        />
+                        <input
+                          type="hidden"
+                          id="time"
+                          name="time"
+                          value={formData.time}
+                          required
+                        />
+                        <InlineDatePicker
                           value={formData.date}
                           onChange={(date) => setFormData({ ...formData, date, time: "" })}
                           minDate={new Date().toISOString().split("T")[0]}
@@ -674,61 +688,14 @@ export default function PublicAgendaPage() {
                           onTimeSelect={(time) => setFormData({ ...formData, time })}
                         />
                       </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="time" className="text-base font-medium">Hora</Label>
-                        <input
-                          type="hidden"
-                          id="time"
-                          name="time"
-                          value={formData.time}
-                          required
-                        />
-                        {getAvailableTimeSlots().length === 0 && formData.date ? (
-                          <div className="space-y-2">
-                            <Select disabled>
-                              <SelectTrigger aria-labelledby="time" className="h-11">
-                                <SelectValue placeholder="No hay horarios disponibles" />
-                              </SelectTrigger>
-                            </Select>
-                            <p className="text-sm text-amber-600 flex items-center gap-2">
-                              <span>⚠️</span>
-                              No hay horarios disponibles para este día. Por favor, selecciona otra fecha.
-                            </p>
-                          </div>
-                        ) : (
-                          <>
-                            <Select
-                              value={formData.time}
-                              onValueChange={(value) =>
-                                setFormData({ ...formData, time: value })
-                              }
-                              required
-                              disabled={!formData.date}
-                            >
-                              <SelectTrigger aria-labelledby="time" className="h-11">
-                                <SelectValue placeholder={
-                                  !formData.date 
-                                    ? "Primero selecciona una fecha" 
-                                    : "Selecciona hora"
-                                } />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {getAvailableTimeSlots().map((slot) => (
-                                  <SelectItem key={slot} value={slot}>
-                                    {slot}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            {formData.date && getAvailableTimeSlots().length > 0 && (
-                              <p className="text-xs text-slate-500 mt-1">
-                                {getAvailableTimeSlots().length} horario{getAvailableTimeSlots().length !== 1 ? "s" : ""} disponible{getAvailableTimeSlots().length !== 1 ? "s" : ""}
-                              </p>
-                            )}
-                          </>
-                        )}
-                      </div>
+                      {formData.date && getAvailableTimeSlots().length === 0 && (
+                        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                          <p className="text-sm text-amber-700 flex items-center gap-2">
+                            <span>⚠️</span>
+                            No hay horarios disponibles para este día. Por favor, selecciona otra fecha.
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     {/* Resumen antes de confirmar */}
