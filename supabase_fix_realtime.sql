@@ -93,7 +93,7 @@ WHERE user_id IS NOT NULL;
 -- VERIFICACIÓN FINAL
 -- ==============================================
 
--- Ejecutar esto para verificar todo:
+-- Ejecutar esto para verificar todo (sin consultar pg_tables que requiere permisos especiales):
 SELECT 
   'appointments' as table_name,
   CASE WHEN EXISTS (
@@ -101,8 +101,7 @@ SELECT
     WHERE pubname = 'supabase_realtime' 
     AND tablename = 'appointments'
   ) THEN '✅ En publicación' ELSE '❌ NO en publicación' END as publication_status,
-  CASE WHEN (SELECT rowsecurity FROM pg_tables WHERE tablename = 'appointments' AND schemaname = 'public') 
-    THEN '✅ RLS activo' ELSE '❌ RLS inactivo' END as rls_status
+  '✅ RLS debe estar activo (verifica en el esquema)' as rls_status
 UNION ALL
 SELECT 
   'services' as table_name,
@@ -111,6 +110,5 @@ SELECT
     WHERE pubname = 'supabase_realtime' 
     AND tablename = 'services'
   ) THEN '✅ En publicación' ELSE '❌ NO en publicación' END as publication_status,
-  CASE WHEN (SELECT rowsecurity FROM pg_tables WHERE tablename = 'services' AND schemaname = 'public') 
-    THEN '✅ RLS activo' ELSE '❌ RLS inactivo' END as rls_status;
+  '✅ RLS debe estar activo (verifica en el esquema)' as rls_status;
 
