@@ -120,8 +120,13 @@ export function useRealtime(
         }
 
         // Configurar el token JWT de autenticación para Realtime
-        // Esto es necesario para que Realtime valide la conexión con RLS
+        // IMPORTANTE: Debe llamarse ANTES de crear el canal y suscribirse
+        // setAuth no es async, pero debemos asegurarnos de que se ejecute antes
         supabase.realtime.setAuth(session.access_token);
+        
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`🔐 Token de Realtime configurado para ${table} (usuario: ${userId})`);
+        }
 
         const channel = supabase
           .channel(`${table}_changes_${userId}`, {

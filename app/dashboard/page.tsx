@@ -377,7 +377,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen">
       {/* User Welcome Header */}
-      <div className="border-b border-slate-200/70 bg-white/80 backdrop-blur-sm">
+      <header className="sticky top-0 z-[60] border-b border-slate-200/70 bg-white/95 backdrop-blur-md shadow-sm">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -392,13 +392,23 @@ export default function DashboardPage() {
                 Así va tu negocio hoy
               </p>
             </div>
-            <Button variant="outline" size="sm" onClick={handleLogout}>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleLogout();
+              }}
+              className="cursor-pointer pointer-events-auto"
+              type="button"
+            >
               <LogOut className="w-4 h-4 mr-2" />
               Salir
             </Button>
           </motion.div>
         </div>
-      </div>
+      </header>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
         {/* Premium Subscription Banner */}
