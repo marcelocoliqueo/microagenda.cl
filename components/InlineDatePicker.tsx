@@ -157,7 +157,7 @@ export function InlineDatePicker({
   };
 
   const days = getDaysInMonth();
-  const availableTimeSlots = value ? getTimeSlotsForDate(value) : [];
+  const availableTimeSlots = value ? getTimeSlotsForDate(value, true) : [];
 
   return (
     <div className={cn("flex flex-col sm:flex-row gap-4", className)}>
