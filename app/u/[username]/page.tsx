@@ -332,16 +332,26 @@ export default function PublicAgendaPage() {
       {/* Header mejorado */}
       <header className="border-b border-slate-200/80 bg-white/80 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4">
-          <Link href="/" className="flex items-center gap-2 sm:gap-3 group">
-            <img 
-              src="/logo.png" 
-              alt={`${APP_NAME} Logo`}
-              className="h-8 w-8 sm:h-10 sm:w-10 object-contain group-hover:scale-110 transition-transform"
-            />
-            <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              {APP_NAME}
+          <div className="flex items-center gap-3">
+            {profile.business_logo_url ? (
+              <img 
+                src={profile.business_logo_url}
+                alt={`${profile.business_name || profile.name} Logo`}
+                className="h-10 w-10 sm:h-12 sm:w-12 object-contain rounded-lg"
+              />
+            ) : (
+              profile.photo_url && (
+                <img 
+                  src={profile.photo_url}
+                  alt={`${profile.business_name || profile.name}`}
+                  className="h-10 w-10 sm:h-12 sm:w-12 object-cover rounded-full"
+                />
+              )
+            )}
+            <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+              {profile.business_name || profile.name}
             </span>
-          </Link>
+          </div>
         </div>
       </header>
 
