@@ -111,14 +111,17 @@ export function useRealtime(
             if (status === 'SUBSCRIBED') {
               setIsConnected(true);
               isSettingUpRef.current = false;
-              if (process.env.NODE_ENV === 'development') {
-                console.log(`✅ Realtime conectado para ${table}`);
-              }
+              console.log(`✅ Realtime conectado para ${table}`);
             } else if (status === 'CHANNEL_ERROR') {
               setIsConnected(false);
               isSettingUpRef.current = false;
-              const errorMsg = err?.message || 'Error desconocido';
-              console.error(`❌ Error Realtime para ${table}:`, errorMsg);
+              console.error(`❌ Error Realtime para ${table}:`, {
+                status,
+                error: err,
+                errorMessage: err?.message,
+                errorType: err?.type,
+                fullError: JSON.stringify(err, null, 2)
+              });
               
               // Limpiar canal anterior antes de reconectar (guardar referencia primero)
               const oldChannel = channelRef.current;
