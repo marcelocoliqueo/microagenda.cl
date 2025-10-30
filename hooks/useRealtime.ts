@@ -27,27 +27,8 @@ export function useRealtime(
     onUpdateRef.current = onUpdate;
   }, [onUpdate]);
 
-  // Listener para actualizar el token de Realtime cuando la sesión cambia
-  useEffect(() => {
-    if (!userId) return;
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'TOKEN_REFRESHED' && session?.access_token) {
-        // Actualizar el token de Realtime cuando se refresca
-        supabase.realtime.setAuth(session.access_token);
-        console.log('🔄 Token de Realtime actualizado');
-      } else if (event === 'SIGNED_IN' && session?.access_token) {
-        // Configurar token al iniciar sesión
-        supabase.realtime.setAuth(session.access_token);
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [userId]);
+  // El listener de onAuthStateChange se maneja globalmente en supabaseClient.ts
+  // No necesitamos duplicarlo aquí para evitar múltiples listeners
 
   const cleanupAll = () => {
     // Limpiar timeout de reintento
@@ -119,14 +100,16 @@ export function useRealtime(
           return;
         }
 
-        // Configurar el token JWT de autenticación para Realtime
-        // IMPORTANTE: Debe llamarse ANTES de crear el canal y suscribirse
-        // setAuth no es async, pero debemos asegurarnos de que se ejecute antes
+        // IMPORTANTE: Configurar el token JWT ANTES de crear cualquier canal
+        // El cliente de Supabase necesita este token para autenticar el WebSocket correctamente
         supabase.realtime.setAuth(session.access_token);
         
         if (process.env.NODE_ENV === 'development') {
-          console.log(`🔐 Token de Realtime configurado para ${table} (usuario: ${userId})`);
+          console.log(`🔐 Configurando Realtime para ${table} con token de usuario ${userId?.substring(0, 8)}...`);
         }
+        
+        // Pequeño delay para asegurar que el token se configure antes de crear el canal
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         const channel = supabase
           .channel(`${table}_changes_${userId}`, {
@@ -165,7 +148,14 @@ export function useRealtime(
               isSettingUpRef.current = false;
               
               // Mostrar error útil para debugging
-              console.error(`❌ Error en Realtime para ${table}:`, err || 'Error desconocido');
+              const errorMsg = err?.message || err?.toString() || 'Error desconocido';
+              console.error(`❌ Error en Realtime para ${table}:`, errorMsg);
+              
+              // Si el error es que Realtime no está habilitado, no reintentar indefinidamente
+              if (errorMsg.includes('Realtime') && errorMsg.includes('disabled')) {
+                console.warn(`⚠️ Realtime parece estar deshabilitado para ${table}. La app funcionará sin actualizaciones en tiempo real.`);
+                return; // No reintentar si está deshabilitado
+              }
               
               const now = Date.now();
               if (now - lastErrorRef.current > 5000) {
@@ -174,21 +164,16 @@ export function useRealtime(
                 
                 const delay = Math.min(2000 * Math.pow(2, retryCountRef.current - 1), 60000);
                 
-                if (retryCountRef.current <= 5) {
-                  console.log(`🔄 Reintentando conexión Realtime para ${table} en ${delay}ms (intento ${retryCountRef.current})`);
+                if (retryCountRef.current <= 3) {
+                  console.log(`🔄 Reintentando conexión Realtime para ${table} en ${delay}ms (intento ${retryCountRef.current}/3)`);
                   retryTimeoutRef.current = setTimeout(() => {
                     if (isMountedRef.current && !isSettingUpRef.current && userId) {
                       setupRealtimeSubscription();
                     }
                   }, delay);
                 } else {
-                  console.warn(`⚠️ Múltiples fallos en Realtime para ${table}. Reintentando cada 2 minutos.`);
-                  retryTimeoutRef.current = setTimeout(() => {
-                    retryCountRef.current = 0;
-                    if (isMountedRef.current && !isSettingUpRef.current && userId) {
-                      setupRealtimeSubscription();
-                    }
-                  }, 120000);
+                  console.warn(`⚠️ Realtime no disponible para ${table} después de 3 intentos. La app funcionará sin actualizaciones en tiempo real.`);
+                  // No reintentar más si falla 3 veces consecutivamente
                 }
               }
             } else if (status === 'TIMED_OUT' || status === 'CLOSED') {

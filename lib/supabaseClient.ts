@@ -30,6 +30,38 @@ export const supabase = createClient(
   }
 );
 
+// Configurar el token de Realtime automáticamente cuando hay una sesión activa
+// Esto se ejecuta una vez al cargar el módulo, antes de cualquier uso de Realtime
+if (typeof window !== 'undefined') {
+  // Esperar a que el DOM esté listo y configurar el token si hay sesión
+  const initRealtimeAuth = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.access_token) {
+        supabase.realtime.setAuth(session.access_token);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔐 Token de Realtime configurado al inicializar cliente');
+        }
+      }
+    } catch (error) {
+      // Ignorar errores en la inicialización
+    }
+  };
+  
+  // Ejecutar después de que el cliente esté listo
+  setTimeout(initRealtimeAuth, 0);
+  
+  // También escuchar cambios de autenticación para actualizar el token
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (session?.access_token && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+      supabase.realtime.setAuth(session.access_token);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔄 Token de Realtime actualizado por cambio de autenticación');
+      }
+    }
+  });
+}
+
 // Database types
 export type Profile = {
   id: string;
