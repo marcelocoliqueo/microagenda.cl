@@ -21,6 +21,7 @@ export function useRealtime(
   const retryCountRef = useRef(0);
   const lastErrorRef = useRef<number>(0);
   const isSettingUpRef = useRef(false); // Prevenir múltiples setups simultáneos
+  const isDisabledRef = useRef(false); // Marcar como deshabilitado después de múltiples fallos
 
   // Actualizar la referencia de la función sin causar re-suscripciones
   useEffect(() => {
@@ -64,11 +65,12 @@ export function useRealtime(
     retryCountRef.current = 0;
     lastErrorRef.current = 0;
     isSettingUpRef.current = false;
+    isDisabledRef.current = false; // Resetear cuando cambia userId o table
 
     // Definir setupRealtimeSubscription dentro del useEffect para evitar problemas de closure
     const setupRealtimeSubscription = async () => {
-      // Prevenir múltiples setups simultáneos
-      if (!isMountedRef.current || !userId || isSettingUpRef.current) {
+      // Prevenir múltiples setups simultáneos o si está deshabilitado
+      if (!isMountedRef.current || !userId || isSettingUpRef.current || isDisabledRef.current) {
         return;
       }
 
@@ -103,35 +105,15 @@ export function useRealtime(
         // IMPORTANTE: Configurar el token JWT ANTES de crear cualquier canal
         // El cliente de Supabase necesita este token para autenticar el WebSocket correctamente
         
-        // Desconectar cualquier conexión WebSocket existente antes de configurar el token
-        // Esto asegura que la nueva conexión use el token correcto desde el inicio
-        try {
-          const existingChannels = supabase.getChannels();
-          if (existingChannels.length > 0) {
-            // Cerrar todos los canales existentes para forzar reconexión con nuevo token
-            existingChannels.forEach(ch => {
-              try {
-                supabase.removeChannel(ch);
-              } catch (e) {
-                // Ignorar errores al cerrar canales
-              }
-            });
-            // Esperar a que se cierren las conexiones
-            await new Promise(resolve => setTimeout(resolve, 200));
-          }
-        } catch (e) {
-          // Ignorar errores al limpiar canales
-        }
-        
-        // Configurar el token JWT
+        // Configurar el token JWT primero
         supabase.realtime.setAuth(session.access_token);
         
         if (process.env.NODE_ENV === 'development') {
           console.log(`🔐 Configurando Realtime para ${table} con token de usuario ${userId?.substring(0, 8)}...`);
         }
         
-        // Delay más largo para asegurar que el token se configure y cualquier conexión anterior se cierre
-        await new Promise(resolve => setTimeout(resolve, 300));
+        // Pequeño delay para asegurar que el token se configure
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         const channel = supabase
           .channel(`${table}_changes_${userId}`, {
@@ -169,9 +151,11 @@ export function useRealtime(
               setIsConnected(false);
               isSettingUpRef.current = false;
               
-              // Mostrar error útil para debugging
-              const errorMsg = err?.message || err?.toString() || 'Error desconocido';
-              console.error(`❌ Error en Realtime para ${table}:`, errorMsg);
+              // Solo mostrar errores si no está deshabilitado
+              if (!isDisabledRef.current) {
+                const errorMsg = err?.message || err?.toString() || 'Error desconocido';
+                console.error(`❌ Error en Realtime para ${table}:`, errorMsg);
+              }
               
               // Si el error es que Realtime no está habilitado, no reintentar indefinidamente
               if (errorMsg.includes('Realtime') && errorMsg.includes('disabled')) {
@@ -189,12 +173,13 @@ export function useRealtime(
                 if (retryCountRef.current <= 3) {
                   console.log(`🔄 Reintentando conexión Realtime para ${table} en ${delay}ms (intento ${retryCountRef.current}/3)`);
                   retryTimeoutRef.current = setTimeout(() => {
-                    if (isMountedRef.current && !isSettingUpRef.current && userId) {
+                    if (isMountedRef.current && !isSettingUpRef.current && userId && !isDisabledRef.current) {
                       setupRealtimeSubscription();
                     }
                   }, delay);
                 } else {
-                  console.warn(`⚠️ Realtime no disponible para ${table} después de 3 intentos. La app funcionará sin actualizaciones en tiempo real.`);
+                  isDisabledRef.current = true;
+                  console.warn(`⚠️ Realtime no disponible para ${table} después de 3 intentos. La app funcionará sin actualizaciones en tiempo real. Silenciando errores adicionales.`);
                   // No reintentar más si falla 3 veces consecutivamente
                 }
               }
@@ -202,13 +187,16 @@ export function useRealtime(
               setIsConnected(false);
               isSettingUpRef.current = false;
               
-              console.warn(`⚠️ Realtime ${status.toLowerCase()} para ${table}. Intentando reconectar...`);
+              // Solo mostrar warnings si no está deshabilitado
+              if (!isDisabledRef.current) {
+                console.warn(`⚠️ Realtime ${status.toLowerCase()} para ${table}. Intentando reconectar...`);
+              }
               
               const now = Date.now();
-              if (now - lastErrorRef.current > 5000) {
+              if (now - lastErrorRef.current > 5000 && !isDisabledRef.current) {
                 lastErrorRef.current = now;
                 retryTimeoutRef.current = setTimeout(() => {
-                  if (isMountedRef.current && !isSettingUpRef.current && userId) {
+                  if (isMountedRef.current && !isSettingUpRef.current && userId && !isDisabledRef.current) {
                     setupRealtimeSubscription();
                   }
                 }, 2000);
