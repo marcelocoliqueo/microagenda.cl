@@ -40,6 +40,7 @@ export default function ServicesPage() {
     name: "",
     duration: "",
     price: "",
+    category: "",
   });
 
   useEffect(() => {
@@ -183,13 +184,14 @@ export default function ServicesPage() {
       name: service.name,
       duration: service.duration.toString(),
       price: service.price.toString(),
+      category: service.category || "",
     });
     setShowServiceDialog(true);
   }
 
   function openNewDialog() {
     setEditingService(null);
-    setServiceForm({ name: "", duration: "", price: "" });
+    setServiceForm({ name: "", duration: "", price: "", category: "" });
     setShowServiceDialog(true);
   }
 
@@ -370,13 +372,27 @@ export default function ServicesPage() {
                 />
               </div>
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="service-category">Categoría (opcional)</Label>
+              <Input
+                id="service-category"
+                placeholder="Ej: Tratamientos, Consultas, Masajes..."
+                value={serviceForm.category}
+                onChange={(e) =>
+                  setServiceForm({ ...serviceForm, category: e.target.value })
+                }
+              />
+              <p className="text-xs text-slate-500">
+                Las categorías ayudan a organizar tus servicios. Si no especificas una, se usará "General".
+              </p>
+            </div>
             <div className="flex justify-end gap-2 pt-4">
               <Button
                 variant="outline"
                 onClick={() => {
                   setShowServiceDialog(false);
                   setEditingService(null);
-                  setServiceForm({ name: "", duration: "", price: "" });
+                  setServiceForm({ name: "", duration: "", price: "", category: "" });
                 }}
               >
                 <X className="w-4 h-4 mr-2" />

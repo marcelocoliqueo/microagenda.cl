@@ -88,6 +88,7 @@ export type Service = {
   name: string;
   duration: number;
   price: number;
+  category?: string | null;
   created_at: string;
 };
 
