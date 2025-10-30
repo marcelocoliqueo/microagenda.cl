@@ -221,8 +221,15 @@ export default function PublicAgendaPage() {
       {/* Header */}
       <header className="border-b border-border bg-surface">
         <div className="container mx-auto px-4 py-4">
-          <Link href="/" className="text-xl font-bold text-primary">
-            {APP_NAME}
+          <Link href="/" className="flex items-center gap-2 sm:gap-3 group">
+            <img 
+              src="/logo.png" 
+              alt={`${APP_NAME} Logo`}
+              className="h-8 w-8 sm:h-10 sm:w-10 object-contain group-hover:scale-110 transition-transform"
+            />
+            <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              {APP_NAME}
+            </span>
           </Link>
         </div>
       </header>
