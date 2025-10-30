@@ -119,7 +119,6 @@ export function useRealtime(
                 status,
                 error: err,
                 errorMessage: err?.message,
-                errorType: err?.type,
                 fullError: JSON.stringify(err, null, 2)
               });
               
