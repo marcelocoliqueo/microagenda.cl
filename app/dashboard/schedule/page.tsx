@@ -6,6 +6,8 @@ import { motion } from "framer-motion";
 import {
   Clock,
   Save,
+  Plus,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,21 +16,32 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabaseClient";
 
+type TimeBlock = {
+  id: string; // temporal ID para la UI
+  start: string;
+  end: string;
+};
+
+type DayAvailability = {
+  enabled: boolean;
+  blocks: TimeBlock[];
+};
+
 export default function SchedulePage() {
   const router = useRouter();
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // Availability settings
-  const [availability, setAvailability] = useState({
-    monday: { enabled: true, start: "09:00", end: "18:00" },
-    tuesday: { enabled: true, start: "09:00", end: "18:00" },
-    wednesday: { enabled: true, start: "09:00", end: "18:00" },
-    thursday: { enabled: true, start: "09:00", end: "18:00" },
-    friday: { enabled: true, start: "09:00", end: "18:00" },
-    saturday: { enabled: false, start: "09:00", end: "13:00" },
-    sunday: { enabled: false, start: "09:00", end: "13:00" },
+  // Availability settings - ahora con múltiples bloques por día
+  const [availability, setAvailability] = useState<Record<string, DayAvailability>>({
+    monday: { enabled: true, blocks: [{ id: "1", start: "09:00", end: "18:00" }] },
+    tuesday: { enabled: true, blocks: [{ id: "1", start: "09:00", end: "18:00" }] },
+    wednesday: { enabled: true, blocks: [{ id: "1", start: "09:00", end: "18:00" }] },
+    thursday: { enabled: true, blocks: [{ id: "1", start: "09:00", end: "18:00" }] },
+    friday: { enabled: true, blocks: [{ id: "1", start: "09:00", end: "18:00" }] },
+    saturday: { enabled: false, blocks: [{ id: "1", start: "09:00", end: "13:00" }] },
+    sunday: { enabled: false, blocks: [{ id: "1", start: "09:00", end: "13:00" }] },
   });
 
   const dayNames: Record<string, string> = {
@@ -73,20 +86,48 @@ export default function SchedulePage() {
       const { data, error } = await supabase
         .from("availability")
         .select("*")
-        .eq("user_id", userId);
+        .eq("user_id", userId)
+        .order("day_of_week")
+        .order("start_time");
 
       if (error) throw error;
 
       // Si hay datos guardados, actualizar el estado
       if (data && data.length > 0) {
-        const newAvailability = { ...availability };
-        data.forEach((day) => {
-          newAvailability[day.day_of_week as keyof typeof availability] = {
-            enabled: day.enabled,
-            start: day.start_time.substring(0, 5), // Convertir de HH:MM:SS a HH:MM
-            end: day.end_time.substring(0, 5),
-          };
+        const newAvailability: Record<string, DayAvailability> = {
+          monday: { enabled: false, blocks: [] },
+          tuesday: { enabled: false, blocks: [] },
+          wednesday: { enabled: false, blocks: [] },
+          thursday: { enabled: false, blocks: [] },
+          friday: { enabled: false, blocks: [] },
+          saturday: { enabled: false, blocks: [] },
+          sunday: { enabled: false, blocks: [] },
+        };
+
+        // Agrupar por día
+        data.forEach((item) => {
+          const day = item.day_of_week as keyof typeof newAvailability;
+          if (newAvailability[day]) {
+            newAvailability[day].enabled = item.enabled;
+            newAvailability[day].blocks.push({
+              id: item.id,
+              start: item.start_time.substring(0, 5),
+              end: item.end_time.substring(0, 5),
+            });
+          }
         });
+
+        // Si un día no tiene bloques pero estaba habilitado, agregar uno por defecto
+        Object.keys(newAvailability).forEach((day) => {
+          if (newAvailability[day].enabled && newAvailability[day].blocks.length === 0) {
+            newAvailability[day].blocks.push({
+              id: `default-${day}`,
+              start: "09:00",
+              end: "18:00",
+            });
+          }
+        });
+
         setAvailability(newAvailability);
       }
     } catch (error: any) {
@@ -95,27 +136,82 @@ export default function SchedulePage() {
     }
   }
 
+  function addBlock(day: string) {
+    setAvailability((prev) => ({
+      ...prev,
+      [day]: {
+        ...prev[day],
+        blocks: [
+          ...prev[day].blocks,
+          {
+            id: `new-${Date.now()}`,
+            start: "09:00",
+            end: "18:00",
+          },
+        ],
+      },
+    }));
+  }
+
+  function removeBlock(day: string, blockId: string) {
+    setAvailability((prev) => ({
+      ...prev,
+      [day]: {
+        ...prev[day],
+        blocks: prev[day].blocks.filter((block) => block.id !== blockId),
+      },
+    }));
+  }
+
+  function updateBlock(day: string, blockId: string, field: "start" | "end", value: string) {
+    setAvailability((prev) => ({
+      ...prev,
+      [day]: {
+        ...prev[day],
+        blocks: prev[day].blocks.map((block) =>
+          block.id === blockId ? { ...block, [field]: value } : block
+        ),
+      },
+    }));
+  }
+
   async function handleSaveAvailability() {
     if (!user) return;
 
     try {
-      // Preparar los datos para insertar/actualizar
-      const availabilityData = Object.entries(availability).map(([day, config]) => ({
-        user_id: user.id,
-        day_of_week: day,
-        enabled: config.enabled,
-        start_time: config.start + ':00', // Agregar segundos
-        end_time: config.end + ':00',
-      }));
-
-      // Usar upsert para insertar o actualizar según exista
-      const { error } = await supabase
+      // Primero eliminar todos los registros existentes del usuario
+      const { error: deleteError } = await supabase
         .from("availability")
-        .upsert(availabilityData, {
-          onConflict: 'user_id,day_of_week',
-        });
+        .delete()
+        .eq("user_id", user.id);
 
-      if (error) throw error;
+      if (deleteError) throw deleteError;
+
+      // Preparar los nuevos datos - un registro por cada bloque
+      const availabilityData: any[] = [];
+
+      Object.entries(availability).forEach(([day, config]) => {
+        if (config.enabled && config.blocks.length > 0) {
+          config.blocks.forEach((block) => {
+            availabilityData.push({
+              user_id: user.id,
+              day_of_week: day,
+              enabled: config.enabled,
+              start_time: block.start + ":00",
+              end_time: block.end + ":00",
+            });
+          });
+        }
+      });
+
+      // Insertar todos los nuevos bloques
+      if (availabilityData.length > 0) {
+        const { error: insertError } = await supabase
+          .from("availability")
+          .insert(availabilityData);
+
+        if (insertError) throw insertError;
+      }
 
       toast({
         title: "¡Guardado!",
@@ -164,7 +260,7 @@ export default function SchedulePage() {
           Horarios de Atención
         </h1>
         <p className="text-slate-600">
-          Configura los días y horarios en que estás disponible para atender
+          Configura los bloques de horarios disponibles para cada día. Puedes agregar múltiples horarios por día, por ejemplo: 09:00-12:00 y 14:00-18:00
         </p>
       </motion.div>
 
@@ -178,75 +274,119 @@ export default function SchedulePage() {
           <CardHeader>
             <CardTitle>Horarios de Disponibilidad</CardTitle>
             <CardDescription>
-              Los clientes solo podrán reservar en los horarios que configures aquí
+              Define los bloques de tiempo en que estás disponible. Los clientes solo podrán reservar dentro de estos horarios.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-6">
               {Object.entries(availability).map(([day, config]) => (
                 <div
                   key={day}
-                  className="flex items-center gap-4 p-4 border border-slate-200 rounded-lg hover:border-slate-300 transition-colors"
+                  className="p-4 border border-slate-200 rounded-lg hover:border-slate-300 transition-colors"
                 >
-                  <div className="flex items-center gap-2 w-32">
-                    <input
-                      type="checkbox"
-                      checked={config.enabled}
-                      onChange={(e) =>
-                        setAvailability({
-                          ...availability,
-                          [day]: { ...config, enabled: e.target.checked },
-                        })
-                      }
-                      className="w-4 h-4 rounded border-slate-300"
-                    />
-                    <span className="font-medium text-slate-900">
-                      {dayNames[day]}
-                    </span>
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="flex items-center gap-2 w-32">
+                      <input
+                        type="checkbox"
+                        checked={config.enabled}
+                        onChange={(e) =>
+                          setAvailability({
+                            ...availability,
+                            [day]: { ...config, enabled: e.target.checked },
+                          })
+                        }
+                        className="w-4 h-4 rounded border-slate-300"
+                      />
+                      <span className="font-medium text-slate-900">
+                        {dayNames[day]}
+                      </span>
+                    </div>
+
+                    {!config.enabled && (
+                      <span className="text-sm text-slate-400 flex-1">
+                        No disponible
+                      </span>
+                    )}
                   </div>
 
                   {config.enabled && (
-                    <div className="flex items-center gap-4 flex-1">
-                      <div className="flex items-center gap-2">
-                        <Label className="text-xs text-slate-500">Desde:</Label>
-                        <Input
-                          type="time"
-                          value={config.start}
-                          onChange={(e) =>
-                            setAvailability({
-                              ...availability,
-                              [day]: { ...config, start: e.target.value },
-                            })
-                          }
-                          className="w-32"
-                        />
+                    <div className="flex-1 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-medium text-slate-700">
+                          Bloques de horario:
+                        </Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => addBlock(day)}
+                          className="h-8"
+                        >
+                          <Plus className="w-3 h-3 mr-1" />
+                          Agregar bloque
+                        </Button>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Label className="text-xs text-slate-500">Hasta:</Label>
-                        <Input
-                          type="time"
-                          value={config.end}
-                          onChange={(e) =>
-                            setAvailability({
-                              ...availability,
-                              [day]: { ...config, end: e.target.value },
-                            })
-                          }
-                          className="w-32"
-                        />
+
+                      <div className="space-y-3">
+                        {config.blocks.map((block, index) => (
+                          <motion.div
+                            key={block.id}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200"
+                          >
+                            <span className="text-sm text-slate-500 w-8">
+                              {index + 1}
+                            </span>
+                            <div className="flex items-center gap-2 flex-1">
+                              <div className="flex items-center gap-2">
+                                <Label className="text-xs text-slate-500 whitespace-nowrap">
+                                  Desde:
+                                </Label>
+                                <Input
+                                  type="time"
+                                  value={block.start}
+                                  onChange={(e) =>
+                                    updateBlock(day, block.id, "start", e.target.value)
+                                  }
+                                  className="w-32"
+                                />
+                              </div>
+                              <span className="text-slate-400">-</span>
+                              <div className="flex items-center gap-2">
+                                <Label className="text-xs text-slate-500 whitespace-nowrap">
+                                  Hasta:
+                                </Label>
+                                <Input
+                                  type="time"
+                                  value={block.end}
+                                  onChange={(e) =>
+                                    updateBlock(day, block.id, "end", e.target.value)
+                                  }
+                                  className="w-32"
+                                />
+                              </div>
+                            </div>
+                            {config.blocks.length > 1 && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeBlock(day, block.id)}
+                                className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </motion.div>
+                        ))}
                       </div>
                     </div>
-                  )}
-
-                  {!config.enabled && (
-                    <span className="text-sm text-slate-400 flex-1">
-                      No disponible
-                    </span>
                   )}
                 </div>
               ))}
 
-              <div className="pt-4">
+              <div className="pt-4 border-t border-slate-200">
                 <Button
                   onClick={handleSaveAvailability}
                   className="bg-gradient-to-r from-primary to-accent hover:brightness-110"
@@ -258,7 +398,7 @@ export default function SchedulePage() {
                   Guardar Horarios
                 </Button>
                 <p className="text-xs text-slate-500 mt-2">
-                  * Los horarios se aplicarán para la generación de citas disponibles
+                  * Los horarios se aplicarán para la generación de citas disponibles. Puedes tener múltiples bloques por día, por ejemplo: mañana y tarde.
                 </p>
               </div>
             </div>
@@ -268,4 +408,3 @@ export default function SchedulePage() {
     </div>
   );
 }
-
