@@ -38,6 +38,8 @@ Tu proyecto ya está configurado en GitHub y listo para deployment automático e
 
    Antes de hacer el deploy, añade TODAS estas variables en **Environment Variables**:
 
+   ⚠️ **IMPORTANTE:** Al copiar/pegar valores en Vercel, asegúrate de NO incluir saltos de línea (`\n`) ni espacios adicionales al final. Esto causa errores de conexión WebSocket/Realtime. Ver: `VERCEL_ENV_FIX.md` para más detalles.
+
    ```env
    # Supabase (REQUERIDO)
    NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co

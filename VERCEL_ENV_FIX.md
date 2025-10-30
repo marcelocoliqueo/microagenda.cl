@@ -1,7 +1,23 @@
 # Fix de Variables de Entorno en Vercel
 
-## Problema
-Todas las variables de entorno en Vercel tienen un salto de línea (`\n`) al final, causando errores en WebSocket de Supabase.
+## ⚠️ Problema Resuelto
+
+**Causa raíz identificada:** Variables de entorno en Vercel con saltos de línea (`\n`) al final causaban errores en WebSocket de Supabase Realtime.
+
+**Solución aplicada:** Eliminar todos los saltos de línea y espacios adicionales al copiar/pegar valores en Vercel.
+
+### 🔍 Cómo detectar este problema:
+- Errores persistentes de WebSocket: `WebSocket connection to 'wss://...' failed`
+- Errores de conexión Realtime en consola del navegador
+- La app funciona pero Realtime no se conecta
+
+### ✅ Prevención futura:
+**SIEMPRE verificar que los valores copiados en Vercel NO tengan:**
+- Saltos de línea al final (`\n`)
+- Espacios en blanco al inicio o final
+- Caracteres invisibles (usar "Mostrar todo" en tu editor para verlos)
+
+**Mejor práctica:** Copiar valores desde un editor de texto plano o usar "Select All" y copiar directamente sin seleccionar espacios adicionales.
 
 ## Solución
 Actualizar las siguientes variables en Vercel eliminando los saltos de línea:
