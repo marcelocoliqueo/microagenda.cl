@@ -45,19 +45,23 @@
 
 ---
 
-## 🔄 En Progreso
+### 4. ✅ Calendario Visual Simple ⭐ ALTA PRIORIDAD
+**Estado:** COMPLETADO
+**Implementación:**
+- ✅ Componente `SimpleDatePicker` creado
+- ✅ Muestra días disponibles vs no disponibles
+- ✅ Días sin disponibilidad en gris y deshabilitados
+- ✅ Día actual destacado (verde claro)
+- ✅ Día seleccionado destacado (color primary)
+- ✅ Navegación mes anterior/siguiente
+- ✅ Input de fecha nativo como fallback
+- ✅ Integrado con disponibilidad configurada
+- ✅ Animación suave con Framer Motion
+- ✅ Overlay para cerrar al hacer click fuera
+- ✅ Leyenda explicativa de colores
 
-### 4. 🔄 Calendario Visual Simple ⭐ ALTA PRIORIDAD
-**Estado:** PENDIENTE
-**Plan de Implementación:**
-- Crear componente de minicalendario
-- Mostrar días disponibles vs no disponibles
-- Navegación mes anterior/siguiente
-- Mantener input de fecha como fallback
-- Integrar con disponibilidad configurada
-
-**Archivos a crear/modificar:**
-- `components/DatePicker.tsx` - Nuevo componente
+**Archivos creados/modificados:**
+- `components/SimpleDatePicker.tsx` - Nuevo componente
 - `app/u/[username]/page.tsx` - Integración del calendario
 
 ---
@@ -81,15 +85,14 @@
 
 ## 📊 Resumen de Progreso
 
-- **Completadas:** 3/7 (43%)
-- **En Progreso:** 1/7 (14%)
-- **Pendientes:** 3/7 (43%)
+- **Completadas (Alta Prioridad):** 4/4 (100%) ✅
+- **Pendientes (Media/Baja):** 3/7 (43%)
 
-**Prioridad Alta:** 
+**Prioridad Alta:** ✅ TODAS COMPLETADAS
 - ✅ Horarios reales
 - ✅ Bloqueo reservas
 - ✅ Resumen de reserva
-- 🔄 Calendario visual (siguiente)
+- ✅ Calendario visual
 
 **Prioridad Media/Baja:**
 - Mejoras visuales de servicios
