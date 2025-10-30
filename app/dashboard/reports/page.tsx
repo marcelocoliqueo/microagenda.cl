@@ -18,6 +18,13 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabaseClient";
 import { formatCurrency, formatDate, APPOINTMENT_STATUSES } from "@/lib/constants";
@@ -44,7 +51,7 @@ export default function ReportsPage() {
   const [user, setUser] = useState<any>(null);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [period, setPeriod] = useState("month"); // week, month, year
+  const [period, setPeriod] = useState<"week" | "month" | "year" | "all">("month");
 
   // Helper para convertir hex a rgba
   const hexToRgba = (hex: string, alpha: number) => {
@@ -57,6 +64,12 @@ export default function ReportsPage() {
   useEffect(() => {
     checkAuth();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchStats(user.id);
+    }
+  }, [period, user]);
 
   async function checkAuth() {
     try {
@@ -83,13 +96,33 @@ export default function ReportsPage() {
 
   async function fetchStats(userId: string) {
     try {
-      const { data: appointments, error } = await supabase
+      // Calcular fecha de inicio según el período seleccionado
+      let startDate = null;
+      const now = new Date();
+
+      if (period === "week") {
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      } else if (period === "month") {
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      } else if (period === "year") {
+        startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+      }
+      // Si period === "all", startDate permanece null y no filtramos
+
+      let query = supabase
         .from("appointments")
         .select(`
           *,
           service:services(*)
         `)
         .eq("user_id", userId);
+
+      // Aplicar filtro de fecha si hay período específico
+      if (startDate) {
+        query = query.gte("date", startDate.toISOString().split('T')[0]);
+      }
+
+      const { data: appointments, error } = await query;
 
       if (error) throw error;
 
@@ -244,13 +277,6 @@ export default function ReportsPage() {
     });
   }
 
-  function handlePeriodChange() {
-    toast({
-      title: "Cambio de período",
-      description: "La funcionalidad de filtros por período estará disponible próximamente.",
-    });
-  }
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -290,13 +316,18 @@ export default function ReportsPage() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button 
-              variant="outline"
-              onClick={handlePeriodChange}
-            >
-              <Filter className="w-4 h-4 mr-2" />
-              Periodo
-            </Button>
+            <Select value={period} onValueChange={(value: any) => setPeriod(value)}>
+              <SelectTrigger className="w-[180px]">
+                <Filter className="w-4 h-4 mr-2" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="week">Última semana</SelectItem>
+                <SelectItem value="month">Último mes</SelectItem>
+                <SelectItem value="year">Último año</SelectItem>
+                <SelectItem value="all">Todo el tiempo</SelectItem>
+              </SelectContent>
+            </Select>
             <Button 
               onClick={handleExport}
               className="bg-gradient-to-r from-primary to-accent hover:brightness-110"
