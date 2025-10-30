@@ -78,6 +78,7 @@ export default function SettingsPage() {
 
       setUser(session.user);
       await fetchServices(session.user.id);
+      await fetchAvailability(session.user.id);
     } catch (error: any) {
       console.error("Auth check error:", error);
       toast({
@@ -107,6 +108,33 @@ export default function SettingsPage() {
         description: "No se pudieron cargar los servicios",
         variant: "destructive",
       });
+    }
+  }
+
+  async function fetchAvailability(userId: string) {
+    try {
+      const { data, error } = await supabase
+        .from("availability")
+        .select("*")
+        .eq("user_id", userId);
+
+      if (error) throw error;
+
+      // Si hay datos guardados, actualizar el estado
+      if (data && data.length > 0) {
+        const newAvailability = { ...availability };
+        data.forEach((day) => {
+          newAvailability[day.day_of_week as keyof typeof availability] = {
+            enabled: day.enabled,
+            start: day.start_time.substring(0, 5), // Convertir de HH:MM:SS a HH:MM
+            end: day.end_time.substring(0, 5),
+          };
+        });
+        setAvailability(newAvailability);
+      }
+    } catch (error: any) {
+      console.error("Fetch availability error:", error);
+      // No mostramos toast aquí porque es opcional tener horarios guardados
     }
   }
 
@@ -215,12 +243,39 @@ export default function SettingsPage() {
   }
 
   async function handleSaveAvailability() {
-    // Note: This would need a separate table in the database to store availability
-    // For now, we'll show a message
-    toast({
-      title: "Próximamente",
-      description: "La funcionalidad de horarios se guardará en la base de datos",
-    });
+    if (!user) return;
+
+    try {
+      // Preparar los datos para insertar/actualizar
+      const availabilityData = Object.entries(availability).map(([day, config]) => ({
+        user_id: user.id,
+        day_of_week: day,
+        enabled: config.enabled,
+        start_time: config.start + ':00', // Agregar segundos
+        end_time: config.end + ':00',
+      }));
+
+      // Usar upsert para insertar o actualizar según exista
+      const { error } = await supabase
+        .from("availability")
+        .upsert(availabilityData, {
+          onConflict: 'user_id,day_of_week',
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "¡Guardado!",
+        description: "Tus horarios de disponibilidad han sido actualizados",
+      });
+    } catch (error: any) {
+      console.error("Save availability error:", error);
+      toast({
+        title: "Error",
+        description: "No se pudieron guardar los horarios",
+        variant: "destructive",
+      });
+    }
   }
 
   if (loading) {
