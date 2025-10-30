@@ -16,27 +16,6 @@ const realtimeOptions: SupabaseClientOptions<"public">["realtime"] = {
   log_level: process.env.NODE_ENV === 'development' ? 'info' : 'error',
 };
 
-// Silenciar errores de WebSocket en producción si Realtime no está disponible
-// Estos errores son normales si Realtime no se puede conectar y la app funciona sin él
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
-  let wsErrorSuppressed = false;
-  const originalError = console.error;
-  console.error = function(...args: any[]) {
-    const message = args.join(' ');
-    // Solo suprimir errores de WebSocket de Supabase Realtime
-    if (message.includes('WebSocket connection') && message.includes('supabase.co/realtime')) {
-      if (!wsErrorSuppressed) {
-        // Dejar pasar el primer error para diagnóstico, luego silenciar
-        wsErrorSuppressed = true;
-        originalError.apply(console, args);
-      }
-      // Silenciar errores subsecuentes
-      return;
-    }
-    originalError.apply(console, args);
-  };
-}
-
 // Create client with dummy values during build if env vars are missing
 export const supabase = createClient(
   supabaseUrl || "https://placeholder.supabase.co",

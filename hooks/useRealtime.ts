@@ -19,8 +19,6 @@ export function useRealtime(
   const [isConnected, setIsConnected] = useState(false);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isSettingUpRef = useRef(false);
-  const retryCountRef = useRef(0);
-  const MAX_RETRIES = 3; // Máximo de 3 intentos de conexión
 
   // Actualizar la referencia de la función sin causar re-suscripciones
   useEffect(() => {
@@ -49,7 +47,6 @@ export function useRealtime(
 
   useEffect(() => {
     cleanup();
-    retryCountRef.current = 0; // Resetear contador al iniciar nuevo efecto
 
     if (!userId) {
       setIsConnected(false);
@@ -200,24 +197,16 @@ export function useRealtime(
       } catch (error: any) {
         setIsConnected(false);
         isSettingUpRef.current = false;
-        retryCountRef.current += 1;
+        console.error(`❌ Error al suscribirse a Realtime para ${table}:`, error.message || error);
         
-        // Solo intentar reconectar si no hemos excedido el límite
-        if (retryCountRef.current <= MAX_RETRIES) {
-          // Reconectar después de 3 segundos solo si aún está montado
-          if (isMountedRef.current && userId && !reconnectTimeoutRef.current) {
-            reconnectTimeoutRef.current = setTimeout(() => {
-              reconnectTimeoutRef.current = null;
-              if (isMountedRef.current && userId) {
-                setupSubscription();
-              }
-            }, 3000);
-          }
-        } else {
-          // Después de MAX_RETRIES, dejar de intentar
-          if (process.env.NODE_ENV === 'development') {
-            console.warn(`⚠️ Realtime no disponible para ${table} después de ${MAX_RETRIES} intentos. Continuando sin actualizaciones en tiempo real.`);
-          }
+        // Reconectar después de 3 segundos solo si aún está montado
+        if (isMountedRef.current && userId && !reconnectTimeoutRef.current) {
+          reconnectTimeoutRef.current = setTimeout(() => {
+            reconnectTimeoutRef.current = null;
+            if (isMountedRef.current && userId) {
+              setupSubscription();
+            }
+          }, 3000);
         }
       }
     };
