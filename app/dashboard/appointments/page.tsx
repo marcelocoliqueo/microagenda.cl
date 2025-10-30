@@ -603,30 +603,49 @@ function NewAppointmentDialog({
 
           <div className="space-y-2">
             <Label htmlFor="service">Servicio</Label>
-            <Select
-              value={formData.service_id}
-              onValueChange={(value) =>
-                setFormData({ ...formData, service_id: value })
-              }
-              required
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecciona un servicio" />
-              </SelectTrigger>
-              <SelectContent>
-                {services.length === 0 ? (
-                  <SelectItem value="" disabled>
-                    No tienes servicios. Crea uno primero en la página de Servicios.
-                  </SelectItem>
-                ) : (
-                  services.map((service) => (
+            {services.length === 0 ? (
+              <div className="space-y-2">
+                <Select disabled>
+                  <SelectTrigger>
+                    <SelectValue placeholder="No hay servicios disponibles" />
+                  </SelectTrigger>
+                </Select>
+                <p className="text-sm text-amber-600 flex items-center gap-2">
+                  <span>⚠️</span>
+                  No tienes servicios. Crea uno primero en la página de{" "}
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="p-0 h-auto text-amber-600 underline"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      window.location.href = "/dashboard/services";
+                    }}
+                  >
+                    Servicios
+                  </Button>
+                </p>
+              </div>
+            ) : (
+              <Select
+                value={formData.service_id}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, service_id: value })
+                }
+                required
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecciona un servicio" />
+                </SelectTrigger>
+                <SelectContent>
+                  {services.map((service) => (
                     <SelectItem key={service.id} value={service.id}>
                       {service.name} - {formatCurrency(service.price)}
                     </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -657,8 +676,12 @@ function NewAppointmentDialog({
             </div>
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading || services.length === 0}>
-            {loading ? "Creando..." : "Crear Cita"}
+          <Button 
+            type="submit" 
+            className="w-full" 
+            disabled={loading || services.length === 0 || !formData.service_id}
+          >
+            {loading ? "Creando..." : services.length === 0 ? "Crear servicios primero" : "Crear Cita"}
           </Button>
         </form>
       </DialogContent>
