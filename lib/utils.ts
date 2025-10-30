@@ -58,18 +58,59 @@ export function generateAvailableSlots(
 ): string[] {
   const slots: string[] = [];
 
-  availabilityBlocks.forEach((block) => {
-    const [startHour, startMin] = block.start.split(":").map(Number);
-    const [endHour, endMin] = block.end.split(":").map(Number);
+  if (!availabilityBlocks || availabilityBlocks.length === 0) {
+    console.warn('⚠️ generateAvailableSlots: No hay bloques de disponibilidad');
+    return [];
+  }
+
+  availabilityBlocks.forEach((block, index) => {
+    // Validar formato de tiempo
+    if (!block.start || !block.end) {
+      console.warn(`⚠️ Bloque ${index} inválido:`, block);
+      return;
+    }
+
+    const startMatch = block.start.match(/^(\d{1,2}):(\d{2})/);
+    const endMatch = block.end.match(/^(\d{1,2}):(\d{2})/);
+    
+    if (!startMatch || !endMatch) {
+      console.warn(`⚠️ Formato de tiempo inválido en bloque ${index}:`, block);
+      return;
+    }
+
+    const startHour = parseInt(startMatch[1], 10);
+    const startMin = parseInt(startMatch[2], 10);
+    const endHour = parseInt(endMatch[1], 10);
+    const endMin = parseInt(endMatch[2], 10);
+    
+    // Validar valores
+    if (isNaN(startHour) || isNaN(startMin) || isNaN(endHour) || isNaN(endMin)) {
+      console.warn(`⚠️ Valores numéricos inválidos en bloque ${index}:`, block);
+      return;
+    }
+
+    if (startHour < 0 || startHour > 23 || startMin < 0 || startMin > 59 ||
+        endHour < 0 || endHour > 23 || endMin < 0 || endMin > 59) {
+      console.warn(`⚠️ Valores de hora fuera de rango en bloque ${index}:`, block);
+      return;
+    }
     
     const startTime = startHour * 60 + startMin;
     const endTime = endHour * 60 + endMin;
+
+    if (startTime >= endTime) {
+      console.warn(`⚠️ Hora de inicio >= hora de fin en bloque ${index}:`, block);
+      return;
+    }
+
+    console.log(`📦 Procesando bloque ${index}: ${block.start} - ${block.end}`);
 
     // Generar slots desde start hasta end (sin incluir end)
     // Si hay serviceDuration, validar que el slot + duración no exceda el end
     for (let time = startTime; time < endTime; time += intervalMinutes) {
       // Validar que el servicio quepa en el tiempo restante
       if (serviceDuration && (time + serviceDuration) > endTime) {
+        console.log(`   ⏭️ Saltando slot ${Math.floor(time/60)}:${time%60} (no cabe servicio de ${serviceDuration}min)`);
         continue; // Este slot no cabe con la duración del servicio
       }
       
@@ -83,7 +124,10 @@ export function generateAvailableSlots(
   });
 
   // Eliminar duplicados y ordenar
-  return [...new Set(slots)].sort();
+  const uniqueSlots = [...new Set(slots)].sort();
+  console.log(`📊 Slots únicos generados:`, uniqueSlots);
+  
+  return uniqueSlots;
 }
 
 /**

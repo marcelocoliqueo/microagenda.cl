@@ -66,6 +66,7 @@ export default function PublicAgendaPage() {
     const dayAvailability = availability[dayName];
 
     if (!dayAvailability || dayAvailability.length === 0) {
+      console.log(`❌ Día ${dayName} sin disponibilidad configurada`);
       return []; // Día no disponible
     }
 
@@ -73,11 +74,21 @@ export default function PublicAgendaPage() {
     const selectedService = services.find(s => s.id === formData.service_id);
     const serviceDuration = selectedService?.duration;
 
+    // Debug: log de bloques y duración
+    console.log(`📋 Bloques para ${dayName}:`, dayAvailability);
+    console.log(`⏱️ Duración del servicio:`, serviceDuration);
+
     // Generar slots usando los bloques exactos configurados
     const availableSlots = generateAvailableSlots(dayAvailability, 30, serviceDuration);
     
+    console.log(`✅ Slots generados:`, availableSlots);
+    console.log(`🚫 Slots ocupados:`, bookedSlots);
+    
     // Filtrar horarios ya reservados
-    return availableSlots.filter(slot => !bookedSlots.includes(slot));
+    const filtered = availableSlots.filter(slot => !bookedSlots.includes(slot));
+    console.log(`🎯 Slots finales disponibles:`, filtered);
+    
+    return filtered;
   };
 
   useEffect(() => {
@@ -140,11 +151,22 @@ export default function PublicAgendaPage() {
           if (!availabilityMap[day]) {
             availabilityMap[day] = [];
           }
+          // Extraer solo HH:mm del formato TIME de PostgreSQL
+          const startStr = typeof item.start_time === 'string' 
+            ? item.start_time.substring(0, 5) 
+            : item.start_time;
+          const endStr = typeof item.end_time === 'string'
+            ? item.end_time.substring(0, 5)
+            : item.end_time;
+          
           availabilityMap[day].push({
-            start: item.start_time.substring(0, 5),
-            end: item.end_time.substring(0, 5),
+            start: startStr,
+            end: endStr,
           });
         });
+        
+        // Debug: log de disponibilidad cargada
+        console.log('📅 Disponibilidad cargada:', availabilityMap);
         setAvailability(availabilityMap);
       }
     } catch (error: any) {
