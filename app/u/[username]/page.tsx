@@ -188,8 +188,8 @@ export default function PublicAgendaPage() {
           });
         });
         
-        // Debug: log de disponibilidad cargada
-        console.log('📅 Disponibilidad cargada:', availabilityMap);
+        // Debug: log de disponibilidad cargada con detalles completos
+        console.log('📅 Disponibilidad cargada:', JSON.parse(JSON.stringify(availabilityMap)));
         setAvailability(availabilityMap);
       }
     } catch (error: any) {

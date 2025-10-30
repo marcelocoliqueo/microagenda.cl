@@ -103,14 +103,11 @@ export function generateAvailableSlots(
       return;
     }
 
-    console.log(`📦 Procesando bloque ${index}: ${block.start} - ${block.end}`);
-
     // Generar slots desde start hasta end (sin incluir end)
     // Si hay serviceDuration, validar que el slot + duración no exceda el end
     for (let time = startTime; time < endTime; time += intervalMinutes) {
       // Validar que el servicio quepa en el tiempo restante
       if (serviceDuration && (time + serviceDuration) > endTime) {
-        console.log(`   ⏭️ Saltando slot ${Math.floor(time/60)}:${time%60} (no cabe servicio de ${serviceDuration}min)`);
         continue; // Este slot no cabe con la duración del servicio
       }
       
@@ -125,7 +122,6 @@ export function generateAvailableSlots(
 
   // Eliminar duplicados y ordenar
   const uniqueSlots = [...new Set(slots)].sort();
-  console.log(`📊 Slots únicos generados:`, uniqueSlots);
   
   return uniqueSlots;
 }

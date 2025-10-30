@@ -57,11 +57,28 @@ export function InlineDatePicker({
       return [];
     }
     
+    // Debug solo cuando hay fecha seleccionada y coincide con dateStr
+    if (value === dateStr) {
+      console.log(`📋 [InlineDatePicker] Bloques para ${dayName}:`, JSON.parse(JSON.stringify(dayAvailability)));
+      console.log(`⏱️ [InlineDatePicker] Duración del servicio:`, serviceDuration);
+    }
+    
     // Usar los bloques exactos configurados con la duración del servicio
     const availableSlots = generateAvailableSlots(dayAvailability, 30, serviceDuration);
     
+    if (value === dateStr) {
+      console.log(`✅ [InlineDatePicker] Slots generados para ${dayName}:`, availableSlots);
+      console.log(`🚫 [InlineDatePicker] Slots ocupados:`, bookedSlots);
+    }
+    
     // Filtrar horarios ya reservados
-    return availableSlots.filter(slot => !bookedSlots.includes(slot));
+    const filtered = availableSlots.filter(slot => !bookedSlots.includes(slot));
+    
+    if (value === dateStr) {
+      console.log(`🎯 [InlineDatePicker] Slots finales disponibles para ${dayName}:`, filtered);
+    }
+    
+    return filtered;
   };
 
   // Verificar si un día tiene disponibilidad
