@@ -430,7 +430,14 @@ export default function PublicAgendaPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="service">Servicio</Label>
+                    <Label htmlFor="service_id">Servicio</Label>
+                    <input
+                      type="hidden"
+                      id="service_id"
+                      name="service_id"
+                      value={formData.service_id}
+                      required
+                    />
                     <Select
                       value={formData.service_id}
                       onValueChange={(value) =>
@@ -438,9 +445,9 @@ export default function PublicAgendaPage() {
                       }
                       required
                     >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecciona un servicio" />
-                      </SelectTrigger>
+                      <SelectTrigger aria-labelledby="service_id">
+                      <SelectValue placeholder="Selecciona un servicio" />
+                    </SelectTrigger>
                       <SelectContent>
                         {services.map((service) => (
                           <SelectItem key={service.id} value={service.id}>
@@ -464,10 +471,17 @@ export default function PublicAgendaPage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="time">Hora</Label>
+                      <input
+                        type="hidden"
+                        id="time"
+                        name="time"
+                        value={formData.time}
+                        required
+                      />
                       {getAvailableTimeSlots().length === 0 && formData.date ? (
                         <div className="space-y-2">
                           <Select disabled>
-                            <SelectTrigger>
+                            <SelectTrigger aria-labelledby="time">
                               <SelectValue placeholder="No hay horarios disponibles" />
                             </SelectTrigger>
                           </Select>
@@ -485,7 +499,7 @@ export default function PublicAgendaPage() {
                             required
                             disabled={!formData.date}
                           >
-                            <SelectTrigger>
+                            <SelectTrigger aria-labelledby="time">
                               <SelectValue placeholder={
                                 !formData.date 
                                   ? "Primero selecciona una fecha" 

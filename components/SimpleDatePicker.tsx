@@ -12,6 +12,8 @@ interface SimpleDatePickerProps {
   minDate?: string;
   availability?: Record<string, Array<{ start: string; end: string }>>;
   className?: string;
+  id?: string;
+  name?: string;
 }
 
 export function SimpleDatePicker({
@@ -20,6 +22,8 @@ export function SimpleDatePicker({
   minDate,
   availability = {},
   className,
+  id = "date",
+  name = "date",
 }: SimpleDatePickerProps) {
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(() => {
@@ -122,6 +126,8 @@ export function SimpleDatePicker({
       {/* Input con botón para abrir calendario */}
       <div className="flex gap-2">
         <input
+          id={id}
+          name={name}
           type="date"
           value={value}
           onChange={(e) => onChange(e.target.value)}
