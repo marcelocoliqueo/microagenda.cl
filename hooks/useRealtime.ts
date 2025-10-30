@@ -151,14 +151,17 @@ export function useRealtime(
               setIsConnected(false);
               isSettingUpRef.current = false;
               
+              // Obtener mensaje de error
+              const errorMsg = err?.message || err?.toString() || 'Error desconocido';
+              
               // Solo mostrar errores si no está deshabilitado
               if (!isDisabledRef.current) {
-                const errorMsg = err?.message || err?.toString() || 'Error desconocido';
                 console.error(`❌ Error en Realtime para ${table}:`, errorMsg);
               }
               
               // Si el error es que Realtime no está habilitado, no reintentar indefinidamente
               if (errorMsg.includes('Realtime') && errorMsg.includes('disabled')) {
+                isDisabledRef.current = true;
                 console.warn(`⚠️ Realtime parece estar deshabilitado para ${table}. La app funcionará sin actualizaciones en tiempo real.`);
                 return; // No reintentar si está deshabilitado
               }
