@@ -34,10 +34,8 @@ export function useRealtime(
     if (channelRef.current) {
       try {
         const channel = channelRef.current;
-        // Cambiar estado del canal a closed antes de remover
-        if (channel.state === 'joined' || channel.state === 'joining') {
-          channel.unsubscribe();
-        }
+        // NO llamar unsubscribe() - removeChannel() ya maneja todo el cleanup
+        // Llamar unsubscribe() antes de removeChannel() causa un ciclo infinito
         supabase.removeChannel(channel);
       } catch (error) {
         // Ignorar errores al limpiar
@@ -126,15 +124,20 @@ export function useRealtime(
                 console.error(`❌ Error Realtime para ${table}:`, errorMsg);
               }
               
-              // Limpiar canal anterior antes de reconectar
-              if (channelRef.current) {
-                try {
-                  supabase.removeChannel(channelRef.current);
-                } catch (e) {
-                  // Ignorar errores
+              // Limpiar canal anterior antes de reconectar (guardar referencia primero)
+              const oldChannel = channelRef.current;
+              channelRef.current = null;
+              
+              // Remover canal después de un tick para evitar conflictos
+              setTimeout(() => {
+                if (oldChannel) {
+                  try {
+                    supabase.removeChannel(oldChannel);
+                  } catch (e) {
+                    // Ignorar errores
+                  }
                 }
-                channelRef.current = null;
-              }
+              }, 0);
               
               // Reconectar después de 5 segundos solo si aún está montado
               if (isMountedRef.current && !reconnectTimeoutRef.current) {
@@ -149,15 +152,20 @@ export function useRealtime(
               setIsConnected(false);
               isSettingUpRef.current = false;
               
-              // Limpiar canal anterior antes de reconectar
-              if (channelRef.current) {
-                try {
-                  supabase.removeChannel(channelRef.current);
-                } catch (e) {
-                  // Ignorar errores
+              // Limpiar canal anterior antes de reconectar (guardar referencia primero)
+              const oldChannel = channelRef.current;
+              channelRef.current = null;
+              
+              // Remover canal después de un tick para evitar conflictos
+              setTimeout(() => {
+                if (oldChannel) {
+                  try {
+                    supabase.removeChannel(oldChannel);
+                  } catch (e) {
+                    // Ignorar errores
+                  }
                 }
-                channelRef.current = null;
-              }
+              }, 0);
               
               // Reconectar después de 2 segundos solo si aún está montado
               if (isMountedRef.current && !reconnectTimeoutRef.current) {
