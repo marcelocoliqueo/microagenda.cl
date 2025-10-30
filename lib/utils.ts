@@ -39,6 +39,7 @@ export function generateTimeSlots(
         .toString()
         .padStart(2, "0")}`;
       slots.push(timeString);
+    }
   }
   return slots;
 }
