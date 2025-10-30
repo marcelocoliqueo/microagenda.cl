@@ -10,7 +10,9 @@ import {
   Palette,
   ChevronLeft,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  Package,
+  Clock
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -24,6 +26,8 @@ import { cn } from "@/lib/utils";
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, badge: null },
   { name: "Citas", href: "/dashboard/appointments", icon: Calendar, badge: null },
+  { name: "Servicios", href: "/dashboard/services", icon: Package, badge: null },
+  { name: "Horarios", href: "/dashboard/schedule", icon: Clock, badge: null },
   { name: "Clientes", href: "/dashboard/clients", icon: Users, badge: "Nuevo" },
   { name: "Informes", href: "/dashboard/reports", icon: BarChart3, badge: "Pro" },
   { name: "Configuración", href: "/dashboard/settings", icon: Settings, badge: null },

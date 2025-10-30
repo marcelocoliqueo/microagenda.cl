@@ -5,63 +5,20 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   Settings as SettingsIcon,
-  Plus,
-  Trash2,
-  Edit2,
-  Clock,
-  DollarSign,
-  Save,
-  X,
+  AlertTriangle,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase, type Service } from "@/lib/supabaseClient";
-import { formatCurrency } from "@/lib/constants";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { supabase, type Profile } from "@/lib/supabaseClient";
 
 export default function SettingsPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [services, setServices] = useState<Service[]>([]);
-  const [editingService, setEditingService] = useState<Service | null>(null);
-  const [showServiceDialog, setShowServiceDialog] = useState(false);
-  const [serviceForm, setServiceForm] = useState({
-    name: "",
-    duration: "",
-    price: "",
-  });
-
-  // Availability settings
-  const [availability, setAvailability] = useState({
-    monday: { enabled: true, start: "09:00", end: "18:00" },
-    tuesday: { enabled: true, start: "09:00", end: "18:00" },
-    wednesday: { enabled: true, start: "09:00", end: "18:00" },
-    thursday: { enabled: true, start: "09:00", end: "18:00" },
-    friday: { enabled: true, start: "09:00", end: "18:00" },
-    saturday: { enabled: false, start: "09:00", end: "13:00" },
-    sunday: { enabled: false, start: "09:00", end: "13:00" },
-  });
-
-  const dayNames: Record<string, string> = {
-    monday: "Lunes",
-    tuesday: "Martes",
-    wednesday: "Miércoles",
-    thursday: "Jueves",
-    friday: "Viernes",
-    saturday: "Sábado",
-    sunday: "Domingo",
-  };
 
   useEffect(() => {
     checkAuth();
@@ -77,8 +34,16 @@ export default function SettingsPage() {
       }
 
       setUser(session.user);
-      await fetchServices(session.user.id);
-      await fetchAvailability(session.user.id);
+
+      // Fetch profile
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", session.user.id)
+        .single();
+
+      if (profileError) throw profileError;
+      setProfile(profileData);
     } catch (error: any) {
       console.error("Auth check error:", error);
       toast({
@@ -91,188 +56,62 @@ export default function SettingsPage() {
     }
   }
 
-  async function fetchServices(userId: string) {
-    try {
-      const { data, error } = await supabase
-        .from("services")
-        .select("*")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false });
+  async function handleToggleAutoConfirm() {
+    if (!user || !profile) return;
 
-      if (error) throw error;
-      setServices(data || []);
-    } catch (error: any) {
-      console.error("Fetch services error:", error);
-      toast({
-        title: "Error",
-        description: "No se pudieron cargar los servicios",
-        variant: "destructive",
-      });
-    }
-  }
-
-  async function fetchAvailability(userId: string) {
-    try {
-      const { data, error } = await supabase
-        .from("availability")
-        .select("*")
-        .eq("user_id", userId);
-
-      if (error) throw error;
-
-      // Si hay datos guardados, actualizar el estado
-      if (data && data.length > 0) {
-        const newAvailability = { ...availability };
-        data.forEach((day) => {
-          newAvailability[day.day_of_week as keyof typeof availability] = {
-            enabled: day.enabled,
-            start: day.start_time.substring(0, 5), // Convertir de HH:MM:SS a HH:MM
-            end: day.end_time.substring(0, 5),
-          };
-        });
-        setAvailability(newAvailability);
-      }
-    } catch (error: any) {
-      console.error("Fetch availability error:", error);
-      // No mostramos toast aquí porque es opcional tener horarios guardados
-    }
-  }
-
-  async function handleSaveService() {
-    if (!user || !serviceForm.name || !serviceForm.duration || !serviceForm.price) {
-      toast({
-        title: "Error",
-        description: "Por favor completa todos los campos",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      if (editingService) {
-        // Update existing service
-        const { error } = await supabase
-          .from("services")
-          .update({
-            name: serviceForm.name,
-            duration: parseInt(serviceForm.duration),
-            price: parseFloat(serviceForm.price),
-          })
-          .eq("id", editingService.id);
-
-        if (error) throw error;
-
-        toast({
-          title: "Servicio actualizado",
-          description: "El servicio se actualizó correctamente",
-        });
-      } else {
-        // Create new service
-        const { error } = await supabase.from("services").insert([
-          {
-            user_id: user.id,
-            name: serviceForm.name,
-            duration: parseInt(serviceForm.duration),
-            price: parseFloat(serviceForm.price),
-          },
-        ]);
-
-        if (error) throw error;
-
-        toast({
-          title: "Servicio creado",
-          description: "El servicio se creó correctamente",
-        });
-      }
-
-      setShowServiceDialog(false);
-      setEditingService(null);
-      setServiceForm({ name: "", duration: "", price: "" });
-      await fetchServices(user.id);
-    } catch (error: any) {
-      console.error("Save service error:", error);
-      toast({
-        title: "Error",
-        description: "No se pudo guardar el servicio",
-        variant: "destructive",
-      });
-    }
-  }
-
-  async function handleDeleteService(serviceId: string) {
-    if (!confirm("¿Estás seguro de eliminar este servicio?")) return;
-
+    const newValue = !profile.auto_confirm;
+    
     try {
       const { error } = await supabase
-        .from("services")
-        .delete()
-        .eq("id", serviceId);
+        .from("profiles")
+        .update({ auto_confirm: newValue })
+        .eq("id", user.id);
 
       if (error) throw error;
 
+      setProfile({ ...profile, auto_confirm: newValue });
       toast({
-        title: "Servicio eliminado",
-        description: "El servicio se eliminó correctamente",
+        title: "Configuración actualizada",
+        description: newValue 
+          ? "Las citas se confirmarán automáticamente" 
+          : "Ahora debes confirmar manualmente cada cita",
       });
-
-      await fetchServices(user!.id);
     } catch (error: any) {
-      console.error("Delete service error:", error);
+      console.error("Update auto confirm error:", error);
       toast({
         title: "Error",
-        description: "No se pudo eliminar el servicio",
+        description: "No se pudo actualizar la configuración",
         variant: "destructive",
       });
     }
   }
 
-  function openEditDialog(service: Service) {
-    setEditingService(service);
-    setServiceForm({
-      name: service.name,
-      duration: service.duration.toString(),
-      price: service.price.toString(),
-    });
-    setShowServiceDialog(true);
-  }
+  async function handleDeleteAccount() {
+    if (!confirm("¿Estás seguro? Esta acción no se puede deshacer y eliminará todos tus datos.")) return;
 
-  function openNewDialog() {
-    setEditingService(null);
-    setServiceForm({ name: "", duration: "", price: "" });
-    setShowServiceDialog(true);
-  }
-
-  async function handleSaveAvailability() {
     if (!user) return;
 
     try {
-      // Preparar los datos para insertar/actualizar
-      const availabilityData = Object.entries(availability).map(([day, config]) => ({
-        user_id: user.id,
-        day_of_week: day,
-        enabled: config.enabled,
-        start_time: config.start + ':00', // Agregar segundos
-        end_time: config.end + ':00',
-      }));
+      // Delete all user data
+      await supabase.from("appointments").delete().eq("user_id", user.id);
+      await supabase.from("services").delete().eq("user_id", user.id);
+      await supabase.from("subscriptions").delete().eq("user_id", user.id);
+      await supabase.from("profiles").delete().eq("id", user.id);
 
-      // Usar upsert para insertar o actualizar según exista
-      const { error } = await supabase
-        .from("availability")
-        .upsert(availabilityData, {
-          onConflict: 'user_id,day_of_week',
-        });
-
-      if (error) throw error;
+      // Sign out
+      await supabase.auth.signOut();
 
       toast({
-        title: "¡Guardado!",
-        description: "Tus horarios de disponibilidad han sido actualizados",
+        title: "Cuenta eliminada",
+        description: "Tu cuenta y todos tus datos han sido eliminados",
       });
+
+      router.push("/");
     } catch (error: any) {
-      console.error("Save availability error:", error);
+      console.error("Delete account error:", error);
       toast({
         title: "Error",
-        description: "No se pudieron guardar los horarios",
+        description: "No se pudo eliminar la cuenta",
         variant: "destructive",
       });
     }
@@ -311,11 +150,11 @@ export default function SettingsPage() {
           Configuración
         </h1>
         <p className="text-slate-600">
-          Gestiona tus servicios y horarios de atención
+          Personaliza cómo funciona tu agenda
         </p>
       </motion.div>
 
-      {/* Services Section */}
+      {/* Auto Confirm Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -324,262 +163,74 @@ export default function SettingsPage() {
       >
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Servicios</CardTitle>
-                <CardDescription>
-                  Gestiona los servicios que ofreces a tus clientes
-                </CardDescription>
-              </div>
-              <Button
-                onClick={openNewDialog}
-                className="bg-gradient-to-r from-primary to-accent hover:brightness-110"
-                style={{
-                  backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-accent))`
-                }}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Nuevo Servicio
-              </Button>
-            </div>
+            <CardTitle>Confirmación Automática</CardTitle>
+            <CardDescription>
+              Personaliza cómo se confirman las citas
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            {services.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                  <DollarSign className="w-8 h-8 text-slate-400" />
+            <div className="flex items-center justify-between py-4">
+              <div className="space-y-1 flex-1">
+                <div className="flex items-center gap-2">
+                  <h4 className="font-medium">Confirmación automática</h4>
+                  {profile?.auto_confirm && (
+                    <CheckCircle2 className="w-4 h-4 text-green-600" />
+                  )}
                 </div>
-                <p className="text-slate-600 mb-4">No tienes servicios configurados</p>
-                <Button onClick={openNewDialog} variant="outline">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Crear tu primer servicio
-                </Button>
+                <p className="text-sm text-muted">
+                  {profile?.auto_confirm
+                    ? "Las citas se confirman automáticamente sin tu intervención"
+                    : "Debes confirmar manualmente cada cita antes de que el cliente la vea confirmada"}
+                </p>
               </div>
-            ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {services.map((service) => (
-                  <motion.div
-                    key={service.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="p-4 border border-slate-200 rounded-xl hover:shadow-md transition-all hover:border-primary/30"
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <h4 className="font-semibold text-slate-900">{service.name}</h4>
-                      <div className="flex gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => openEditDialog(service)}
-                          className="h-8 w-8 p-0"
-                        >
-                          <Edit2 className="w-3 h-3" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteService(service.id)}
-                          className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="space-y-2 text-sm text-slate-600">
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4" />
-                        <span>{service.duration} minutos</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <DollarSign className="w-4 h-4" />
-                        <span className="font-semibold text-slate-900">
-                          {formatCurrency(service.price)}
-                        </span>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            )}
+              <Button
+                variant={profile?.auto_confirm ? "default" : "outline"}
+                size="lg"
+                onClick={handleToggleAutoConfirm}
+                className="ml-4"
+              >
+                {profile?.auto_confirm ? "Activada" : "Desactivada"}
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </motion.div>
 
-      {/* Availability Section */}
+      {/* Danger Zone */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <Card>
+        <Card className="border-red-200 bg-red-50/50">
           <CardHeader>
-            <CardTitle>Horarios de Atención</CardTitle>
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-6 h-6 text-red-600" />
+              <CardTitle className="text-red-600">Zona de Peligro</CardTitle>
+            </div>
             <CardDescription>
-              Configura los días y horarios en que estás disponible para atender
+              Acciones irreversibles que afectarán tu cuenta
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {Object.entries(availability).map(([day, config]) => (
-                <div
-                  key={day}
-                  className="flex items-center gap-4 p-4 border border-slate-200 rounded-lg hover:border-slate-300 transition-colors"
-                >
-                  <div className="flex items-center gap-2 w-32">
-                    <input
-                      type="checkbox"
-                      checked={config.enabled}
-                      onChange={(e) =>
-                        setAvailability({
-                          ...availability,
-                          [day]: { ...config, enabled: e.target.checked },
-                        })
-                      }
-                      className="w-4 h-4 rounded border-slate-300"
-                    />
-                    <span className="font-medium text-slate-900">
-                      {dayNames[day]}
-                    </span>
-                  </div>
-
-                  {config.enabled && (
-                    <div className="flex items-center gap-4 flex-1">
-                      <div className="flex items-center gap-2">
-                        <Label className="text-xs text-slate-500">Desde:</Label>
-                        <Input
-                          type="time"
-                          value={config.start}
-                          onChange={(e) =>
-                            setAvailability({
-                              ...availability,
-                              [day]: { ...config, start: e.target.value },
-                            })
-                          }
-                          className="w-32"
-                        />
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Label className="text-xs text-slate-500">Hasta:</Label>
-                        <Input
-                          type="time"
-                          value={config.end}
-                          onChange={(e) =>
-                            setAvailability({
-                              ...availability,
-                              [day]: { ...config, end: e.target.value },
-                            })
-                          }
-                          className="w-32"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {!config.enabled && (
-                    <span className="text-sm text-slate-400 flex-1">
-                      No disponible
-                    </span>
-                  )}
-                </div>
-              ))}
-
-              <div className="pt-4">
-                <Button
-                  onClick={handleSaveAvailability}
-                  className="bg-gradient-to-r from-primary to-accent hover:brightness-110"
-                  style={{
-                    backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-accent))`
-                  }}
-                >
-                  <Save className="w-4 h-4 mr-2" />
-                  Guardar Horarios
-                </Button>
-                <p className="text-xs text-slate-500 mt-2">
-                  * Los horarios se aplicarán para la generación de citas disponibles
+              <div>
+                <h4 className="font-semibold text-slate-900 mb-2">Eliminar Cuenta</h4>
+                <p className="text-sm text-muted mb-4">
+                  Esta acción eliminará permanentemente tu cuenta, citas, servicios y todos tus datos personales conforme a la Ley 19.628. Esta acción no se puede deshacer.
                 </p>
+                <Button
+                  variant="destructive"
+                  onClick={handleDeleteAccount}
+                  size="lg"
+                >
+                  Eliminar Cuenta y Todos los Datos
+                </Button>
               </div>
             </div>
           </CardContent>
         </Card>
       </motion.div>
-
-      {/* Service Dialog */}
-      <Dialog open={showServiceDialog} onOpenChange={setShowServiceDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {editingService ? "Editar Servicio" : "Nuevo Servicio"}
-            </DialogTitle>
-            <DialogDescription>
-              {editingService
-                ? "Modifica los datos del servicio"
-                : "Crea un nuevo servicio que ofreces a tus clientes"}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="service-name">Nombre del Servicio</Label>
-              <Input
-                id="service-name"
-                placeholder="Ej: Consulta General"
-                value={serviceForm.name}
-                onChange={(e) =>
-                  setServiceForm({ ...serviceForm, name: e.target.value })
-                }
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="service-duration">Duración (minutos)</Label>
-                <Input
-                  id="service-duration"
-                  type="number"
-                  placeholder="30"
-                  value={serviceForm.duration}
-                  onChange={(e) =>
-                    setServiceForm({ ...serviceForm, duration: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="service-price">Precio</Label>
-                <Input
-                  id="service-price"
-                  type="number"
-                  placeholder="20000"
-                  value={serviceForm.price}
-                  onChange={(e) =>
-                    setServiceForm({ ...serviceForm, price: e.target.value })
-                  }
-                />
-              </div>
-            </div>
-            <div className="flex justify-end gap-2 pt-4">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowServiceDialog(false);
-                  setEditingService(null);
-                  setServiceForm({ name: "", duration: "", price: "" });
-                }}
-              >
-                <X className="w-4 h-4 mr-2" />
-                Cancelar
-              </Button>
-              <Button
-                onClick={handleSaveService}
-                className="bg-gradient-to-r from-primary to-accent hover:brightness-110"
-                style={{
-                  backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-accent))`
-                }}
-              >
-                <Save className="w-4 h-4 mr-2" />
-                {editingService ? "Actualizar" : "Crear"}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
