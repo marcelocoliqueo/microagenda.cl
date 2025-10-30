@@ -282,9 +282,25 @@ export default function PublicAgendaPage({
             </CardHeader>
             <CardContent>
               {services.length === 0 ? (
-                <div className="text-center py-8 text-muted">
-                  Este profesional no tiene servicios disponibles aún
-                </div>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-center py-12"
+                >
+                  <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+                    <Calendar className="w-10 h-10 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-slate-900 mb-3">
+                    Pronto podrás agendar con este link
+                  </h3>
+                  <p className="text-slate-600 max-w-md mx-auto mb-2">
+                    {profile.business_name || profile.name} está configurando sus servicios. 
+                    Muy pronto podrás agendar tu cita aquí.
+                  </p>
+                  <p className="text-sm text-slate-500">
+                    Si tienes dudas, contacta directamente con el profesional.
+                  </p>
+                </motion.div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
