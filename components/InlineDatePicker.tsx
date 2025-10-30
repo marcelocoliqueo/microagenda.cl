@@ -209,7 +209,16 @@ export function InlineDatePicker({
               const dateStr = date.toISOString().split("T")[0];
               const isToday = dateStr === today.toISOString().split("T")[0];
               const isSelected = value === dateStr;
-              const slotsCount = getTimeSlotsForDate(dateStr).length;
+              
+              // Solo calcular slots si es necesario para el tooltip (optimización)
+              // No calcular para todos los días para evitar logs excesivos
+              // Usar hasAvailability en lugar de calcular slots para todos los días
+              const dayOfWeek = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][date.getDay()];
+              const dayAvail = availability[dayOfWeek];
+              const hasAvail = dayAvail && dayAvail.length > 0;
+              const slotsCount = (isSelected || isToday) && hasAvail
+                ? getTimeSlotsForDate(dateStr, isSelected).length 
+                : hasAvail ? 1 : 0; // Si tiene disponibilidad pero no está seleccionado, mostrar 1 para el indicador
 
               return (
                 <button

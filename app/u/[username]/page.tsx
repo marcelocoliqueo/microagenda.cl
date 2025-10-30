@@ -74,9 +74,14 @@ export default function PublicAgendaPage() {
     const selectedService = services.find(s => s.id === formData.service_id);
     const serviceDuration = selectedService?.duration;
 
-    // Debug: log de bloques y duración
-    console.log(`📋 Bloques para ${dayName}:`, dayAvailability);
+    // Debug: log de bloques y duración con estructura completa
+    console.log(`📋 Bloques para ${dayName}:`, JSON.stringify(dayAvailability, null, 2));
     console.log(`⏱️ Duración del servicio:`, serviceDuration);
+    console.log(`🔍 Servicio seleccionado:`, selectedService ? {
+      id: selectedService.id,
+      name: selectedService.name,
+      duration: selectedService.duration
+    } : 'NINGUNO');
 
     // Generar slots usando los bloques exactos configurados
     const availableSlots = generateAvailableSlots(dayAvailability, 30, serviceDuration);
