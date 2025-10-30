@@ -1091,6 +1091,109 @@ export default function DashboardPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Business Configuration Dialog */}
+      <Dialog open={showBusinessConfigDialog} onOpenChange={(open) => {
+        setShowBusinessConfigDialog(open);
+        if (!open) {
+          setBusinessLogoFile(null);
+        }
+      }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Configurar Negocio</DialogTitle>
+            <DialogDescription>
+              Personaliza el nombre y logo que aparecerán en tu agenda pública
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="business_name">Nombre del Negocio</Label>
+              <Input
+                id="business_name"
+                placeholder="Ej: Salón de Belleza María"
+                value={newBusinessName}
+                onChange={(e) => setNewBusinessName(e.target.value)}
+                maxLength={100}
+              />
+              <p className="text-xs text-slate-500">
+                Este nombre aparecerá en lugar de tu nombre personal en la agenda pública
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Logo del Negocio</Label>
+              {businessLogoPreview ? (
+                <div className="relative inline-block">
+                  <img
+                    src={businessLogoPreview}
+                    alt="Preview del logo"
+                    className="h-32 w-auto object-contain rounded-lg border-2 border-slate-200"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                    onClick={handleRemoveLogo}
+                  >
+                    <X className="w-3 h-3" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
+                  <ImageIcon className="w-10 h-10 mx-auto text-slate-400 mb-2" />
+                  <Label
+                    htmlFor="logo-upload"
+                    className="cursor-pointer text-sm text-slate-600 hover:text-primary"
+                  >
+                    <span className="font-medium">Haz clic para subir un logo</span>
+                    <p className="text-xs text-slate-500 mt-1">
+                      PNG, JPG o WEBP (máx. 5MB)
+                    </p>
+                  </Label>
+                  <input
+                    id="logo-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoChange}
+                    className="hidden"
+                  />
+                </div>
+              )}
+              {businessLogoFile && !businessLogoPreview && (
+                <p className="text-xs text-amber-600">
+                  Se cargará el logo al guardar
+                </p>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowBusinessConfigDialog(false);
+                  setBusinessLogoFile(null);
+                  setBusinessLogoPreview(profile?.business_logo_url || null);
+                  setNewBusinessName(profile?.business_name || "");
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleUpdateBusinessInfo}
+                disabled={uploadingLogo}
+                className="bg-gradient-to-r from-primary to-accent hover:brightness-110 disabled:opacity-50"
+                style={{
+                  backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-accent))`
+                }}
+              >
+                {uploadingLogo ? "Subiendo..." : "Guardar"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
