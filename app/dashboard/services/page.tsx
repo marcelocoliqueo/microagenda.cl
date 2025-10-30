@@ -109,6 +109,7 @@ export default function ServicesPage() {
             name: serviceForm.name,
             duration: parseInt(serviceForm.duration),
             price: parseFloat(serviceForm.price),
+            category: serviceForm.category || "General",
           })
           .eq("id", editingService.id);
 
@@ -126,6 +127,7 @@ export default function ServicesPage() {
             name: serviceForm.name,
             duration: parseInt(serviceForm.duration),
             price: parseFloat(serviceForm.price),
+            category: serviceForm.category || "General",
           },
         ]);
 
@@ -139,7 +141,7 @@ export default function ServicesPage() {
 
       setShowServiceDialog(false);
       setEditingService(null);
-      setServiceForm({ name: "", duration: "", price: "" });
+      setServiceForm({ name: "", duration: "", price: "", category: "" });
       await fetchServices(user.id);
     } catch (error: any) {
       console.error("Save service error:", error);
@@ -281,7 +283,14 @@ export default function ServicesPage() {
                     className="p-4 border border-slate-200 rounded-xl hover:shadow-md transition-all hover:border-primary/30"
                   >
                     <div className="flex items-start justify-between mb-3">
-                      <h4 className="font-semibold text-slate-900">{service.name}</h4>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-slate-900">{service.name}</h4>
+                        {service.category && service.category !== "General" && (
+                          <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium text-primary bg-primary/10 rounded-full">
+                            {service.category}
+                          </span>
+                        )}
+                      </div>
                       <div className="flex gap-1">
                         <Button
                           variant="ghost"
