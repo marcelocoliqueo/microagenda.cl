@@ -365,31 +365,8 @@ export default function DashboardPage() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center"
-        >
-          <div className="relative mb-4">
-            <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-              <Calendar className="w-6 h-6 text-primary animate-pulse" />
-            </div>
-          </div>
-          <p className="text-slate-600 font-medium">Cargando tu dashboard...</p>
-        </motion.div>
-      </div>
-    );
-  }
-
-  const publicUrl = profile && profile.username
-    ? `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/u/${profile.username}`
-    : "";
-
   // Calculate stats - memoizar para evitar re-renderizados innecesarios
+  // IMPORTANTE: Hooks deben estar ANTES de cualquier early return
   const stats = useMemo(() => {
     const total = appointments.length;
     const confirmed = appointments.filter(a => a.status === APPOINTMENT_STATUSES.CONFIRMED).length;
@@ -419,6 +396,30 @@ export default function DashboardPage() {
       hoverBackground: `linear-gradient(to bottom right, ${hexToRgba(primaryColor, 0.1)}, transparent)`,
     };
   }, [brandColor.primary]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center"
+        >
+          <div className="relative mb-4">
+            <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+              <Calendar className="w-6 h-6 text-primary animate-pulse" />
+            </div>
+          </div>
+          <p className="text-slate-600 font-medium">Cargando tu dashboard...</p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  const publicUrl = profile && profile.username
+    ? `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/u/${profile.username}`
+    : "";
 
   return (
     <div className="min-h-screen pb-8">
