@@ -400,7 +400,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen pb-8">
       {/* User Welcome Header */}
-      <header className="sticky top-0 z-10 border-b border-slate-200/70 bg-white/95 backdrop-blur-md shadow-sm">
+      <header className="sticky top-0 z-10 border-b border-slate-200/70 bg-white/95 backdrop-blur-md shadow-sm" style={{ zIndex: 10 }}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -481,11 +481,11 @@ export default function DashboardPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="mb-8 relative"
-            style={{ zIndex: 1 }}
+            className="mb-8"
+            style={{ position: 'relative', zIndex: 20 }}
           >
-            <Card className="border-slate-200/70 bg-white/70 backdrop-blur shadow-lg hover:shadow-xl transition-shadow relative" style={{ zIndex: 1 }}>
-              <CardContent className="p-6 relative" style={{ zIndex: 10 }}>
+            <Card className="border-slate-200/70 bg-white/70 backdrop-blur shadow-lg hover:shadow-xl transition-shadow" style={{ position: 'relative', zIndex: 20 }}>
+              <CardContent className="p-6" style={{ position: 'relative', zIndex: 30 }}>
                 {profile.username ? (
                   <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div className="flex-1 w-full">
