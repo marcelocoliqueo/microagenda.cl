@@ -1,6 +1,7 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Calendar, Clock, CheckCircle } from "lucide-react";
 import Link from "next/link";
@@ -20,12 +21,9 @@ import { supabase, type Profile, type Service } from "@/lib/supabaseClient";
 import { formatCurrency, formatDate, generateTimeSlots, sanitizePhone } from "@/lib/utils";
 import { APP_NAME } from "@/lib/constants";
 
-export default function PublicAgendaPage({
-  params,
-}: {
-  params: Promise<{ username: string }>;
-}) {
-  const resolvedParams = use(params);
+export default function PublicAgendaPage() {
+  const params = useParams();
+  const username = params?.username as string;
   const { toast } = useToast();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [services, setServices] = useState<Service[]>([]);
@@ -42,10 +40,14 @@ export default function PublicAgendaPage({
   const timeSlots = generateTimeSlots();
 
   useEffect(() => {
-    fetchProfessionalData();
-  }, [resolvedParams.username]);
+    if (username) {
+      fetchProfessionalData();
+    }
+  }, [username]);
 
   async function fetchProfessionalData() {
+    if (!username) return;
+
     try {
       setLoading(true);
 
@@ -53,7 +55,7 @@ export default function PublicAgendaPage({
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("*")
-        .eq("username", resolvedParams.username)
+        .eq("username", username)
         .single();
 
       if (profileError || !profile) {
