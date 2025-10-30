@@ -117,78 +117,63 @@ export function useRealtime(
             } else if (status === 'CHANNEL_ERROR') {
               setIsConnected(false);
               isSettingUpRef.current = false;
-              retryCountRef.current += 1;
+              const errorMsg = err?.message || 'Error desconocido';
+              console.error(`❌ Error Realtime para ${table}:`, errorMsg);
               
-              // Solo intentar reconectar si no hemos excedido el límite de reintentos
-              if (retryCountRef.current <= MAX_RETRIES) {
-                // Limpiar canal anterior antes de reconectar (guardar referencia primero)
-                const oldChannel = channelRef.current;
-                channelRef.current = null;
-                
-                // Remover canal después de un tick para evitar conflictos
-                setTimeout(() => {
-                  if (oldChannel) {
-                    try {
-                      supabase.removeChannel(oldChannel);
-                    } catch (e) {
-                      // Ignorar errores
-                    }
+              // Limpiar canal anterior antes de reconectar (guardar referencia primero)
+              const oldChannel = channelRef.current;
+              channelRef.current = null;
+              
+              // Remover canal después de un tick para evitar conflictos
+              setTimeout(() => {
+                if (oldChannel) {
+                  try {
+                    supabase.removeChannel(oldChannel);
+                  } catch (e) {
+                    // Ignorar errores
                   }
-                }, 0);
-                
-                // Reconectar después de 5 segundos solo si aún está montado
-                if (isMountedRef.current && !reconnectTimeoutRef.current) {
-                  reconnectTimeoutRef.current = setTimeout(() => {
-                    reconnectTimeoutRef.current = null;
-                    if (isMountedRef.current && userId) {
-                      setupSubscription();
-                    }
-                  }, 5000);
                 }
-              } else {
-                // Después de MAX_RETRIES, dejar de intentar y silenciar errores
-                if (process.env.NODE_ENV === 'development') {
-                  console.warn(`⚠️ Realtime no disponible para ${table} después de ${MAX_RETRIES} intentos. Continuando sin actualizaciones en tiempo real.`);
-                }
-                channelRef.current = null;
+              }, 0);
+              
+              // Reconectar después de 5 segundos solo si aún está montado
+              if (isMountedRef.current && !reconnectTimeoutRef.current) {
+                reconnectTimeoutRef.current = setTimeout(() => {
+                  reconnectTimeoutRef.current = null;
+                  if (isMountedRef.current && userId) {
+                    setupSubscription();
+                  }
+                }, 5000);
               }
             } else if (status === 'TIMED_OUT' || status === 'CLOSED') {
               setIsConnected(false);
               isSettingUpRef.current = false;
-              retryCountRef.current += 1;
+              if (process.env.NODE_ENV === 'development') {
+                console.warn(`⚠️ Realtime ${status.toLowerCase()} para ${table}. Reconectando...`);
+              }
               
-              // Solo intentar reconectar si no hemos excedido el límite de reintentos
-              if (retryCountRef.current <= MAX_RETRIES) {
-                // Limpiar canal anterior antes de reconectar (guardar referencia primero)
-                const oldChannel = channelRef.current;
-                channelRef.current = null;
-                
-                // Remover canal después de un tick para evitar conflictos
-                setTimeout(() => {
-                  if (oldChannel) {
-                    try {
-                      supabase.removeChannel(oldChannel);
-                    } catch (e) {
-                      // Ignorar errores
-                    }
+              // Limpiar canal anterior antes de reconectar (guardar referencia primero)
+              const oldChannel = channelRef.current;
+              channelRef.current = null;
+              
+              // Remover canal después de un tick para evitar conflictos
+              setTimeout(() => {
+                if (oldChannel) {
+                  try {
+                    supabase.removeChannel(oldChannel);
+                  } catch (e) {
+                    // Ignorar errores
                   }
-                }, 0);
-                
-                // Reconectar después de 2 segundos solo si aún está montado
-                if (isMountedRef.current && !reconnectTimeoutRef.current) {
-                  reconnectTimeoutRef.current = setTimeout(() => {
-                    reconnectTimeoutRef.current = null;
-                    if (isMountedRef.current && userId) {
-                      setupSubscription();
-                    }
-                  }, 2000);
                 }
-              } else {
-                // Después de MAX_RETRIES, dejar de intentar y silenciar errores
-                if (process.env.NODE_ENV === 'development') {
-                  console.warn(`⚠️ Realtime no disponible para ${table} después de ${MAX_RETRIES} intentos. Continuando sin actualizaciones en tiempo real.`);
-                }
-                channelRef.current = null;
+              }, 0);
+              
+              // Reconectar después de 2 segundos solo si aún está montado
+              if (isMountedRef.current && !reconnectTimeoutRef.current) {
+                reconnectTimeoutRef.current = setTimeout(() => {
+                  reconnectTimeoutRef.current = null;
+                  if (isMountedRef.current && userId) {
+                    setupSubscription();
+                  }
+                }, 2000);
               }
             }
           });
