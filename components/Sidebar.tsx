@@ -40,7 +40,7 @@ export function Sidebar() {
       {/* Sidebar */}
       <motion.aside
         animate={{ width: isCollapsed ? "80px" : "280px" }}
-        className="fixed left-0 top-0 z-50 h-screen bg-white border-r border-slate-200/70 shadow-xl flex flex-col"
+        className="fixed left-0 top-0 z-40 h-screen bg-white border-r border-slate-200/70 shadow-xl flex flex-col"
       >
         {/* Logo Section */}
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200/70 bg-gradient-to-br from-slate-50 to-white">

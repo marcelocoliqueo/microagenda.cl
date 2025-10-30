@@ -377,7 +377,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen pb-8">
       {/* User Welcome Header */}
-      <header className="sticky top-0 z-[60] border-b border-slate-200/70 bg-white/95 backdrop-blur-md shadow-sm">
+      <header className="sticky top-0 z-10 border-b border-slate-200/70 bg-white/95 backdrop-blur-md shadow-sm">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
