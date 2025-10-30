@@ -152,12 +152,35 @@ export default function PublicAgendaPage() {
             availabilityMap[day] = [];
           }
           // Extraer solo HH:mm del formato TIME de PostgreSQL
-          const startStr = typeof item.start_time === 'string' 
-            ? item.start_time.substring(0, 5) 
-            : item.start_time;
-          const endStr = typeof item.end_time === 'string'
-            ? item.end_time.substring(0, 5)
-            : item.end_time;
+          // Supabase puede devolver TIME como string "HH:mm:ss" o como objeto
+          let startStr = '';
+          let endStr = '';
+          
+          if (typeof item.start_time === 'string') {
+            startStr = item.start_time.substring(0, 5);
+          } else if (item.start_time) {
+            // Si es un objeto, intentar extraer como string
+            const startTimeStr = String(item.start_time);
+            startStr = startTimeStr.substring(0, 5);
+          }
+          
+          if (typeof item.end_time === 'string') {
+            endStr = item.end_time.substring(0, 5);
+          } else if (item.end_time) {
+            const endTimeStr = String(item.end_time);
+            endStr = endTimeStr.substring(0, 5);
+          }
+          
+          // Validar formato HH:mm
+          if (!startStr.match(/^\d{2}:\d{2}$/) || !endStr.match(/^\d{2}:\d{2}$/)) {
+            console.warn(`⚠️ Formato de tiempo inválido para ${day}:`, {
+              start_time: item.start_time,
+              end_time: item.end_time,
+              startStr,
+              endStr
+            });
+            return; // Saltar este bloque
+          }
           
           availabilityMap[day].push({
             start: startStr,
