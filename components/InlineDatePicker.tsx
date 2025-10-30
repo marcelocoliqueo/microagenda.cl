@@ -16,6 +16,7 @@ interface InlineDatePickerProps {
   className?: string;
   selectedTime?: string;
   onTimeSelect?: (time: string) => void;
+  serviceDuration?: number; // Duración del servicio en minutos
 }
 
 export function InlineDatePicker({
@@ -27,6 +28,7 @@ export function InlineDatePicker({
   className,
   selectedTime,
   onTimeSelect,
+  serviceDuration,
 }: InlineDatePickerProps) {
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(() => {
@@ -48,14 +50,15 @@ export function InlineDatePicker({
   const getTimeSlotsForDate = (dateStr: string): string[] => {
     if (!dateStr) return [];
     
-    const dayName = getDayName(dateStr);
+    const dayName = getDayName(dateStr));
     const dayAvailability = availability[dayName];
     
     if (!dayAvailability || dayAvailability.length === 0) {
       return [];
     }
     
-    const availableSlots = generateAvailableSlots(dayAvailability);
+    // Usar los bloques exactos configurados con la duración del servicio
+    const availableSlots = generateAvailableSlots(dayAvailability, 30, serviceDuration);
     
     // Filtrar horarios ya reservados
     return availableSlots.filter(slot => !bookedSlots.includes(slot));

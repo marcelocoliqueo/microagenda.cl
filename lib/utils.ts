@@ -46,10 +46,15 @@ export function generateTimeSlots(
 
 /**
  * Genera horarios disponibles basados en bloques de disponibilidad configurados
+ * @param availabilityBlocks - Array de bloques con start y end en formato "HH:mm"
+ * @param intervalMinutes - Intervalo entre slots (default: 30 minutos)
+ * @param serviceDuration - Duración del servicio en minutos (opcional, para validar que quepa en el bloque)
+ * @returns Array de horarios disponibles en formato "HH:mm"
  */
 export function generateAvailableSlots(
   availabilityBlocks: Array<{ start: string; end: string }>,
-  intervalMinutes: number = 30
+  intervalMinutes: number = 30,
+  serviceDuration?: number
 ): string[] {
   const slots: string[] = [];
 
@@ -60,7 +65,14 @@ export function generateAvailableSlots(
     const startTime = startHour * 60 + startMin;
     const endTime = endHour * 60 + endMin;
 
+    // Generar slots desde start hasta end (sin incluir end)
+    // Si hay serviceDuration, validar que el slot + duración no exceda el end
     for (let time = startTime; time < endTime; time += intervalMinutes) {
+      // Validar que el servicio quepa en el tiempo restante
+      if (serviceDuration && (time + serviceDuration) > endTime) {
+        continue; // Este slot no cabe con la duración del servicio
+      }
+      
       const hours = Math.floor(time / 60);
       const minutes = time % 60;
       const timeString = `${hours.toString().padStart(2, "0")}:${minutes

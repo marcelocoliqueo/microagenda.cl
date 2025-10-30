@@ -69,7 +69,12 @@ export default function PublicAgendaPage() {
       return []; // Día no disponible
     }
 
-    const availableSlots = generateAvailableSlots(dayAvailability);
+    // Obtener duración del servicio seleccionado si existe
+    const selectedService = services.find(s => s.id === formData.service_id);
+    const serviceDuration = selectedService?.duration;
+
+    // Generar slots usando los bloques exactos configurados
+    const availableSlots = generateAvailableSlots(dayAvailability, 30, serviceDuration);
     
     // Filtrar horarios ya reservados
     return availableSlots.filter(slot => !bookedSlots.includes(slot));
