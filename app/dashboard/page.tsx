@@ -389,13 +389,36 @@ export default function DashboardPage() {
     ? `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/u/${profile.username}`
     : "";
 
-  // Calculate stats
-  const totalAppointments = appointments.length;
-  const confirmedAppointments = appointments.filter(a => a.status === APPOINTMENT_STATUSES.CONFIRMED).length;
-  const pendingAppointments = appointments.filter(a => a.status === APPOINTMENT_STATUSES.PENDING).length;
-  const totalRevenue = appointments
-    .filter(a => a.status === APPOINTMENT_STATUSES.COMPLETED)
-    .reduce((sum, a) => sum + (a.service?.price || 0), 0);
+  // Calculate stats - memoizar para evitar re-renderizados innecesarios
+  const stats = useMemo(() => {
+    const total = appointments.length;
+    const confirmed = appointments.filter(a => a.status === APPOINTMENT_STATUSES.CONFIRMED).length;
+    const pending = appointments.filter(a => a.status === APPOINTMENT_STATUSES.PENDING).length;
+    const revenue = appointments
+      .filter(a => a.status === APPOINTMENT_STATUSES.COMPLETED)
+      .reduce((sum, a) => sum + (a.service?.price || 0), 0);
+    
+    return {
+      totalAppointments: total,
+      confirmedAppointments: confirmed,
+      pendingAppointments: pending,
+      totalRevenue: revenue,
+      confirmationRate: total > 0 ? Math.round((confirmed / total) * 100) : 0,
+    };
+  }, [appointments]);
+
+  const { totalAppointments, confirmedAppointments, pendingAppointments, totalRevenue, confirmationRate } = stats;
+  
+  // Memoizar estilos para evitar recálculos
+  const cardStyles = useMemo(() => {
+    const primaryColor = brandColor.primary;
+    return {
+      borderColor: hexToRgba(primaryColor, 0.3),
+      background: `linear-gradient(to bottom right, ${hexToRgba(primaryColor, 0.1)}, white)`,
+      backgroundColor: hexToRgba(primaryColor, 0.15),
+      hoverBackground: `linear-gradient(to bottom right, ${hexToRgba(primaryColor, 0.1)}, transparent)`,
+    };
+  }, [brandColor.primary]);
 
   return (
     <div className="min-h-screen pb-8">
@@ -573,19 +596,20 @@ export default function DashboardPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.2, duration: 0.4 }}
+            layout
           >
-            <Card className="border-slate-200/70 bg-white/70 backdrop-blur hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-slate-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <Card className="border-slate-200/70 bg-white/70 backdrop-blur hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden group will-change-transform">
+              <div className="absolute inset-0 bg-gradient-to-br from-slate-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
               <CardContent className="p-6 relative">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <Calendar className="w-6 h-6 text-slate-700" />
                   </div>
                   <TrendingUp className="w-5 h-5" style={{ color: 'var(--color-primary)' }} />
                 </div>
                 <p className="text-sm text-slate-600 font-medium mb-1">Total Citas</p>
-                <p className="text-3xl font-bold text-slate-900">{totalAppointments}</p>
+                <p className="text-3xl font-bold text-slate-900 tabular-nums">{totalAppointments}</p>
                 <p className="text-xs text-slate-500 mt-2">Este mes</p>
               </CardContent>
             </Card>
@@ -594,39 +618,40 @@ export default function DashboardPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+            transition={{ delay: 0.3, duration: 0.4 }}
+            layout
           >
             <Card 
-              className="border-slate-200/70 bg-gradient-to-br from-white to-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden group"
+              className="border-slate-200/70 bg-gradient-to-br from-white to-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden group will-change-transform"
               style={{ 
-                borderColor: hexToRgba(brandColor.primary, 0.3),
-                background: `linear-gradient(to bottom right, ${hexToRgba(brandColor.primary, 0.1)}, white)`
+                borderColor: cardStyles.borderColor,
+                background: cardStyles.background
               }}
             >
               <div 
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                style={{ background: `linear-gradient(to bottom right, ${hexToRgba(brandColor.primary, 0.1)}, transparent)` }}
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                style={{ background: cardStyles.hoverBackground }}
               />
               <CardContent className="p-6 relative">
                 <div className="flex items-center justify-between mb-4">
                   <div 
-                    className="w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"
-                    style={{ backgroundColor: hexToRgba(brandColor.primary, 0.15) }}
+                    className="w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
+                    style={{ backgroundColor: cardStyles.backgroundColor }}
                   >
                     <CheckCircle2 className="w-6 h-6" style={{ color: brandColor.primary }} />
                   </div>
                   <span 
-                    className="text-xs font-semibold px-2 py-1 rounded-full"
+                    className="text-xs font-semibold px-2 py-1 rounded-full tabular-nums"
                     style={{ 
-                      backgroundColor: hexToRgba(brandColor.primary, 0.15),
+                      backgroundColor: cardStyles.backgroundColor,
                       color: brandColor.primary
                     }}
                   >
-                    {totalAppointments > 0 ? Math.round((confirmedAppointments / totalAppointments) * 100) : 0}%
+                    {confirmationRate}%
                   </span>
                 </div>
                 <p className="text-sm text-slate-600 font-medium mb-1">Confirmadas</p>
-                <p className="text-3xl font-bold" style={{ color: brandColor.primary }}>{confirmedAppointments}</p>
+                <p className="text-3xl font-bold tabular-nums" style={{ color: brandColor.primary }}>{confirmedAppointments}</p>
                 <p className="text-xs text-slate-500 mt-2">Tasa de confirmación</p>
               </CardContent>
             </Card>
@@ -635,13 +660,14 @@ export default function DashboardPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
+            transition={{ delay: 0.4, duration: 0.4 }}
+            layout
           >
-            <Card className="border-amber-200/70 bg-gradient-to-br from-amber-50/50 to-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-amber-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <Card className="border-amber-200/70 bg-gradient-to-br from-amber-50/50 to-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden group will-change-transform">
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
               <CardContent className="p-6 relative">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <AlertCircle className="w-6 h-6 text-amber-600" />
                   </div>
                   {pendingAppointments > 0 && (
@@ -649,7 +675,7 @@ export default function DashboardPage() {
                   )}
                 </div>
                 <p className="text-sm text-slate-600 font-medium mb-1">Pendientes</p>
-                <p className="text-3xl font-bold text-amber-600">{pendingAppointments}</p>
+                <p className="text-3xl font-bold text-amber-600 tabular-nums">{pendingAppointments}</p>
                 <p className="text-xs text-slate-500 mt-2">Requieren confirmación</p>
               </CardContent>
             </Card>
@@ -658,19 +684,20 @@ export default function DashboardPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
+            transition={{ delay: 0.5, duration: 0.4 }}
+            layout
           >
-            <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden group will-change-transform">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
               <CardContent className="p-6 relative">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <DollarSign className="w-6 h-6 text-primary" />
                   </div>
                   <TrendingUp className="w-5 h-5 text-primary" />
                 </div>
                 <p className="text-sm text-slate-600 font-medium mb-1">Ingresos</p>
-                <p className="text-3xl font-bold text-primary">{formatCurrency(totalRevenue)}</p>
+                <p className="text-3xl font-bold text-primary tabular-nums">{formatCurrency(totalRevenue)}</p>
                 <p className="text-xs text-slate-500 mt-2">Citas completadas</p>
               </CardContent>
             </Card>
