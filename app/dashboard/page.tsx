@@ -64,6 +64,24 @@ export default function DashboardPage() {
   const [showNewServiceDialog, setShowNewServiceDialog] = useState(false);
   const [showUsernameDialog, setShowUsernameDialog] = useState(false);
   const [newUsername, setNewUsername] = useState("");
+  
+  // Función para normalizar el username (reemplazar espacios con guiones y limpiar)
+  const normalizeUsername = (input: string): string => {
+    return input
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-') // Reemplazar espacios múltiples con un solo guión
+      .replace(/[^a-z0-9_-]/g, '') // Eliminar caracteres inválidos
+      .replace(/--+/g, '-') // Reemplazar múltiples guiones con uno solo
+      .replace(/^-+|-+$/g, ''); // Eliminar guiones al inicio y final
+  };
+  
+  // Validar si el username es válido después de normalizar
+  const isValidUsername = (input: string): boolean => {
+    if (!input.trim()) return false;
+    const normalized = normalizeUsername(input);
+    return normalized.length >= 3 && /^[a-z0-9][a-z0-9_-]*[a-z0-9]$|^[a-z0-9]$/.test(normalized);
+  };
 
   const { appointments, loading: appointmentsLoading, updateAppointment, deleteAppointment, refresh } = useAppointments(user?.id);
 
@@ -184,11 +202,16 @@ export default function DashboardPage() {
       return;
     }
 
-    // Validate username format
-    if (!/^[a-z0-9_-]+$/.test(newUsername)) {
+    // Normalizar el username (reemplazar espacios con guiones)
+    const normalizedUsername = normalizeUsername(newUsername);
+
+    // Validar que el username normalizado sea válido
+    if (!isValidUsername(newUsername)) {
       toast({
         title: "Error",
-        description: "Solo puedes usar letras minúsculas, números, guiones y guiones bajos",
+        description: normalizedUsername.length < 3 
+          ? "El nombre de usuario debe tener al menos 3 caracteres" 
+          : "El nombre de usuario contiene caracteres inválidos o formato incorrecto",
         variant: "destructive",
       });
       return;
@@ -197,7 +220,7 @@ export default function DashboardPage() {
     try {
       const { error } = await supabase
         .from("profiles")
-        .update({ username: newUsername.toLowerCase() })
+        .update({ username: normalizedUsername })
         .eq("id", user.id);
 
       if (error) {
@@ -214,7 +237,7 @@ export default function DashboardPage() {
       }
 
       // Update local profile
-      setProfile({ ...profile!, username: newUsername.toLowerCase() });
+      setProfile({ ...profile!, username: normalizedUsername });
       setShowUsernameDialog(false);
       setNewUsername("");
 
@@ -494,7 +517,9 @@ export default function DashboardPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
                           setNewUsername(profile.username || "");
                           setShowUsernameDialog(true);
                         }}
@@ -516,7 +541,12 @@ export default function DashboardPage() {
                       Elige un nombre único para tu página de reservas
                     </p>
                     <Button
-                      onClick={() => setShowUsernameDialog(true)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setNewUsername("");
+                        setShowUsernameDialog(true);
+                      }}
                       className="bg-gradient-to-r from-primary to-accent hover:brightness-110"
                       style={{
                         backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-accent))`
@@ -816,12 +846,17 @@ export default function DashboardPage() {
       </div>
 
       {/* Username Configuration Dialog */}
-      <Dialog open={showUsernameDialog} onOpenChange={setShowUsernameDialog}>
+      <Dialog open={showUsernameDialog} onOpenChange={(open) => {
+        setShowUsernameDialog(open);
+        if (!open) {
+          setNewUsername("");
+        }
+      }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Configurar Nombre de Usuario</DialogTitle>
             <DialogDescription>
-              Elige un nombre único para tu página de reservas. Solo puedes usar letras minúsculas, números, guiones (-) y guiones bajos (_).
+              Elige un nombre único para tu página de reservas. Puedes usar espacios (se convertirán automáticamente en guiones), letras, números, guiones y guiones bajos.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -831,14 +866,45 @@ export default function DashboardPage() {
                 <span className="text-sm text-slate-500">microagenda.cl/u/</span>
                 <Input
                   id="username"
-                  placeholder="tu-nombre"
+                  placeholder="tu nombre o tu-nombre"
                   value={newUsername}
-                  onChange={(e) => setNewUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
+                  onChange={(e) => {
+                    // Permitir cualquier carácter mientras se escribe
+                    setNewUsername(e.target.value);
+                  }}
                   className="flex-1"
+                  maxLength={30}
                 />
               </div>
+              
+              {/* Mostrar preview del username normalizado */}
+              {newUsername.trim() && (
+                <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                  <p className="text-xs text-slate-600 mb-1">Vista previa de tu URL:</p>
+                  <code className="text-sm font-mono text-slate-900 break-all">
+                    microagenda.cl/u/{normalizeUsername(newUsername) || <span className="text-slate-400 italic">tu-nombre</span>}
+                  </code>
+                  {newUsername.includes(' ') && (
+                    <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      Los espacios se reemplazarán con guiones
+                    </p>
+                  )}
+                </div>
+              )}
+              
+              {/* Mensaje de validación */}
+              {newUsername.trim() && !isValidUsername(newUsername) && (
+                <p className="text-xs text-red-600 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
+                  {normalizeUsername(newUsername).length < 3 
+                    ? "El nombre debe tener al menos 3 caracteres" 
+                    : "El nombre contiene caracteres inválidos. Usa letras, números, espacios, guiones y guiones bajos"}
+                </p>
+              )}
+              
               <p className="text-xs text-slate-500">
-                Ejemplo: juan-perez, maria_garcia, consultoraluz
+                Ejemplo: "Juan Pérez" se convertirá en "juan-perez"
               </p>
             </div>
             <div className="flex justify-end gap-2">
@@ -853,7 +919,8 @@ export default function DashboardPage() {
               </Button>
               <Button
                 onClick={handleUpdateUsername}
-                className="bg-gradient-to-r from-primary to-accent hover:brightness-110"
+                disabled={!isValidUsername(newUsername)}
+                className="bg-gradient-to-r from-primary to-accent hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                   backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-accent))`
                 }}
