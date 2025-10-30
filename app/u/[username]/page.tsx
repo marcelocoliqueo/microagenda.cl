@@ -669,6 +669,9 @@ export default function PublicAgendaPage() {
                           onChange={(date) => setFormData({ ...formData, date, time: "" })}
                           minDate={new Date().toISOString().split("T")[0]}
                           availability={availability}
+                          bookedSlots={bookedSlots}
+                          selectedTime={formData.time}
+                          onTimeSelect={(time) => setFormData({ ...formData, time })}
                         />
                       </div>
 
