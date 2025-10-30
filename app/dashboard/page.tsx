@@ -481,10 +481,11 @@ export default function DashboardPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="mb-8"
+            className="mb-8 relative"
+            style={{ zIndex: 1 }}
           >
-            <Card className="border-slate-200/70 bg-white/70 backdrop-blur shadow-lg hover:shadow-xl transition-shadow">
-              <CardContent className="p-6">
+            <Card className="border-slate-200/70 bg-white/70 backdrop-blur shadow-lg hover:shadow-xl transition-shadow relative" style={{ zIndex: 1 }}>
+              <CardContent className="p-6 relative" style={{ zIndex: 10 }}>
                 {profile.username ? (
                   <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div className="flex-1 w-full">
@@ -501,15 +502,18 @@ export default function DashboardPage() {
                         {publicUrl}
                       </code>
                     </div>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2 relative z-20">
                       <Button
                         variant="outline"
                         size="lg"
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
                           navigator.clipboard.writeText(publicUrl);
                           toast({ title: "¡Copiado!", description: "Enlace copiado al portapapeles" });
                         }}
-                        className="whitespace-nowrap"
+                        className="whitespace-nowrap relative z-20 pointer-events-auto"
+                        type="button"
                       >
                         <ExternalLink className="w-4 h-4 mr-2" />
                         Copiar Enlace
@@ -523,14 +527,15 @@ export default function DashboardPage() {
                           setNewUsername(profile.username || "");
                           setShowUsernameDialog(true);
                         }}
-                        className="text-xs"
+                        className="text-xs relative z-20 pointer-events-auto"
+                        type="button"
                       >
                         Editar nombre de usuario
                       </Button>
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-4">
+                  <div className="text-center py-4 relative z-20">
                     <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
                       <ExternalLink className="w-8 h-8 text-amber-600" />
                     </div>
@@ -547,10 +552,11 @@ export default function DashboardPage() {
                         setNewUsername("");
                         setShowUsernameDialog(true);
                       }}
-                      className="bg-gradient-to-r from-primary to-accent hover:brightness-110"
+                      className="bg-gradient-to-r from-primary to-accent hover:brightness-110 relative z-20 pointer-events-auto"
                       style={{
                         backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-accent))`
                       }}
+                      type="button"
                     >
                       <Plus className="w-4 h-4 mr-2" />
                       Configurar Ahora
