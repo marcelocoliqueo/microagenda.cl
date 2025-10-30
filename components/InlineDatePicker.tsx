@@ -50,7 +50,7 @@ export function InlineDatePicker({
   const getTimeSlotsForDate = (dateStr: string): string[] => {
     if (!dateStr) return [];
     
-    const dayName = getDayName(dateStr));
+    const dayName = getDayName(dateStr);
     const dayAvailability = availability[dayName];
     
     if (!dayAvailability || dayAvailability.length === 0) {
