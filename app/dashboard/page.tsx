@@ -136,8 +136,42 @@ export default function DashboardPage() {
   }
 
   async function handleLogout() {
-    await supabase.auth.signOut();
-    router.push("/");
+    try {
+      // Cerrar todas las conexiones de Realtime antes de hacer logout
+      const channels = supabase.getChannels();
+      channels.forEach((channel) => {
+        supabase.removeChannel(channel);
+      });
+
+      // Cerrar sesión
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error("Error al cerrar sesión:", error);
+        toast({
+          title: "Error",
+          description: "No se pudo cerrar sesión correctamente",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Limpiar estado local
+      setUser(null);
+      setProfile(null);
+      setServices([]);
+
+      // Redirigir a la landing page
+      router.push("/");
+      router.refresh(); // Forzar refresh del router
+    } catch (error: any) {
+      console.error("Error inesperado al cerrar sesión:", error);
+      toast({
+        title: "Error",
+        description: "Ocurrió un error al cerrar sesión",
+        variant: "destructive",
+      });
+    }
   }
 
   async function handleUpdateUsername() {
