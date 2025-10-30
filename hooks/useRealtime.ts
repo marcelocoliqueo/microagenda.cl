@@ -18,6 +18,7 @@ export function useRealtime(
   const onUpdateRef = useRef(onUpdate);
   const [isConnected, setIsConnected] = useState(false);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isSettingUpRef = useRef(false);
 
   // Actualizar la referencia de la función sin causar re-suscripciones
   useEffect(() => {
@@ -32,12 +33,18 @@ export function useRealtime(
     
     if (channelRef.current) {
       try {
-        supabase.removeChannel(channelRef.current);
+        const channel = channelRef.current;
+        // Cambiar estado del canal a closed antes de remover
+        if (channel.state === 'joined' || channel.state === 'joining') {
+          channel.unsubscribe();
+        }
+        supabase.removeChannel(channel);
       } catch (error) {
         // Ignorar errores al limpiar
       }
       channelRef.current = null;
     }
+    isSettingUpRef.current = false;
   };
 
   useEffect(() => {
@@ -52,25 +59,40 @@ export function useRealtime(
     setIsConnected(false);
 
     const setupSubscription = async () => {
-      if (!isMountedRef.current || !userId) return;
+      // Evitar múltiples configuraciones simultáneas
+      if (isSettingUpRef.current || !isMountedRef.current || !userId) {
+        return;
+      }
+
+      isSettingUpRef.current = true;
 
       try {
         // Verificar sesión
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        if (!session || sessionError) {
+        if (!session || sessionError || !isMountedRef.current) {
+          isSettingUpRef.current = false;
           if (process.env.NODE_ENV === 'development') {
             console.warn(`⚠️ Sin sesión para Realtime en ${table}`);
           }
           return;
         }
 
-        // Configurar token JWT (requerido para Postgres Changes con RLS)
+        // Asegurar que el token está configurado ANTES de crear el canal
+        // Esto es crítico: el token se envía en el mensaje phx_join
         supabase.realtime.setAuth(session.access_token);
 
-        // Crear canal según documentación oficial de Supabase
-        // No usar presence para Postgres Changes - solo es necesario para Presence/Broadcast
+        // Esperar un momento para que el token se propague
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        if (!isMountedRef.current) {
+          isSettingUpRef.current = false;
+          return;
+        }
+
+        // Crear canal único por tabla y usuario
+        const channelName = `${table}_changes_${userId}_${Date.now()}`;
         const channel = supabase
-          .channel(`${table}_changes_${userId}`)
+          .channel(channelName)
           .on(
             "postgres_changes",
             {
@@ -90,57 +112,91 @@ export function useRealtime(
             
             if (status === 'SUBSCRIBED') {
               setIsConnected(true);
+              isSettingUpRef.current = false;
               if (process.env.NODE_ENV === 'development') {
                 console.log(`✅ Realtime conectado para ${table}`);
               }
             } else if (status === 'CHANNEL_ERROR') {
               setIsConnected(false);
+              isSettingUpRef.current = false;
               const errorMsg = err?.message || 'Error desconocido';
-              console.error(`❌ Error Realtime para ${table}:`, errorMsg);
               
-              // Reconectar después de 5 segundos
-              if (reconnectTimeoutRef.current) {
-                clearTimeout(reconnectTimeoutRef.current);
+              // Solo loguear errores significativos (no warnings normales del navegador)
+              if (errorMsg !== 'Error desconocido' && !errorMsg.includes('WebSocket')) {
+                console.error(`❌ Error Realtime para ${table}:`, errorMsg);
               }
-              reconnectTimeoutRef.current = setTimeout(() => {
-                if (isMountedRef.current && userId) {
-                  setupSubscription();
+              
+              // Limpiar canal anterior antes de reconectar
+              if (channelRef.current) {
+                try {
+                  supabase.removeChannel(channelRef.current);
+                } catch (e) {
+                  // Ignorar errores
                 }
-              }, 5000);
+                channelRef.current = null;
+              }
+              
+              // Reconectar después de 5 segundos solo si aún está montado
+              if (isMountedRef.current && !reconnectTimeoutRef.current) {
+                reconnectTimeoutRef.current = setTimeout(() => {
+                  reconnectTimeoutRef.current = null;
+                  if (isMountedRef.current && userId) {
+                    setupSubscription();
+                  }
+                }, 5000);
+              }
             } else if (status === 'TIMED_OUT' || status === 'CLOSED') {
               setIsConnected(false);
-              if (process.env.NODE_ENV === 'development') {
-                console.warn(`⚠️ Realtime ${status.toLowerCase()} para ${table}. Reconectando...`);
+              isSettingUpRef.current = false;
+              
+              // Limpiar canal anterior antes de reconectar
+              if (channelRef.current) {
+                try {
+                  supabase.removeChannel(channelRef.current);
+                } catch (e) {
+                  // Ignorar errores
+                }
+                channelRef.current = null;
               }
               
-              // Reconectar después de 2 segundos
-              if (reconnectTimeoutRef.current) {
-                clearTimeout(reconnectTimeoutRef.current);
+              // Reconectar después de 2 segundos solo si aún está montado
+              if (isMountedRef.current && !reconnectTimeoutRef.current) {
+                reconnectTimeoutRef.current = setTimeout(() => {
+                  reconnectTimeoutRef.current = null;
+                  if (isMountedRef.current && userId) {
+                    setupSubscription();
+                  }
+                }, 2000);
               }
-              reconnectTimeoutRef.current = setTimeout(() => {
-                if (isMountedRef.current && userId) {
-                  setupSubscription();
-                }
-              }, 2000);
             }
           });
 
         channelRef.current = channel;
       } catch (error: any) {
         setIsConnected(false);
-        console.error(`❌ Error al suscribirse a Realtime para ${table}:`, error.message || error);
+        isSettingUpRef.current = false;
         
-        // Reconectar después de 3 segundos
-        reconnectTimeoutRef.current = setTimeout(() => {
-          if (isMountedRef.current && userId) {
-            setupSubscription();
-          }
-        }, 3000);
+        // Solo loguear errores no relacionados con WebSocket
+        if (!error.message?.includes('WebSocket') && !error.message?.includes('connection')) {
+          console.error(`❌ Error al suscribirse a Realtime para ${table}:`, error.message || error);
+        }
+        
+        // Reconectar después de 3 segundos solo si aún está montado
+        if (isMountedRef.current && userId && !reconnectTimeoutRef.current) {
+          reconnectTimeoutRef.current = setTimeout(() => {
+            reconnectTimeoutRef.current = null;
+            if (isMountedRef.current && userId) {
+              setupSubscription();
+            }
+          }, 3000);
+        }
       }
     };
 
-    // Delay inicial para evitar problemas en el render
-    const timeoutId = setTimeout(setupSubscription, 100);
+    // Delay inicial para asegurar que todo esté listo
+    const timeoutId = setTimeout(() => {
+      setupSubscription();
+    }, 200);
 
     return () => {
       clearTimeout(timeoutId);
