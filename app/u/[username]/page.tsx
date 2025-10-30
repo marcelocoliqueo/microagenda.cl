@@ -691,6 +691,7 @@ export default function PublicAgendaPage() {
                           bookedSlots={bookedSlots}
                           selectedTime={formData.time}
                           onTimeSelect={(time) => setFormData({ ...formData, time })}
+                          serviceDuration={selectedService?.duration}
                         />
                       </div>
                       {formData.date && getAvailableTimeSlots().length === 0 && (
