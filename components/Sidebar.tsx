@@ -72,7 +72,11 @@ export function Sidebar() {
         <nav className="flex-1 overflow-y-auto py-6 px-3">
           <div className="space-y-1">
             {navigation.map((item) => {
-              const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+              // Para Dashboard, solo activo si es exactamente /dashboard
+              // Para otros items, activo si coincide exacto o es subruta
+              const isActive = item.href === "/dashboard"
+                ? pathname === item.href
+                : pathname === item.href || pathname.startsWith(item.href + "/");
               const Icon = item.icon;
 
               return (
