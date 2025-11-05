@@ -19,6 +19,7 @@ interface SimpleDatePickerProps {
   name?: string;
   onTimeSelect?: (time: string) => void; // Callback para seleccionar hora
   selectedTime?: string; // Hora seleccionada
+  serviceDuration?: number; // Duración del servicio en minutos
 }
 
 export function SimpleDatePicker({
@@ -32,6 +33,7 @@ export function SimpleDatePicker({
   name = "date",
   onTimeSelect,
   selectedTime,
+  serviceDuration,
 }: SimpleDatePickerProps) {
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(() => {
@@ -89,7 +91,7 @@ export function SimpleDatePicker({
       return [];
     }
     
-    const availableSlots = generateAvailableSlots(dayAvailability);
+    const availableSlots = generateAvailableSlots(dayAvailability, 30, serviceDuration);
     
     // Filtrar horarios ya reservados
     return availableSlots.filter(slot => !bookedSlots.includes(slot));

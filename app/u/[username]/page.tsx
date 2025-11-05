@@ -20,7 +20,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase, type Profile, type Service } from "@/lib/supabaseClient";
 import { formatCurrency, formatDate, formatDateFriendly, generateTimeSlots, generateAvailableSlots, getDayName, sanitizePhone } from "@/lib/utils";
 import { APP_NAME } from "@/lib/constants";
-import { InlineDatePicker } from "@/components/InlineDatePicker";
+import { SimpleDatePicker } from "@/components/SimpleDatePicker";
 import { cn } from "@/lib/utils";
 
 export default function PublicAgendaPage() {
@@ -726,22 +726,10 @@ export default function PublicAgendaPage() {
 
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label className="text-base font-medium">Selecciona Fecha y Hora</Label>
-                        <input
-                          type="hidden"
+                        <Label htmlFor="date" className="text-base font-medium">Fecha</Label>
+                        <SimpleDatePicker
                           id="date"
                           name="date"
-                          value={formData.date}
-                          required
-                        />
-                        <input
-                          type="hidden"
-                          id="time"
-                          name="time"
-                          value={formData.time}
-                          required
-                        />
-                        <InlineDatePicker
                           value={formData.date}
                           onChange={(date) => setFormData({ ...formData, date, time: "" })}
                           minDate={new Date().toISOString().split("T")[0]}
@@ -752,12 +740,42 @@ export default function PublicAgendaPage() {
                           serviceDuration={selectedService?.duration}
                         />
                       </div>
-                      {formData.date && getAvailableTimeSlots().length === 0 && (
-                        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                          <p className="text-sm text-amber-700 flex items-center gap-2">
-                            <span>⚠️</span>
-                            No hay horarios disponibles para este día. Por favor, selecciona otra fecha.
-                          </p>
+
+                      {formData.date && (
+                        <div className="space-y-2">
+                          <Label htmlFor="time" className="text-base font-medium">Hora</Label>
+                          <input
+                            type="hidden"
+                            id="time"
+                            name="time"
+                            value={formData.time}
+                            required
+                          />
+                          {getAvailableTimeSlots().length > 0 ? (
+                            <Select
+                              value={formData.time}
+                              onValueChange={(time) => setFormData({ ...formData, time })}
+                              required
+                            >
+                              <SelectTrigger id="time" className="h-11">
+                                <SelectValue placeholder="Selecciona una hora" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {getAvailableTimeSlots().map((slot) => (
+                                  <SelectItem key={slot} value={slot}>
+                                    {slot}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                              <p className="text-sm text-amber-700 flex items-center gap-2">
+                                <span>⚠️</span>
+                                No hay horarios disponibles para este día. Por favor, selecciona otra fecha.
+                              </p>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
