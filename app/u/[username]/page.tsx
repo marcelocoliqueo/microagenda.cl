@@ -724,26 +724,42 @@ export default function PublicAgendaPage() {
                       </div>
                     )}
 
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="date" className="text-base font-medium">Fecha</Label>
-                        <SimpleDatePicker
+                    {/* Selector de Fecha y Hora - Mobile First */}
+                    <div className="space-y-6">
+                      {/* Fecha */}
+                      <div className="space-y-3">
+                        <Label htmlFor="date" className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                          <Calendar className="w-5 h-5 text-primary" />
+                          ¿Qué día?
+                        </Label>
+                        <input
+                          type="date"
                           id="date"
                           name="date"
                           value={formData.date}
-                          onChange={(date) => setFormData({ ...formData, date, time: "" })}
-                          minDate={new Date().toISOString().split("T")[0]}
-                          availability={availability}
-                          bookedSlots={bookedSlots}
-                          selectedTime={formData.time}
-                          onTimeSelect={(time) => setFormData({ ...formData, time })}
-                          serviceDuration={selectedService?.duration}
+                          onChange={(e) => setFormData({ ...formData, date: e.target.value, time: "" })}
+                          min={new Date().toISOString().split("T")[0]}
+                          required
+                          className="w-full h-14 px-4 text-base rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
                         />
+                        {formData.date && (
+                          <p className="text-sm text-slate-600 flex items-center gap-2">
+                            <span className="font-medium">{formatDateFriendly(formData.date)}</span>
+                          </p>
+                        )}
                       </div>
 
+                      {/* Horarios Disponibles */}
                       {formData.date && (
-                        <div className="space-y-2">
-                          <Label htmlFor="time" className="text-base font-medium">Hora</Label>
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="space-y-3"
+                        >
+                          <Label className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                            <Clock className="w-5 h-5 text-primary" />
+                            ¿A qué hora?
+                          </Label>
                           <input
                             type="hidden"
                             id="time"
@@ -752,31 +768,39 @@ export default function PublicAgendaPage() {
                             required
                           />
                           {getAvailableTimeSlots().length > 0 ? (
-                            <Select
-                              value={formData.time}
-                              onValueChange={(time) => setFormData({ ...formData, time })}
-                              required
-                            >
-                              <SelectTrigger id="time" className="h-11">
-                                <SelectValue placeholder="Selecciona una hora" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {getAvailableTimeSlots().map((slot) => (
-                                  <SelectItem key={slot} value={slot}>
-                                    {slot}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                              {getAvailableTimeSlots().map((slot) => (
+                                <motion.button
+                                  key={slot}
+                                  type="button"
+                                  onClick={() => setFormData({ ...formData, time: slot })}
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  className={cn(
+                                    "h-14 rounded-xl font-medium text-base transition-all",
+                                    formData.time === slot
+                                      ? "bg-primary text-white shadow-lg shadow-primary/25 border-2 border-primary"
+                                      : "bg-white border-2 border-slate-200 text-slate-700 hover:border-primary/50 hover:bg-primary/5"
+                                  )}
+                                >
+                                  {slot}
+                                </motion.button>
+                              ))}
+                            </div>
                           ) : (
-                            <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                              <p className="text-sm text-amber-700 flex items-center gap-2">
-                                <span>⚠️</span>
-                                No hay horarios disponibles para este día. Por favor, selecciona otra fecha.
+                            <div className="p-6 bg-amber-50 border-2 border-amber-200 rounded-xl text-center">
+                              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-amber-100 mb-3">
+                                <span className="text-2xl">⚠️</span>
+                              </div>
+                              <p className="text-sm text-amber-700 font-medium">
+                                No hay horarios disponibles para este día
+                              </p>
+                              <p className="text-xs text-amber-600 mt-1">
+                                Por favor, selecciona otra fecha
                               </p>
                             </div>
                           )}
-                        </div>
+                        </motion.div>
                       )}
                     </div>
 
