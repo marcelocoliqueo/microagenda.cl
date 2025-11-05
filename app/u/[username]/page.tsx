@@ -194,8 +194,16 @@ export default function PublicAgendaPage() {
         });
         
         // Debug: log de disponibilidad cargada con detalles completos
-        console.log('📅 Disponibilidad cargada:', JSON.parse(JSON.stringify(availabilityMap)));
+        console.log('📅 Disponibilidad cargada desde BD:', JSON.stringify(availabilityMap, null, 2));
+        console.log('📊 Total de días con disponibilidad:', Object.keys(availabilityMap).length);
+        Object.entries(availabilityMap).forEach(([day, blocks]) => {
+          console.log(`  - ${day}: ${blocks.length} bloque(s)`, blocks);
+        });
         setAvailability(availabilityMap);
+      } else {
+        // Si no hay datos de disponibilidad, mostrar mensaje de debug
+        console.log('⚠️ No hay disponibilidad configurada en la BD para este profesional');
+        setAvailability({});
       }
     } catch (error: any) {
       console.error("Fetch error:", error);
