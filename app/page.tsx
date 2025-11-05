@@ -98,6 +98,8 @@ function DemoInteractivo() {
     duration: number;
     price: number;
   } | null>(null);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedTime, setSelectedTime] = useState("");
   const [brandColor, setBrandColor] = useState("green");
   const totalSteps = 4;
 
@@ -121,8 +123,8 @@ function DemoInteractivo() {
 
   const steps = [
     { number: 1, title: "Ver servicios", desc: "Tu cliente ve tus servicios" },
-    { number: 2, title: "Elegir servicio", desc: "Selecciona lo que necesita" },
-    { number: 3, title: "Completar datos", desc: "Nombre, teléfono, fecha y hora" },
+    { number: 2, title: "Fecha y hora", desc: "Selecciona cuándo quiere reservar" },
+    { number: 3, title: "Completar datos", desc: "Nombre y teléfono" },
     { number: 4, title: "¡Listo!", desc: "Reserva confirmada automáticamente" },
   ];
 
@@ -269,32 +271,62 @@ function DemoInteractivo() {
                 </div>
               )}
 
-              {/* Step 2: Seleccionar servicio */}
+              {/* Step 2: Seleccionar fecha y hora */}
               {step === 2 && selectedService && (
                 <div className="flex-1">
-                  <h5 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                    <Calendar className="w-5 h-5" />
-                    Servicio seleccionado
-                  </h5>
-                  <div className="space-y-3">
-                    <div className={`rounded-lg border-2 ${currentColor.border} ${currentColor.light} p-4 shadow-md`}>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="font-semibold text-slate-900">{selectedService.name}</div>
-                        <Check className={`w-5 h-5 ${currentColor.text}`} />
-                      </div>
-                      <div className="text-sm text-slate-600 space-y-1">
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          Duración: {selectedService.duration} minutos
-                        </div>
-                        <div className="font-semibold text-slate-900">
-                          Precio: ${selectedService.price.toLocaleString('es-CL')}
-                        </div>
+                  <h5 className="font-semibold text-slate-900 mb-3">Selecciona fecha y hora</h5>
+                  <div className="space-y-4">
+                    {/* Servicio seleccionado mini */}
+                    <div className={`rounded-lg border ${currentColor.border} ${currentColor.light} p-2 text-xs`}>
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-slate-900">{selectedService.name}</span>
+                        <span className="text-slate-600">${selectedService.price.toLocaleString('es-CL')}</span>
                       </div>
                     </div>
+                    
+                    {/* Fecha */}
+                    <div>
+                      <label className="text-xs font-medium text-slate-700 block mb-1.5">Fecha</label>
+                      <input
+                        type="date"
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                        min={new Date().toISOString().split("T")[0]}
+                        className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:border-current focus:ring-2 focus:ring-current/10 transition-all"
+                        style={{ borderColor: selectedDate ? currentColor.border.replace('border-', '') : undefined }}
+                      />
+                    </div>
+
+                    {/* Horarios disponibles */}
+                    {selectedDate && (
+                      <div className="space-y-2">
+                        <label className="text-xs font-medium text-slate-700 block">Hora</label>
+                        <div className="grid grid-cols-3 gap-1.5">
+                          {["09:00", "09:30", "10:00", "10:30", "11:00", "14:00", "14:30", "15:00"].map((time) => (
+                            <button
+                              key={time}
+                              type="button"
+                              onClick={() => setSelectedTime(time)}
+                              className={`px-2 py-2 rounded-lg text-xs font-medium transition-all ${
+                                selectedTime === time
+                                  ? `${currentColor.bg} text-white shadow-md`
+                                  : `border ${currentColor.border} hover:${currentColor.light} text-slate-700`
+                              }`}
+                            >
+                              {time}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     <button
-                      onClick={() => setStep(1)}
-                      className={`text-sm ${currentColor.text} hover:underline flex items-center gap-1 font-medium`}
+                      onClick={() => {
+                        setStep(1);
+                        setSelectedDate("");
+                        setSelectedTime("");
+                      }}
+                      className={`text-xs ${currentColor.text} hover:underline flex items-center gap-1 font-medium mt-2`}
                     >
                       ← Cambiar servicio
                     </button>
@@ -307,6 +339,19 @@ function DemoInteractivo() {
                 <div className="flex-1">
                   <h5 className="font-semibold text-slate-900 mb-4">Completa tus datos</h5>
                   <div className="space-y-3">
+                    {/* Resumen mini */}
+                    {selectedService && selectedDate && selectedTime && (
+                      <div className={`rounded-lg ${currentColor.light} border ${currentColor.border} p-2 text-xs space-y-1`}>
+                        <div className="flex justify-between">
+                          <span className="font-medium">{selectedService.name}</span>
+                          <span>${selectedService.price.toLocaleString('es-CL')}</span>
+                        </div>
+                        <div className="text-slate-600">
+                          {new Date(selectedDate).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' })} · {selectedTime}
+                        </div>
+                      </div>
+                    )}
+
                     <div>
                       <label className="text-xs font-medium text-slate-700 block mb-1">Nombre</label>
                       <div className="px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-700">
@@ -314,23 +359,9 @@ function DemoInteractivo() {
                       </div>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-slate-700 block mb-1">Email</label>
+                      <label className="text-xs font-medium text-slate-700 block mb-1">Teléfono</label>
                       <div className="px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-700">
-                        juan@email.com
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="text-xs font-medium text-slate-700 block mb-1">Fecha</label>
-                        <div className="px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-700">
-                          28 Oct
-                        </div>
-                      </div>
-                      <div>
-                        <label className="text-xs font-medium text-slate-700 block mb-1">Hora</label>
-                        <div className="px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-700">
-                          10:00
-                        </div>
+                        +56 9 1234 5678
                       </div>
                     </div>
                   </div>
@@ -351,7 +382,7 @@ function DemoInteractivo() {
                     <div className="text-xs text-slate-600 space-y-1">
                       <div><span className="font-medium">Servicio:</span> {selectedService.name}</div>
                       <div><span className="font-medium">Duración:</span> {selectedService.duration} min</div>
-                      <div><span className="font-medium">Fecha:</span> 28 Oct, 10:00</div>
+                      <div><span className="font-medium">Fecha:</span> {selectedDate ? new Date(selectedDate).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' }) : '28 Oct'}, {selectedTime || '10:00'}</div>
                       <div><span className="font-medium">Cliente:</span> Juan Pérez</div>
                       <div><span className="font-medium">Total:</span> ${selectedService.price.toLocaleString('es-CL')}</div>
                     </div>
@@ -374,7 +405,7 @@ function DemoInteractivo() {
                   <Button
                     size="sm"
                     onClick={() => setStep(Math.min(totalSteps, step + 1))}
-                    disabled={step === 1 && !selectedService}
+                    disabled={(step === 1 && !selectedService) || (step === 2 && (!selectedDate || !selectedTime))}
                     className={`bg-gradient-to-r ${currentColor.gradient} text-white text-sm disabled:opacity-50`}
                   >
                     Siguiente
@@ -386,6 +417,8 @@ function DemoInteractivo() {
                     onClick={() => {
                       setStep(1);
                       setSelectedService(null);
+                      setSelectedDate("");
+                      setSelectedTime("");
                     }}
                     variant="outline"
                     className="text-sm"
