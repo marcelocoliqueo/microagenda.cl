@@ -34,14 +34,15 @@ export default function SchedulePage() {
   const [loading, setLoading] = useState(true);
 
   // Availability settings - ahora con múltiples bloques por día
+  // Para usuarios nuevos: todos los días vienen deshabilitados y sin bloques
   const [availability, setAvailability] = useState<Record<string, DayAvailability>>({
-    monday: { enabled: true, blocks: [{ id: "1", start: "09:00", end: "18:00" }] },
-    tuesday: { enabled: true, blocks: [{ id: "1", start: "09:00", end: "18:00" }] },
-    wednesday: { enabled: true, blocks: [{ id: "1", start: "09:00", end: "18:00" }] },
-    thursday: { enabled: true, blocks: [{ id: "1", start: "09:00", end: "18:00" }] },
-    friday: { enabled: true, blocks: [{ id: "1", start: "09:00", end: "18:00" }] },
-    saturday: { enabled: false, blocks: [{ id: "1", start: "09:00", end: "13:00" }] },
-    sunday: { enabled: false, blocks: [{ id: "1", start: "09:00", end: "13:00" }] },
+    monday: { enabled: false, blocks: [] },
+    tuesday: { enabled: false, blocks: [] },
+    wednesday: { enabled: false, blocks: [] },
+    thursday: { enabled: false, blocks: [] },
+    friday: { enabled: false, blocks: [] },
+    saturday: { enabled: false, blocks: [] },
+    sunday: { enabled: false, blocks: [] },
   });
 
   const dayNames: Record<string, string> = {
@@ -117,17 +118,7 @@ export default function SchedulePage() {
           }
         });
 
-        // Si un día no tiene bloques pero estaba habilitado, agregar uno por defecto
-        Object.keys(newAvailability).forEach((day) => {
-          if (newAvailability[day].enabled && newAvailability[day].blocks.length === 0) {
-            newAvailability[day].blocks.push({
-              id: `default-${day}`,
-              start: "09:00",
-              end: "18:00",
-            });
-          }
-        });
-
+        // NO agregar bloques por defecto - el usuario debe configurarlos explícitamente
         setAvailability(newAvailability);
       }
     } catch (error: any) {
