@@ -105,20 +105,20 @@ function DatePickerCalendar({
   const days = getDaysInMonth();
 
   return (
-    <div className="bg-white rounded-2xl border-2 border-slate-200 p-4 sm:p-6">
+    <div className="bg-white rounded-2xl border-2 border-slate-200 p-4 sm:p-5 max-w-md mx-auto">
       {/* Header del calendario */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <Button
           type="button"
           variant="ghost"
           size="sm"
           onClick={prevMonth}
-          className="h-10 w-10 rounded-xl"
+          className="h-8 w-8 rounded-lg"
         >
-          <ChevronLeft className="h-5 w-5" />
+          <ChevronLeft className="h-4 w-4" />
         </Button>
         
-        <h3 className="font-bold text-lg text-slate-900">
+        <h3 className="font-bold text-base text-slate-900">
           {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
         </h3>
         
@@ -127,18 +127,18 @@ function DatePickerCalendar({
           variant="ghost"
           size="sm"
           onClick={nextMonth}
-          className="h-10 w-10 rounded-xl"
+          className="h-8 w-8 rounded-lg"
         >
-          <ChevronRight className="h-5 w-5" />
+          <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
 
       {/* Días de la semana */}
-      <div className="grid grid-cols-7 gap-1 mb-2">
+      <div className="grid grid-cols-7 gap-1 mb-1">
         {dayNames.map((day) => (
           <div
             key={day}
-            className="text-center text-xs font-semibold text-slate-500 py-2"
+            className="text-center text-xs font-semibold text-slate-500 py-1"
           >
             {day}
           </div>
@@ -161,7 +161,7 @@ function DatePickerCalendar({
               whileHover={isSelectable ? { scale: 1.05 } : {}}
               whileTap={isSelectable ? { scale: 0.95 } : {}}
               className={cn(
-                "aspect-square rounded-xl text-sm font-medium transition-all relative",
+                "aspect-square rounded-lg text-sm font-medium transition-all relative min-h-[40px]",
                 !isCurrentMonth && "text-slate-300",
                 isCurrentMonth && !isSelectable && "text-slate-400 cursor-not-allowed",
                 isCurrentMonth && isSelectable && !isSelected && !isToday && "text-slate-700 hover:bg-slate-100",
@@ -179,17 +179,17 @@ function DatePickerCalendar({
       </div>
 
       {/* Leyenda */}
-      <div className="mt-4 pt-4 border-t border-slate-200 flex flex-wrap items-center justify-center gap-4 text-xs text-slate-600">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-primary"></div>
+      <div className="mt-3 pt-3 border-t border-slate-200 flex flex-wrap items-center justify-center gap-3 text-xs text-slate-600">
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded bg-primary"></div>
           <span>Seleccionado</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-primary/10 ring-2 ring-primary/20"></div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded bg-primary/10 ring-2 ring-primary/20"></div>
           <span>Hoy</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded bg-slate-100"></div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded bg-slate-100"></div>
           <span>Disponible</span>
         </div>
       </div>
@@ -232,8 +232,8 @@ function TimeSlotsPicker({
 
     return (
       <div>
-        <h4 className="text-sm font-semibold text-slate-700 mb-3">{title}</h4>
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+        <h4 className="text-sm font-semibold text-slate-700 mb-2">{title}</h4>
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 max-w-2xl mx-auto">
           {timeSlots.map((slot) => (
             <motion.button
               key={slot}
@@ -242,7 +242,7 @@ function TimeSlotsPicker({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className={cn(
-                "h-12 rounded-xl font-medium text-sm transition-all",
+                "h-11 rounded-lg font-medium text-sm transition-all",
                 selectedTime === slot
                   ? "bg-primary text-white shadow-lg shadow-primary/25 border-2 border-primary"
                   : "bg-white border-2 border-slate-200 text-slate-700 hover:border-primary/50 hover:bg-primary/5"
@@ -257,7 +257,7 @@ function TimeSlotsPicker({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {renderTimeSlots(groupedSlots.morning, "Mañana")}
       {renderTimeSlots(groupedSlots.afternoon, "Tarde")}
       {renderTimeSlots(groupedSlots.evening, "Noche")}
