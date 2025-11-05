@@ -179,25 +179,15 @@ export default function SchedulePage() {
       if (deleteError) throw deleteError;
 
       // Preparar los nuevos datos - un registro por cada bloque
-      // IMPORTANTE: Solo guardar bloques que el usuario haya configurado explícitamente
-      // NO guardar bloques por defecto que no hayan sido modificados
+      // Guardar todos los bloques que el usuario haya configurado (habilitados y con bloques)
       const availabilityData: any[] = [];
 
       Object.entries(availability).forEach(([day, config]) => {
+        // Solo guardar días que estén habilitados y tengan bloques configurados
         if (config.enabled && config.blocks.length > 0) {
           config.blocks.forEach((block) => {
-            // Validar que el bloque tenga valores válidos
-            if (block.start && block.end && block.start !== "09:00" || block.end !== "18:00") {
-              // Si no es el bloque por defecto, o si es cualquier bloque del usuario, guardarlo
-              availabilityData.push({
-                user_id: user.id,
-                day_of_week: day,
-                enabled: config.enabled,
-                start_time: block.start + ":00",
-                end_time: block.end + ":00",
-              });
-            } else {
-              // Si es el bloque por defecto, también guardarlo si el usuario lo dejó así
+            // Validar que el bloque tenga valores válidos antes de guardar
+            if (block.start && block.end) {
               availabilityData.push({
                 user_id: user.id,
                 day_of_week: day,
