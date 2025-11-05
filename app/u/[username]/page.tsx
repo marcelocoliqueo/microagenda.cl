@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { Calendar, Clock, CheckCircle, Sparkles, Star, Phone, Mail } from "lucide-react";
+import { Calendar, Clock, CheckCircle, Sparkles, Star, Phone, Mail, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -724,42 +724,40 @@ export default function PublicAgendaPage() {
                       </div>
                     )}
 
-                    {/* Selector de Fecha y Hora - Mobile First */}
+                    {/* Selector de Fecha y Hora - Estilo Mejorado */}
                     <div className="space-y-6">
-                      {/* Fecha */}
-                      <div className="space-y-3">
-                        <Label htmlFor="date" className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                      {/* Calendario Visual */}
+                      <div className="space-y-4">
+                        <Label className="text-lg font-semibold text-slate-900 flex items-center gap-2">
                           <Calendar className="w-5 h-5 text-primary" />
-                          ¿Qué día?
+                          Selecciona una fecha
                         </Label>
-                        <input
-                          type="date"
-                          id="date"
-                          name="date"
+                        <DatePickerCalendar
                           value={formData.date}
-                          onChange={(e) => setFormData({ ...formData, date: e.target.value, time: "" })}
-                          min={new Date().toISOString().split("T")[0]}
-                          required
-                          className="w-full h-14 px-4 text-base rounded-xl border-2 border-slate-200 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                          onChange={(date) => setFormData({ ...formData, date, time: "" })}
+                          minDate={new Date().toISOString().split("T")[0]}
+                          availability={availability}
                         />
-                        {formData.date && (
-                          <p className="text-sm text-slate-600 flex items-center gap-2">
-                            <span className="font-medium">{formatDateFriendly(formData.date)}</span>
-                          </p>
-                        )}
                       </div>
 
-                      {/* Horarios Disponibles */}
+                      {/* Horarios Disponibles Agrupados */}
                       {formData.date && (
                         <motion.div
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="space-y-3"
+                          className="space-y-4"
                         >
                           <Label className="text-lg font-semibold text-slate-900 flex items-center gap-2">
                             <Clock className="w-5 h-5 text-primary" />
-                            ¿A qué hora?
+                            Elige tu horario
                           </Label>
+                          <input
+                            type="hidden"
+                            id="date"
+                            name="date"
+                            value={formData.date}
+                            required
+                          />
                           <input
                             type="hidden"
                             id="time"
@@ -768,35 +766,21 @@ export default function PublicAgendaPage() {
                             required
                           />
                           {getAvailableTimeSlots().length > 0 ? (
-                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                              {getAvailableTimeSlots().map((slot) => (
-                                <motion.button
-                                  key={slot}
-                                  type="button"
-                                  onClick={() => setFormData({ ...formData, time: slot })}
-                                  whileHover={{ scale: 1.05 }}
-                                  whileTap={{ scale: 0.95 }}
-                                  className={cn(
-                                    "h-14 rounded-xl font-medium text-base transition-all",
-                                    formData.time === slot
-                                      ? "bg-primary text-white shadow-lg shadow-primary/25 border-2 border-primary"
-                                      : "bg-white border-2 border-slate-200 text-slate-700 hover:border-primary/50 hover:bg-primary/5"
-                                  )}
-                                >
-                                  {slot}
-                                </motion.button>
-                              ))}
-                            </div>
+                            <TimeSlotsPicker
+                              slots={getAvailableTimeSlots()}
+                              selectedTime={formData.time}
+                              onSelectTime={(time) => setFormData({ ...formData, time })}
+                            />
                           ) : (
                             <div className="p-6 bg-amber-50 border-2 border-amber-200 rounded-xl text-center">
                               <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-amber-100 mb-3">
                                 <span className="text-2xl">⚠️</span>
                               </div>
                               <p className="text-sm text-amber-700 font-medium">
-                                No hay horarios disponibles para este día
+                                No hay horarios disponibles
                               </p>
                               <p className="text-xs text-amber-600 mt-1">
-                                Por favor, selecciona otra fecha
+                                Selecciona otra fecha
                               </p>
                             </div>
                           )}
