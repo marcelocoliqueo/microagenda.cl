@@ -23,6 +23,248 @@ import { APP_NAME } from "@/lib/constants";
 import { SimpleDatePicker } from "@/components/SimpleDatePicker";
 import { cn } from "@/lib/utils";
 
+// Componente de Calendario Visual
+function DatePickerCalendar({ 
+  value, 
+  onChange, 
+  minDate,
+  availability 
+}: { 
+  value: string; 
+  onChange: (date: string) => void; 
+  minDate: string;
+  availability: Record<string, Array<{ start: string; end: string }>>;
+}) {
+  const today = new Date();
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    if (value) {
+      const selectedDate = new Date(value + "T00:00:00");
+      return new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+    }
+    return new Date(today.getFullYear(), today.getMonth(), 1);
+  });
+
+  const monthNames = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+  ];
+
+  const dayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
+  const getDaysInMonth = () => {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+
+    const days: Array<{ date: Date; isCurrentMonth: boolean; isSelectable: boolean }> = [];
+
+    // Días del mes anterior
+    const prevMonthLastDay = new Date(year, month, 0).getDate();
+    for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+      const date = new Date(year, month - 1, prevMonthLastDay - i);
+      days.push({ date, isCurrentMonth: false, isSelectable: false });
+    }
+
+    // Días del mes actual
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day);
+      const dateStr = date.toISOString().split("T")[0];
+      const dayOfWeek = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][date.getDay()];
+      const hasAvailability = availability[dayOfWeek] && availability[dayOfWeek].length > 0;
+      const isSelectable = dateStr >= minDate && hasAvailability;
+      days.push({ date, isCurrentMonth: true, isSelectable });
+    }
+
+    // Días del mes siguiente
+    const remainingDays = 42 - days.length;
+    for (let day = 1; day <= remainingDays; day++) {
+      const date = new Date(year, month + 1, day);
+      days.push({ date, isCurrentMonth: false, isSelectable: false });
+    }
+
+    return days;
+  };
+
+  const handleDateSelect = (date: Date, isSelectable: boolean) => {
+    if (!isSelectable) return;
+    const dateStr = date.toISOString().split("T")[0];
+    onChange(dateStr);
+  };
+
+  const prevMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
+  };
+
+  const nextMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
+  };
+
+  const days = getDaysInMonth();
+
+  return (
+    <div className="bg-white rounded-2xl border-2 border-slate-200 p-4 sm:p-6">
+      {/* Header del calendario */}
+      <div className="flex items-center justify-between mb-6">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={prevMonth}
+          className="h-10 w-10 rounded-xl"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </Button>
+        
+        <h3 className="font-bold text-lg text-slate-900">
+          {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+        </h3>
+        
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={nextMonth}
+          className="h-10 w-10 rounded-xl"
+        >
+          <ChevronRight className="h-5 w-5" />
+        </Button>
+      </div>
+
+      {/* Días de la semana */}
+      <div className="grid grid-cols-7 gap-1 mb-2">
+        {dayNames.map((day) => (
+          <div
+            key={day}
+            className="text-center text-xs font-semibold text-slate-500 py-2"
+          >
+            {day}
+          </div>
+        ))}
+      </div>
+
+      {/* Días del mes */}
+      <div className="grid grid-cols-7 gap-1">
+        {days.map(({ date, isCurrentMonth, isSelectable }, index) => {
+          const dateStr = date.toISOString().split("T")[0];
+          const isToday = dateStr === today.toISOString().split("T")[0];
+          const isSelected = value === dateStr;
+
+          return (
+            <motion.button
+              key={index}
+              type="button"
+              onClick={() => handleDateSelect(date, isSelectable)}
+              disabled={!isSelectable}
+              whileHover={isSelectable ? { scale: 1.05 } : {}}
+              whileTap={isSelectable ? { scale: 0.95 } : {}}
+              className={cn(
+                "aspect-square rounded-xl text-sm font-medium transition-all relative",
+                !isCurrentMonth && "text-slate-300",
+                isCurrentMonth && !isSelectable && "text-slate-400 cursor-not-allowed",
+                isCurrentMonth && isSelectable && !isSelected && !isToday && "text-slate-700 hover:bg-slate-100",
+                isToday && !isSelected && "bg-primary/10 text-primary font-bold ring-2 ring-primary/20",
+                isSelected && "bg-primary text-white font-bold shadow-lg shadow-primary/25",
+              )}
+            >
+              {date.getDate()}
+              {isSelectable && !isSelected && (
+                <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary"></div>
+              )}
+            </motion.button>
+          );
+        })}
+      </div>
+
+      {/* Leyenda */}
+      <div className="mt-4 pt-4 border-t border-slate-200 flex flex-wrap items-center justify-center gap-4 text-xs text-slate-600">
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded bg-primary"></div>
+          <span>Seleccionado</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded bg-primary/10 ring-2 ring-primary/20"></div>
+          <span>Hoy</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded bg-slate-100"></div>
+          <span>Disponible</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Componente de Horarios Agrupados
+function TimeSlotsPicker({
+  slots,
+  selectedTime,
+  onSelectTime
+}: {
+  slots: string[];
+  selectedTime: string;
+  onSelectTime: (time: string) => void;
+}) {
+  // Agrupar horarios por período del día
+  const groupedSlots = useMemo(() => {
+    const morning: string[] = [];
+    const afternoon: string[] = [];
+    const evening: string[] = [];
+
+    slots.forEach(slot => {
+      const [hour] = slot.split(':').map(Number);
+      if (hour < 12) {
+        morning.push(slot);
+      } else if (hour < 18) {
+        afternoon.push(slot);
+      } else {
+        evening.push(slot);
+      }
+    });
+
+    return { morning, afternoon, evening };
+  }, [slots]);
+
+  const renderTimeSlots = (timeSlots: string[], title: string) => {
+    if (timeSlots.length === 0) return null;
+
+    return (
+      <div>
+        <h4 className="text-sm font-semibold text-slate-700 mb-3">{title}</h4>
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+          {timeSlots.map((slot) => (
+            <motion.button
+              key={slot}
+              type="button"
+              onClick={() => onSelectTime(slot)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={cn(
+                "h-12 rounded-xl font-medium text-sm transition-all",
+                selectedTime === slot
+                  ? "bg-primary text-white shadow-lg shadow-primary/25 border-2 border-primary"
+                  : "bg-white border-2 border-slate-200 text-slate-700 hover:border-primary/50 hover:bg-primary/5"
+              )}
+            >
+              {slot}
+            </motion.button>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-6">
+      {renderTimeSlots(groupedSlots.morning, "Mañana")}
+      {renderTimeSlots(groupedSlots.afternoon, "Tarde")}
+      {renderTimeSlots(groupedSlots.evening, "Noche")}
+    </div>
+  );
+}
+
 export default function PublicAgendaPage() {
   const params = useParams();
   const username = params?.username as string;
