@@ -153,6 +153,8 @@ export default function PublicAgendaPage() {
           end: item.end_time.substring(0, 5),
         });
       });
+      console.log('📅 Disponibilidad cargada desde BD:', Object.keys(availMap));
+      console.log('🗓️ Detalles completos:', availMap);
       setAvailability(availMap);
       setLoading(false);
     } catch (error: any) {
@@ -165,16 +167,25 @@ export default function PublicAgendaPage() {
   async function fetchBookedSlots() {
     if (!formData.date || !profile) return;
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("appointments")
         .select("appointment_time")
         .eq("user_id", profile.id)
         .eq("appointment_date", formData.date)
-        .neq("status", "cancelled");
+        .in("status", ["pending", "confirmed"]);
+      
+      if (error) {
+        console.error("Error fetching booked slots:", error);
+        setBookedSlots([]);
+        return;
+      }
+      
       const slots = (data || []).map((a: any) => a.appointment_time.substring(0, 5));
+      console.log('🔒 Slots ocupados cargados para', formData.date, ':', slots);
       setBookedSlots(slots);
     } catch (error: any) {
       console.error("Fetch booked slots error:", error);
+      setBookedSlots([]);
     }
   }
 
