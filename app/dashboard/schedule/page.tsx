@@ -295,7 +295,7 @@ export default function SchedulePage() {
         className="mb-8"
       >
         <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3 mb-2">
-          <Clock className="w-8 h-8 text-primary" />
+          <Clock className="w-8 h-8" style={{ color: "var(--color-primary)" }} />
           Horarios de Atención
         </h1>
         <p className="text-slate-600">

@@ -249,7 +249,7 @@ export default function ClientsPage() {
         <div className="flex items-center justify-between mb-2">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
-              <Users className="w-8 h-8 text-primary" />
+              <Users className="w-8 h-8" style={{ color: "var(--color-primary)" }} />
               Clientes
             </h1>
             <p className="text-slate-600 mt-1">

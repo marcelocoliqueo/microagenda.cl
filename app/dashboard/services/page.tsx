@@ -226,7 +226,7 @@ export default function ServicesPage() {
         className="mb-8"
       >
         <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3 mb-2">
-          <Package className="w-8 h-8 text-primary" />
+          <Package className="w-8 h-8" style={{ color: "var(--color-primary)" }} />
           Mis Servicios
         </h1>
         <p className="text-slate-600">

@@ -308,7 +308,7 @@ export default function ReportsPage() {
         <div className="flex items-center justify-between mb-2">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
-              <BarChart3 className="w-8 h-8 text-primary" />
+              <BarChart3 className="w-8 h-8" style={{ color: "var(--color-primary)" }} />
               Informes y Analytics
             </h1>
             <p className="text-slate-600 mt-1">

@@ -243,7 +243,7 @@ export default function AppointmentsPage() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3 mb-2">
-              <Calendar className="w-8 h-8 text-primary" />
+              <Calendar className="w-8 h-8" style={{ color: "var(--color-primary)" }} />
               Mis Citas
             </h1>
             <p className="text-slate-600">
