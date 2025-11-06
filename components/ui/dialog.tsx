@@ -38,7 +38,24 @@ const DialogContent = React.forwardRef<
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-lg opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-background data-[state=open]:text-muted">
+      <DialogPrimitive.Close 
+        className="absolute right-4 top-4 rounded-lg opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-background data-[state=open]:text-muted"
+        style={{
+          '--ring-color': 'var(--color-primary)',
+        } as React.CSSProperties & { '--ring-color': string }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = `var(--color-primary)`;
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = '';
+        }}
+        onFocus={(e) => {
+          e.currentTarget.style.boxShadow = `0 0 0 2px rgba(var(--color-primary-rgb, 16, 185, 129), 0.2)`;
+        }}
+        onBlur={(e) => {
+          e.currentTarget.style.boxShadow = '';
+        }}
+      >
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
