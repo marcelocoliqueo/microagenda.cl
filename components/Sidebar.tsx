@@ -12,7 +12,8 @@ import {
   ChevronRight,
   Sparkles,
   Package,
-  Clock
+  Clock,
+  Image
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -28,6 +29,7 @@ const navigation = [
   { name: "Citas", href: "/dashboard/appointments", icon: Calendar, badge: null },
   { name: "Servicios", href: "/dashboard/services", icon: Package, badge: null },
   { name: "Horarios", href: "/dashboard/schedule", icon: Clock, badge: null },
+  { name: "Post de Agenda", href: "/dashboard/post-agenda", icon: Image, badge: null },
   { name: "Clientes", href: "/dashboard/clients", icon: Users, badge: "Nuevo" },
   { name: "Informes", href: "/dashboard/reports", icon: BarChart3, badge: "Pro" },
   { name: "Configuración", href: "/dashboard/settings", icon: Settings, badge: null },
