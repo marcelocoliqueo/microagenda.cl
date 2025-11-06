@@ -378,7 +378,33 @@ export default function PublicAgendaPage() {
                     )}
                     <h5 className="font-semibold text-slate-900 mb-3">Elige tu servicio</h5>
                     <div className="space-y-3">
-                      {filteredServices.map((service) => (<button key={service.id} onClick={() => handleServiceSelect(service.id)} className="w-full rounded-lg border-2 border-slate-200 bg-white p-3 hover:border-primary/50 hover:shadow-md transition-all"><div className="flex items-center justify-between"><div className="text-left"><div className="font-medium text-slate-900">{service.name}</div><div className="text-xs text-slate-600 flex items-center gap-1 mt-1"><Clock className="w-3 h-3" />{service.duration} min</div></div><div className="flex items-center gap-2"><div className="font-bold text-slate-900">{formatCurrency(service.price)}</div><ChevronRight className="w-5 h-5 text-slate-400" /></div></div></button>))}
+                      {filteredServices.map((service) => (
+                        <button 
+                          key={service.id} 
+                          onClick={() => handleServiceSelect(service.id)} 
+                          className="w-full rounded-lg border-2 border-slate-200 bg-white p-3 hover:shadow-md transition-all"
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.borderColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.5)`;
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.borderColor = "rgb(226, 232, 240)";
+                          }}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="text-left">
+                              <div className="font-medium text-slate-900">{service.name}</div>
+                              <div className="text-xs text-slate-600 flex items-center gap-1 mt-1">
+                                <Clock className="w-3 h-3" />
+                                {service.duration} min
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="font-bold text-slate-900">{formatCurrency(service.price)}</div>
+                              <ChevronRight className="w-5 h-5 text-slate-400" />
+                            </div>
+                          </div>
+                        </button>
+                      ))}
                     </div>
                   </>
                 )}
