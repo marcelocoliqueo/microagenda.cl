@@ -130,8 +130,17 @@ export function generateAvailableSlots(
  * Obtiene el nombre del día de la semana en español
  */
 export function getDayName(date: Date | string): string {
-  const d = typeof date === "string" ? new Date(date + "T00:00:00") : date;
-  const dayOfWeek = d.getDay();
+  let dayOfWeek: number;
+  
+  if (typeof date === "string") {
+    // Parsear manualmente para evitar problemas de zona horaria
+    const [year, month, day] = date.split("-").map(Number);
+    const d = new Date(year, month - 1, day);
+    dayOfWeek = d.getDay();
+  } else {
+    dayOfWeek = date.getDay();
+  }
+  
   const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
   return days[dayOfWeek] || "monday";
 }
