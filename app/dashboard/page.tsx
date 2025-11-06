@@ -1496,7 +1496,12 @@ function NewAppointmentDialog({ services, userId, onSuccess }: { services: Servi
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-gradient-to-r from-primary to-accent hover:brightness-110 text-white">
+        <Button 
+          className="hover:brightness-110 text-white"
+          style={{
+            background: `linear-gradient(to right, var(--color-primary), var(--color-accent))`
+          }}
+        >
           <Plus className="w-4 h-4 mr-2" />
           Nueva Cita
         </Button>

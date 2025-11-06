@@ -42,30 +42,44 @@ export default function PublicAgendaPage() {
 
   const selectedService = services.find(s => s.id === formData.service_id);
 
+  // Función para convertir hex a RGB
+  const hexToRgb = (hex: string): string => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+      ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
+      : "16, 185, 129"; // Default emerald
+  };
+
   // Aplicar el color de marca del profesional
   useEffect(() => {
-    if (profile?.brand_color) {
-      // Mapeo de colores desde la base de datos
-      const colorMap: Record<string, { primary: string; accent: string }> = {
-        emerald: { primary: "#10B981", accent: "#84CC16" },
-        blue: { primary: "#3B82F6", accent: "#60A5FA" },
-        purple: { primary: "#8B5CF6", accent: "#A78BFA" },
-        pink: { primary: "#EC4899", accent: "#F472B6" },
-        orange: { primary: "#F97316", accent: "#FB923C" },
-        rose: { primary: "#F43F5E", accent: "#FB7185" },
-        cyan: { primary: "#06B6D4", accent: "#22D3EE" },
-        amber: { primary: "#F59E0B", accent: "#FCD34D" },
-      };
-      
-      const colors = colorMap[profile.brand_color] || colorMap.emerald;
-      document.documentElement.style.setProperty('--color-primary', colors.primary);
-      document.documentElement.style.setProperty('--color-accent', colors.accent);
-    }
+    // Mapeo de colores desde la base de datos
+    const colorMap: Record<string, { primary: string; accent: string }> = {
+      emerald: { primary: "#10B981", accent: "#84CC16" },
+      blue: { primary: "#3B82F6", accent: "#60A5FA" },
+      purple: { primary: "#8B5CF6", accent: "#A78BFA" },
+      pink: { primary: "#EC4899", accent: "#F472B6" },
+      orange: { primary: "#F97316", accent: "#FB923C" },
+      rose: { primary: "#F43F5E", accent: "#FB7185" },
+      cyan: { primary: "#06B6D4", accent: "#22D3EE" },
+      amber: { primary: "#F59E0B", accent: "#FCD34D" },
+    };
+    
+    // Usar el color del profesional o el default emerald
+    const brandColor = profile?.brand_color || "emerald";
+    const colors = colorMap[brandColor] || colorMap.emerald;
+    
+    // Aplicar variables CSS
+    document.documentElement.style.setProperty('--color-primary', colors.primary);
+    document.documentElement.style.setProperty('--color-accent', colors.accent);
+    document.documentElement.style.setProperty('--color-primary-rgb', hexToRgb(colors.primary));
+    document.documentElement.style.setProperty('--color-accent-rgb', hexToRgb(colors.accent));
     
     // Cleanup: restaurar colores por defecto al salir
     return () => {
       document.documentElement.style.setProperty('--color-primary', '#10B981');
       document.documentElement.style.setProperty('--color-accent', '#84CC16');
+      document.documentElement.style.setProperty('--color-primary-rgb', '16, 185, 129');
+      document.documentElement.style.setProperty('--color-accent-rgb', '132, 204, 22');
     };
   }, [profile?.brand_color]);
 
