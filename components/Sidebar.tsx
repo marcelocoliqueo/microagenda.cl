@@ -91,21 +91,33 @@ export function Sidebar() {
                     className={cn(
                       "flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200",
                       isActive
-                        ? "bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] text-white shadow-lg shadow-primary/20"
+                        ? "bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] text-white shadow-lg"
                         : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                     )}
+                    style={isActive ? { 
+                      boxShadow: `0 10px 15px -3px rgba(var(--color-primary-rgb, 16, 185, 129), 0.1), 0 4px 6px -2px rgba(var(--color-primary-rgb, 16, 185, 129), 0.05)` 
+                    } : {}}
                   >
-                    <Icon className={cn("w-5 h-5 flex-shrink-0", isActive ? "text-white" : "")} />
+                    <Icon 
+                      className={cn("w-5 h-5 flex-shrink-0", isActive ? "text-white" : "")} 
+                      style={!isActive ? { color: "var(--color-primary)" } : {}}
+                    />
                     {!isCollapsed && (
                       <>
                         <span className="flex-1 font-medium text-sm">{item.name}</span>
                         {item.badge && (
-                          <span className={cn(
-                            "text-[10px] font-bold px-2 py-0.5 rounded-full",
-                            isActive 
-                              ? "bg-white/20 text-white" 
-                              : "bg-primary/10 text-primary"
-                          )}>
+                          <span 
+                            className={cn(
+                              "text-[10px] font-bold px-2 py-0.5 rounded-full",
+                              isActive 
+                                ? "bg-white/20 text-white" 
+                                : ""
+                            )}
+                            style={!isActive ? {
+                              backgroundColor: `rgba(var(--color-primary-rgb, 16, 185, 129), 0.1)`,
+                              color: `var(--color-primary)`
+                            } : {}}
+                          >
                             {item.badge}
                           </span>
                         )}

@@ -282,7 +282,7 @@ function DemoInteractivo() {
                         <span className="font-medium text-slate-900">{selectedService.name}</span>
                         <span className="text-slate-600">${selectedService.price.toLocaleString('es-CL')}</span>
                       </div>
-                    </div>
+                        </div>
                     
                     {/* Fecha */}
                     <div>
@@ -295,7 +295,7 @@ function DemoInteractivo() {
                         className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:border-current focus:ring-2 focus:ring-current/10 transition-all"
                         style={{ borderColor: selectedDate ? currentColor.border.replace('border-', '') : undefined }}
                       />
-                    </div>
+                        </div>
 
                     {/* Horarios disponibles */}
                     {selectedDate && (
@@ -316,8 +316,8 @@ function DemoInteractivo() {
                               {time}
                             </button>
                           ))}
-                        </div>
                       </div>
+                    </div>
                     )}
 
                     <button
@@ -345,22 +345,22 @@ function DemoInteractivo() {
                         <div className="flex justify-between">
                           <span className="font-medium">{selectedService.name}</span>
                           <span>${selectedService.price.toLocaleString('es-CL')}</span>
-                        </div>
+                      </div>
                         <div className="text-slate-600">
                           {new Date(selectedDate).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' })} · {selectedTime}
-                        </div>
+                    </div>
                       </div>
                     )}
 
-                    <div>
+                      <div>
                       <label className="text-xs font-medium text-slate-700 block mb-1">Nombre</label>
-                      <div className="px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-700">
+                        <div className="px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-700">
                         Juan Pérez
+                        </div>
                       </div>
-                    </div>
-                    <div>
+                      <div>
                       <label className="text-xs font-medium text-slate-700 block mb-1">Teléfono</label>
-                      <div className="px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-700">
+                        <div className="px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-700">
                         +56 9 1234 5678
                       </div>
                     </div>

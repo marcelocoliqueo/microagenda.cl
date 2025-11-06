@@ -57,8 +57,8 @@ export default function RootLayout({
       <body className={`${inter.variable} font-sans`}>
         <ThemeProvider>
           <AuthHandler />
-          {children}
-          <Toaster />
+        {children}
+        <Toaster />
         </ThemeProvider>
       </body>
     </html>

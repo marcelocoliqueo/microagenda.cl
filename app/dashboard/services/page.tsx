@@ -280,13 +280,27 @@ export default function ServicesPage() {
                     key={service.id}
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="p-4 border border-slate-200 rounded-xl hover:shadow-md transition-all hover:border-primary/30"
+                    className="p-4 border border-slate-200 rounded-xl hover:shadow-md transition-all"
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = "var(--color-primary)";
+                      e.currentTarget.style.borderWidth = "2px";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = "rgb(226, 232, 240)"; // slate-200
+                      e.currentTarget.style.borderWidth = "1px";
+                    }}
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <h4 className="font-semibold text-slate-900">{service.name}</h4>
                         {service.category && service.category !== "General" && (
-                          <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium text-primary bg-primary/10 rounded-full">
+                          <span 
+                            className="inline-block mt-1 px-2 py-0.5 text-xs font-medium rounded-full"
+                            style={{
+                              color: "var(--color-primary)",
+                              backgroundColor: `rgba(var(--color-primary-rgb, 16, 185, 129), 0.1)`
+                            }}
+                          >
                             {service.category}
                           </span>
                         )}

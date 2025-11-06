@@ -11,7 +11,7 @@ export function useAppointments(userId: string | null) {
       setLoading(false);
       return;
     }
-    
+
     try {
       setLoading(true);
       const { data, error } = await supabase

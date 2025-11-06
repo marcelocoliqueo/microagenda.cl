@@ -97,6 +97,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Función para convertir hex a RGB
+  const hexToRgb = (hex: string): string => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+      ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
+      : "16, 185, 129"; // Default emerald
+  };
+
   // Actualizar CSS variables cuando cambia el color
   useEffect(() => {
     const color = BRAND_COLORS.find(c => c.id === currentColorId) || BRAND_COLORS[0];
@@ -104,6 +112,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     // Actualizar CSS variables en :root
     document.documentElement.style.setProperty('--color-primary', color.primary);
     document.documentElement.style.setProperty('--color-accent', color.accent);
+    document.documentElement.style.setProperty('--color-primary-rgb', hexToRgb(color.primary));
+    document.documentElement.style.setProperty('--color-accent-rgb', hexToRgb(color.accent));
   }, [currentColorId]);
 
   const setBrandColor = (colorId: string) => {

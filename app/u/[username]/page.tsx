@@ -226,13 +226,13 @@ export default function PublicAgendaPage() {
     try {
       setSubmitting(true);
       const { error } = await supabase.from("appointments").insert([{
-        user_id: profile.id,
+          user_id: profile.id,
         service_id: formData.service_id,
-        client_name: formData.client_name,
-        client_phone: sanitizePhone(formData.client_phone),
-        date: formData.date,
+          client_name: formData.client_name,
+          client_phone: sanitizePhone(formData.client_phone),
+          date: formData.date,
         time: formData.time + ":00",
-        status: profile.auto_confirm ? "confirmed" : "pending",
+          status: profile.auto_confirm ? "confirmed" : "pending",
       }]);
       if (error) throw error;
       toast({ title: "¡Reserva exitosa!", description: "Tu cita ha sido registrada" });
@@ -302,7 +302,7 @@ export default function PublicAgendaPage() {
               </div>
             ))}
           </div>
-        </div>
+                        </div>
 
         {/* Content Card */}
         <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }} className="rounded-2xl border border-slate-200/70 bg-white/70 backdrop-blur shadow-xl overflow-hidden">
@@ -401,7 +401,7 @@ export default function PublicAgendaPage() {
                       })()}
                     </p>
                   </div>
-                  
+
                   {/* Selector de días (14 días por página) */}
                   <div className="grid grid-cols-7 gap-1.5">
                     {(() => {
@@ -450,7 +450,7 @@ export default function PublicAgendaPage() {
                       return days;
                     })()}
                   </div>
-                  
+
                   {/* Navegación de calendario */}
                   <div className="flex items-center justify-between pt-2">
                     <Button
@@ -478,7 +478,7 @@ export default function PublicAgendaPage() {
                       <ChevronRight className="w-4 h-4 ml-1" />
                     </Button>
                   </div>
-                  
+
                   <input type="hidden" id="date" name="date" value={formData.date} required />
                 </div>
 
@@ -507,14 +507,14 @@ export default function PublicAgendaPage() {
                             Cambiar
                           </button>
                         )}
-                      </div>
-                      
+                    </div>
+
                       <input type="hidden" id="time" name="time" value={formData.time} required />
                       
                       {getAvailableTimeSlots().length > 0 ? (
                         <div className="space-y-4">
                           {groupedTimeSlots.morning.length > 0 && (
-                            <div className="space-y-2">
+                    <div className="space-y-2">
                               <div className="flex items-center gap-2">
                                 <div className="w-6 h-6 rounded-md bg-amber-100 flex items-center justify-center">
                                   <span className="text-xs">🌅</span>
@@ -547,8 +547,8 @@ export default function PublicAgendaPage() {
                                     )}
                                   </motion.button>
                                 ))}
-                              </div>
-                            </div>
+                    </div>
+                  </div>
                           )}
                           
                           {groupedTimeSlots.afternoon.length > 0 && (
@@ -673,7 +673,7 @@ export default function PublicAgendaPage() {
                   <div><label htmlFor="client_phone" className="text-xs font-medium text-slate-700 block mb-1">Teléfono</label><Input id="client_phone" name="client_phone" type="tel" placeholder="+56 9 1234 5678" value={formData.client_phone} onChange={(e) => setFormData({ ...formData, client_phone: e.target.value })} required className="h-10" /></div>
                 </form>
               </div>
-            )}
+              )}
 
             {/* Step 4: Confirmación */}
             {step === 4 && selectedService && (

@@ -470,11 +470,24 @@ export default function ClientsPage() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="p-4 border border-slate-200 rounded-xl hover:shadow-md transition-all hover:border-primary/30"
+                    className="p-4 border border-slate-200 rounded-xl hover:shadow-md transition-all"
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = "var(--color-primary)";
+                      e.currentTarget.style.borderWidth = "2px";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = "rgb(226, 232, 240)"; // slate-200
+                      e.currentTarget.style.borderWidth = "1px";
+                    }}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4 flex-1">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-lg">
+                        <div 
+                          className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg"
+                          style={{
+                            background: `linear-gradient(to bottom right, var(--color-primary), var(--color-accent))`
+                          }}
+                        >
                           {client.client_name.charAt(0).toUpperCase()}
                         </div>
                         <div className="flex-1">
