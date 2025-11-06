@@ -703,9 +703,29 @@ export default function PublicAgendaPage() {
             <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-200">
               <Button variant="outline" size="sm" onClick={() => setStep(Math.max(1, step - 1))} disabled={step === 1 || step === 4} className="text-sm">Anterior</Button>
               {step < 3 ? (
-                <Button size="sm" onClick={() => setStep(Math.min(totalSteps, step + 1))} disabled={(step === 1 && !formData.service_id) || (step === 2 && (!formData.date || !formData.time))} className="bg-gradient-to-r from-primary to-accent text-white text-sm disabled:opacity-50">Siguiente<ChevronRight className="w-4 h-4 ml-1" /></Button>
+                <Button 
+                  size="sm" 
+                  onClick={() => setStep(Math.min(totalSteps, step + 1))} 
+                  disabled={(step === 1 && !formData.service_id) || (step === 2 && (!formData.date || !formData.time))} 
+                  className="text-white text-sm disabled:opacity-50"
+                  style={{
+                    background: `linear-gradient(to right, var(--color-primary), var(--color-accent))`
+                  }}
+                >
+                  Siguiente<ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
               ) : step === 3 ? (
-                <Button size="sm" onClick={handleSubmit} disabled={submitting || !formData.client_name || !formData.client_phone} className="bg-gradient-to-r from-primary to-accent text-white text-sm disabled:opacity-50">{submitting ? "Reservando..." : "Confirmar"}</Button>
+                <Button 
+                  size="sm" 
+                  onClick={handleSubmit} 
+                  disabled={submitting || !formData.client_name || !formData.client_phone} 
+                  className="text-white text-sm disabled:opacity-50"
+                  style={{
+                    background: `linear-gradient(to right, var(--color-primary), var(--color-accent))`
+                  }}
+                >
+                  {submitting ? "Reservando..." : "Confirmar"}
+                </Button>
               ) : (
                 <Button size="sm" onClick={() => { setStep(1); setFormData({ client_name: "", client_phone: "", service_id: "", date: "", time: "" }); }} variant="outline" className="text-sm">Nueva reserva</Button>
               )}
