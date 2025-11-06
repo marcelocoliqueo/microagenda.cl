@@ -307,12 +307,28 @@ export default function PublicAgendaPage() {
             {steps.map((s, i) => (
               <div key={s.number} className="flex items-center">
                 <div className="flex flex-col items-center gap-2">
-                  <div className={cn("w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center font-bold text-base sm:text-lg transition-all duration-300", step === s.number ? "bg-gradient-to-r from-primary to-accent text-white shadow-lg scale-110" : step > s.number ? "bg-primary/10 text-primary ring-2 ring-primary/20" : "bg-slate-100 text-slate-400")}>
+                  <div 
+                    className={cn("w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center font-bold text-base sm:text-lg transition-all duration-300", step === s.number ? "text-white shadow-lg scale-110" : step > s.number ? "ring-2" : "bg-slate-100 text-slate-400")}
+                    style={step === s.number ? {
+                      background: `linear-gradient(to right, var(--color-primary), var(--color-accent))`
+                    } : step > s.number ? {
+                      backgroundColor: `rgba(var(--color-primary-rgb, 16, 185, 129), 0.1)`,
+                      color: `var(--color-primary)`,
+                      borderColor: `rgba(var(--color-primary-rgb, 16, 185, 129), 0.2)`
+                    } : {}}
+                  >
                     {step > s.number ? <Check className="w-6 h-6" /> : s.number}
                   </div>
                   <span className={cn("text-xs sm:text-sm font-medium transition-colors text-center max-w-[80px]", step === s.number ? "text-slate-900" : "text-slate-500")}>{s.title}</span>
                 </div>
-                {i < steps.length - 1 && <div className={cn("h-1 w-8 sm:w-12 mx-2 sm:mx-3 rounded transition-all duration-300", step > s.number ? "bg-primary/30" : "bg-slate-200")} />}
+                {i < steps.length - 1 && (
+                  <div 
+                    className={cn("h-1 w-8 sm:w-12 mx-2 sm:mx-3 rounded transition-all duration-300", step > s.number ? "" : "bg-slate-200")}
+                    style={step > s.number ? {
+                      backgroundColor: `rgba(var(--color-primary-rgb, 16, 185, 129), 0.3)`
+                    } : {}}
+                  />
+                )}
               </div>
             ))}
           </div>
@@ -346,7 +362,18 @@ export default function PublicAgendaPage() {
                   <>
                     {categories.length > 2 && (
                       <div className="flex flex-wrap gap-2 justify-center mb-4">
-                        {categories.map((cat) => (<button key={cat} onClick={() => setSelectedCategory(cat)} className={cn("px-3 py-1 rounded-full text-xs font-medium transition-all", selectedCategory === cat ? "bg-primary text-white shadow-md" : "bg-slate-100 text-slate-700 hover:bg-slate-200")}>{cat === "all" ? "Todos" : cat}</button>))}
+                        {categories.map((cat) => (
+                          <button 
+                            key={cat} 
+                            onClick={() => setSelectedCategory(cat)} 
+                            className={cn("px-3 py-1 rounded-full text-xs font-medium transition-all shadow-md", selectedCategory === cat ? "text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200")}
+                            style={selectedCategory === cat ? {
+                              backgroundColor: "var(--color-primary)"
+                            } : {}}
+                          >
+                            {cat === "all" ? "Todos" : cat}
+                          </button>
+                        ))}
                       </div>
                     )}
                     <h5 className="font-semibold text-slate-900 mb-3">Elige tu servicio</h5>
@@ -365,12 +392,16 @@ export default function PublicAgendaPage() {
                 <motion.div 
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-accent/10 p-3 border border-primary/20"
+                  className="rounded-xl p-3 border"
+                  style={{
+                    background: `linear-gradient(to bottom right, rgba(var(--color-primary-rgb, 16, 185, 129), 0.1), rgba(var(--color-primary-rgb, 16, 185, 129), 0.05), rgba(var(--color-accent-rgb, 132, 204, 22), 0.1))`,
+                    borderColor: `rgba(var(--color-primary-rgb, 16, 185, 129), 0.2)`
+                  }}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className="w-10 h-10 rounded-lg bg-white/80 flex items-center justify-center">
-                        <Sparkles className="w-5 h-5 text-primary" />
+                        <Sparkles className="w-5 h-5" style={{ color: "var(--color-primary)" }} />
                       </div>
                       <div>
                         <p className="font-semibold text-slate-900 text-sm">{selectedService.name}</p>
@@ -381,7 +412,7 @@ export default function PublicAgendaPage() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-primary">{formatCurrency(selectedService.price)}</p>
+                      <p className="text-lg font-bold" style={{ color: "var(--color-primary)" }}>{formatCurrency(selectedService.price)}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -391,14 +422,16 @@ export default function PublicAgendaPage() {
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
                       <h6 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-primary" />
+                        <Calendar className="w-4 h-4" style={{ color: "var(--color-primary)" }} />
                         Selecciona tu fecha
                       </h6>
                       {formData.date && (
                         <button
                           type="button"
                           onClick={() => setFormData({ ...formData, date: "", time: "" })}
-                          className="text-xs text-slate-500 hover:text-primary transition-colors"
+                          className="text-xs text-slate-500 transition-colors"
+                          onMouseEnter={(e) => e.currentTarget.style.color = "var(--color-primary)"}
+                          onMouseLeave={(e) => e.currentTarget.style.color = "rgb(100, 116, 139)"}
                         >
                           Cambiar
                         </button>
@@ -443,11 +476,27 @@ export default function PublicAgendaPage() {
                             whileTap={hasAvailability ? { scale: 0.95 } : {}}
                             className={cn(
                               "relative p-2 rounded-lg text-center transition-all duration-200",
-                              isSelected && "bg-gradient-to-br from-primary to-accent text-white shadow-lg ring-2 ring-primary/20",
-                              !isSelected && hasAvailability && "bg-white border border-slate-200 hover:border-primary/50 hover:shadow-md text-slate-700",
+                              isSelected && "text-white shadow-lg ring-2",
+                              !isSelected && hasAvailability && "bg-white border border-slate-200 hover:shadow-md text-slate-700",
                               !hasAvailability && "bg-slate-50 text-slate-300 cursor-not-allowed",
-                              isToday && !isSelected && "ring-2 ring-primary/20"
+                              isToday && !isSelected && "ring-2"
                             )}
+                            style={isSelected ? {
+                              background: `linear-gradient(to bottom right, var(--color-primary), var(--color-accent))`,
+                              borderColor: `rgba(var(--color-primary-rgb, 16, 185, 129), 0.2)`
+                            } : isToday && !isSelected ? {
+                              borderColor: `rgba(var(--color-primary-rgb, 16, 185, 129), 0.2)`
+                            } : {}}
+                            onMouseEnter={(e) => {
+                              if (!isSelected && hasAvailability) {
+                                e.currentTarget.style.borderColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.5)`;
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!isSelected && hasAvailability) {
+                                e.currentTarget.style.borderColor = "rgb(226, 232, 240)";
+                              }
+                            }}
                           >
                             <div className={cn("text-[10px] font-medium mb-0.5", isSelected ? "text-white/80" : "text-slate-500")}>
                               {dayName}
@@ -456,7 +505,10 @@ export default function PublicAgendaPage() {
                               {date.getDate()}
                             </div>
                             {hasAvailability && !isSelected && (
-                              <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary"></div>
+                              <div 
+                                className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
+                                style={{ backgroundColor: "var(--color-primary)" }}
+                              ></div>
                             )}
                           </motion.button>
                         );
@@ -509,14 +561,16 @@ export default function PublicAgendaPage() {
                     >
                       <div className="flex items-center justify-between">
                         <h6 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-primary" />
+                          <Clock className="w-4 h-4" style={{ color: "var(--color-primary)" }} />
                           Elige tu horario
                         </h6>
                         {formData.time && (
                           <button
                             type="button"
                             onClick={() => setFormData({ ...formData, time: "" })}
-                            className="text-xs text-slate-500 hover:text-primary transition-colors"
+                            className="text-xs text-slate-500 transition-colors"
+                            onMouseEnter={(e) => e.currentTarget.style.color = "var(--color-primary)"}
+                            onMouseLeave={(e) => e.currentTarget.style.color = "rgb(100, 116, 139)"}
                           >
                             Cambiar
                           </button>
@@ -546,9 +600,25 @@ export default function PublicAgendaPage() {
                                     className={cn(
                                       "relative py-2.5 rounded-lg text-xs font-semibold transition-all duration-200",
                                       formData.time === time
-                                        ? "bg-gradient-to-br from-primary to-accent text-white shadow-lg ring-2 ring-primary/20"
-                                        : "bg-white border-2 border-slate-200 text-slate-700 hover:border-primary/50 hover:shadow-md hover:bg-primary/5"
+                                        ? "text-white shadow-lg ring-2"
+                                        : "bg-white border-2 border-slate-200 text-slate-700 hover:shadow-md"
                                     )}
+                                    style={formData.time === time ? {
+                                      background: `linear-gradient(to bottom right, var(--color-primary), var(--color-accent))`,
+                                      borderColor: `rgba(var(--color-primary-rgb, 16, 185, 129), 0.2)`
+                                    } : {}}
+                                    onMouseEnter={(e) => {
+                                      if (formData.time !== time) {
+                                        e.currentTarget.style.borderColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.5)`;
+                                        e.currentTarget.style.backgroundColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.05)`;
+                                      }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      if (formData.time !== time) {
+                                        e.currentTarget.style.borderColor = "rgb(226, 232, 240)";
+                                        e.currentTarget.style.backgroundColor = "white";
+                                      }
+                                    }}
                                   >
                                     {time}
                                     {formData.time === time && (
@@ -556,7 +626,7 @@ export default function PublicAgendaPage() {
                                         layoutId="time-selected"
                                         className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white flex items-center justify-center"
                                       >
-                                        <Check className="w-3 h-3 text-primary" />
+                                        <Check className="w-3 h-3" style={{ color: "var(--color-primary)" }} />
                                       </motion.div>
                                     )}
                                   </motion.button>
@@ -584,9 +654,25 @@ export default function PublicAgendaPage() {
                                     className={cn(
                                       "relative py-2.5 rounded-lg text-xs font-semibold transition-all duration-200",
                                       formData.time === time
-                                        ? "bg-gradient-to-br from-primary to-accent text-white shadow-lg ring-2 ring-primary/20"
-                                        : "bg-white border-2 border-slate-200 text-slate-700 hover:border-primary/50 hover:shadow-md hover:bg-primary/5"
+                                        ? "text-white shadow-lg ring-2"
+                                        : "bg-white border-2 border-slate-200 text-slate-700 hover:shadow-md"
                                     )}
+                                    style={formData.time === time ? {
+                                      background: `linear-gradient(to bottom right, var(--color-primary), var(--color-accent))`,
+                                      borderColor: `rgba(var(--color-primary-rgb, 16, 185, 129), 0.2)`
+                                    } : {}}
+                                    onMouseEnter={(e) => {
+                                      if (formData.time !== time) {
+                                        e.currentTarget.style.borderColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.5)`;
+                                        e.currentTarget.style.backgroundColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.05)`;
+                                      }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      if (formData.time !== time) {
+                                        e.currentTarget.style.borderColor = "rgb(226, 232, 240)";
+                                        e.currentTarget.style.backgroundColor = "white";
+                                      }
+                                    }}
                                   >
                                     {time}
                                     {formData.time === time && (
@@ -594,7 +680,7 @@ export default function PublicAgendaPage() {
                                         layoutId="time-selected"
                                         className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white flex items-center justify-center"
                                       >
-                                        <Check className="w-3 h-3 text-primary" />
+                                        <Check className="w-3 h-3" style={{ color: "var(--color-primary)" }} />
                                       </motion.div>
                                     )}
                                   </motion.button>
@@ -622,9 +708,25 @@ export default function PublicAgendaPage() {
                                     className={cn(
                                       "relative py-2.5 rounded-lg text-xs font-semibold transition-all duration-200",
                                       formData.time === time
-                                        ? "bg-gradient-to-br from-primary to-accent text-white shadow-lg ring-2 ring-primary/20"
-                                        : "bg-white border-2 border-slate-200 text-slate-700 hover:border-primary/50 hover:shadow-md hover:bg-primary/5"
+                                        ? "text-white shadow-lg ring-2"
+                                        : "bg-white border-2 border-slate-200 text-slate-700 hover:shadow-md"
                                     )}
+                                    style={formData.time === time ? {
+                                      background: `linear-gradient(to bottom right, var(--color-primary), var(--color-accent))`,
+                                      borderColor: `rgba(var(--color-primary-rgb, 16, 185, 129), 0.2)`
+                                    } : {}}
+                                    onMouseEnter={(e) => {
+                                      if (formData.time !== time) {
+                                        e.currentTarget.style.borderColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.5)`;
+                                        e.currentTarget.style.backgroundColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.05)`;
+                                      }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      if (formData.time !== time) {
+                                        e.currentTarget.style.borderColor = "rgb(226, 232, 240)";
+                                        e.currentTarget.style.backgroundColor = "white";
+                                      }
+                                    }}
                                   >
                                     {time}
                                     {formData.time === time && (
@@ -632,7 +734,7 @@ export default function PublicAgendaPage() {
                                         layoutId="time-selected"
                                         className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white flex items-center justify-center"
                                       >
-                                        <Check className="w-3 h-3 text-primary" />
+                                        <Check className="w-3 h-3" style={{ color: "var(--color-primary)" }} />
                                       </motion.div>
                                     )}
                                   </motion.button>
@@ -669,7 +771,9 @@ export default function PublicAgendaPage() {
                     setFormData({ ...formData, date: "", time: "" }); 
                   }}
                   whileHover={{ x: -2 }}
-                  className="flex items-center gap-2 text-xs text-slate-600 hover:text-primary transition-colors font-medium pt-2 border-t border-slate-200"
+                  className="flex items-center gap-2 text-xs text-slate-600 transition-colors font-medium pt-2 border-t border-slate-200"
+                  onMouseEnter={(e) => e.currentTarget.style.color = "var(--color-primary)"}
+                  onMouseLeave={(e) => e.currentTarget.style.color = "rgb(71, 85, 105)"}
                 >
                   <ChevronLeft className="w-3 h-3" />
                   Cambiar servicio
@@ -692,7 +796,14 @@ export default function PublicAgendaPage() {
             {/* Step 4: Confirmación */}
             {step === 4 && selectedService && (
               <div className="flex-1 flex flex-col items-center justify-center text-center">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4"><Check className="w-8 h-8 text-primary" /></div>
+                <div 
+                  className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
+                  style={{
+                    backgroundColor: `rgba(var(--color-primary-rgb, 16, 185, 129), 0.1)`
+                  }}
+                >
+                  <Check className="w-8 h-8" style={{ color: "var(--color-primary)" }} />
+                </div>
                 <h5 className="text-xl font-bold text-slate-900 mb-2">¡Reserva confirmada!</h5>
                 <p className="text-sm text-slate-600 mb-4">{profile.auto_confirm ? "Tu cita ha sido confirmada automáticamente" : "Recibirás confirmación pronto"}</p>
                 <div className="w-full bg-slate-50 rounded-lg p-4 text-left"><div className="text-xs text-slate-600 space-y-1"><div><span className="font-medium">Servicio:</span> {selectedService.name}</div><div><span className="font-medium">Duración:</span> {selectedService.duration} min</div><div><span className="font-medium">Fecha:</span> {formatDateFriendly(formData.date)}, {formData.time}</div><div><span className="font-medium">Cliente:</span> {formData.client_name}</div><div><span className="font-medium">Total:</span> {formatCurrency(selectedService.price)}</div></div></div>
@@ -740,7 +851,7 @@ export default function PublicAgendaPage() {
       {/* Footer */}
       <footer className="border-t border-slate-200 bg-white/50 backdrop-blur-sm py-12 mt-20">
         <div className="container mx-auto px-4 text-center">
-          <div className="flex items-center justify-center gap-2 mb-4"><img src="/logo.png" alt={APP_NAME} className="h-6 w-6 object-contain" /><p className="text-sm text-slate-600">Agenda powered by <Link href="/" className="text-primary hover:underline font-semibold">{APP_NAME}</Link></p></div>
+          <div className="flex items-center justify-center gap-2 mb-4"><img src="/logo.png" alt={APP_NAME} className="h-6 w-6 object-contain" /><p className="text-sm text-slate-600">Agenda powered by <Link href="/" className="hover:underline font-semibold" style={{ color: "var(--color-primary)" }} onMouseEnter={(e) => e.currentTarget.style.color = "var(--color-primary)"} onMouseLeave={(e) => e.currentTarget.style.color = "var(--color-primary)"}>{APP_NAME}</Link></p></div>
           <p className="text-xs text-slate-500">© 2025 {APP_NAME}. Todos los derechos reservados.</p>
         </div>
       </footer>
