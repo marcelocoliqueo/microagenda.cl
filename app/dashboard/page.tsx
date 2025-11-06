@@ -268,6 +268,59 @@ export default function DashboardPage() {
     }
   }
 
+  // Comprimir imagen antes de subir
+  async function compressImage(file: File): Promise<File> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          // Redimensionar si es muy grande (max 800x800)
+          const maxSize = 800;
+          if (width > maxSize || height > maxSize) {
+            if (width > height) {
+              height = (height / width) * maxSize;
+              width = maxSize;
+            } else {
+              width = (width / height) * maxSize;
+              height = maxSize;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                const compressedFile = new File([blob], file.name, {
+                  type: 'image/jpeg',
+                  lastModified: Date.now(),
+                });
+                resolve(compressedFile);
+              } else {
+                reject(new Error('Compression failed'));
+              }
+            },
+            'image/jpeg',
+            0.85 // Calidad 85%
+          );
+        };
+        img.onerror = () => reject(new Error('Image load failed'));
+      };
+      reader.onerror = () => reject(new Error('File read failed'));
+    });
+  }
+
   async function handleLogoUpload(file: File): Promise<string | null> {
     if (!user) return null;
 
@@ -284,25 +337,36 @@ export default function DashboardPage() {
         return null;
       }
 
-      // Validar tamaño (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
+      // Validar tamaño original (max 10MB antes de comprimir)
+      if (file.size > 10 * 1024 * 1024) {
         toast({
           title: "Error",
-          description: "La imagen debe ser menor a 5MB",
+          description: "La imagen es muy grande. Máximo 10MB.",
           variant: "destructive",
         });
         return null;
       }
 
+      // Comprimir y optimizar imagen
+      toast({
+        title: "Optimizando imagen...",
+        description: "Esto tomará solo unos segundos",
+      });
+
+      const compressedFile = await compressImage(file);
+      
+      console.log('📦 Tamaño original:', (file.size / 1024).toFixed(2), 'KB');
+      console.log('📦 Tamaño optimizado:', (compressedFile.size / 1024).toFixed(2), 'KB');
+      console.log('📊 Reducción:', (((file.size - compressedFile.size) / file.size) * 100).toFixed(1), '%');
+
       // Crear nombre único para el archivo
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      const fileName = `${user.id}-${Date.now()}.jpg`;
       const filePath = `business-logos/${fileName}`;
 
       // Subir a Supabase Storage
       const { error: uploadError } = await supabase.storage
         .from('public-assets')
-        .upload(filePath, file, {
+        .upload(filePath, compressedFile, {
           cacheControl: '3600',
           upsert: false
         });
