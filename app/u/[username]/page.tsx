@@ -169,9 +169,9 @@ export default function PublicAgendaPage() {
     try {
       const { data, error } = await supabase
         .from("appointments")
-        .select("appointment_time")
+        .select("time")
         .eq("user_id", profile.id)
-        .eq("appointment_date", formData.date)
+        .eq("date", formData.date)
         .in("status", ["pending", "confirmed"]);
       
       if (error) {
@@ -180,7 +180,11 @@ export default function PublicAgendaPage() {
         return;
       }
       
-      const slots = (data || []).map((a: any) => a.appointment_time.substring(0, 5));
+      const slots = (data || []).map((a: any) => {
+        const timeStr = a.time;
+        // Si viene como "HH:MM:SS", extraer "HH:MM"
+        return typeof timeStr === 'string' ? timeStr.substring(0, 5) : timeStr;
+      });
       console.log('🔒 Slots ocupados cargados para', formData.date, ':', slots);
       setBookedSlots(slots);
     } catch (error: any) {
@@ -199,8 +203,8 @@ export default function PublicAgendaPage() {
         service_id: formData.service_id,
         client_name: formData.client_name,
         client_phone: sanitizePhone(formData.client_phone),
-        appointment_date: formData.date,
-        appointment_time: formData.time + ":00",
+        date: formData.date,
+        time: formData.time + ":00",
         status: profile.auto_confirm ? "confirmed" : "pending",
       }]);
       if (error) throw error;
