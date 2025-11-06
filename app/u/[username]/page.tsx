@@ -3,280 +3,34 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { Calendar, Clock, CheckCircle, Sparkles, Star, Phone, Mail, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, Clock, CheckCircle, Sparkles, Check, ChevronRight, User, Phone as PhoneIcon } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase, type Profile, type Service } from "@/lib/supabaseClient";
-import { formatCurrency, formatDate, formatDateFriendly, generateTimeSlots, generateAvailableSlots, getDayName, sanitizePhone } from "@/lib/utils";
+import { formatCurrency, formatDateFriendly, generateAvailableSlots, getDayName, sanitizePhone } from "@/lib/utils";
 import { APP_NAME } from "@/lib/constants";
-import { SimpleDatePicker } from "@/components/SimpleDatePicker";
 import { cn } from "@/lib/utils";
-
-// Componente de Calendario Visual
-function DatePickerCalendar({ 
-  value, 
-  onChange, 
-  minDate,
-  availability 
-}: { 
-  value: string; 
-  onChange: (date: string) => void; 
-  minDate: string;
-  availability: Record<string, Array<{ start: string; end: string }>>;
-}) {
-  const today = new Date();
-  const [currentMonth, setCurrentMonth] = useState(() => {
-    if (value) {
-      const selectedDate = new Date(value + "T00:00:00");
-      return new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
-    }
-    return new Date(today.getFullYear(), today.getMonth(), 1);
-  });
-
-  const monthNames = [
-    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-  ];
-
-  const dayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
-
-  const getDaysInMonth = () => {
-    const year = currentMonth.getFullYear();
-    const month = currentMonth.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay();
-
-    const days: Array<{ date: Date; isCurrentMonth: boolean; isSelectable: boolean }> = [];
-
-    // Días del mes anterior
-    const prevMonthLastDay = new Date(year, month, 0).getDate();
-    for (let i = startingDayOfWeek - 1; i >= 0; i--) {
-      const date = new Date(year, month - 1, prevMonthLastDay - i);
-      days.push({ date, isCurrentMonth: false, isSelectable: false });
-    }
-
-    // Días del mes actual
-    for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(year, month, day);
-      const dateStr = date.toISOString().split("T")[0];
-      const dayOfWeek = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][date.getDay()];
-      const hasAvailability = availability[dayOfWeek] && availability[dayOfWeek].length > 0;
-      const isSelectable = dateStr >= minDate && hasAvailability;
-      days.push({ date, isCurrentMonth: true, isSelectable });
-    }
-
-    // Días del mes siguiente
-    const remainingDays = 42 - days.length;
-    for (let day = 1; day <= remainingDays; day++) {
-      const date = new Date(year, month + 1, day);
-      days.push({ date, isCurrentMonth: false, isSelectable: false });
-    }
-
-    return days;
-  };
-
-  const handleDateSelect = (date: Date, isSelectable: boolean) => {
-    if (!isSelectable) return;
-    const dateStr = date.toISOString().split("T")[0];
-    onChange(dateStr);
-  };
-
-  const prevMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
-  };
-
-  const nextMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
-  };
-
-  const days = getDaysInMonth();
-
-  return (
-    <div className="bg-white rounded-2xl border-2 border-slate-200 p-4 sm:p-5 max-w-md mx-auto">
-      {/* Header del calendario */}
-      <div className="flex items-center justify-between mb-4">
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={prevMonth}
-          className="h-8 w-8 rounded-lg"
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
-        
-        <h3 className="font-bold text-base text-slate-900">
-          {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
-        </h3>
-        
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={nextMonth}
-          className="h-8 w-8 rounded-lg"
-        >
-          <ChevronRight className="h-4 w-4" />
-        </Button>
-      </div>
-
-      {/* Días de la semana */}
-      <div className="grid grid-cols-7 gap-1 mb-1">
-        {dayNames.map((day) => (
-          <div
-            key={day}
-            className="text-center text-xs font-semibold text-slate-500 py-1"
-          >
-            {day}
-          </div>
-        ))}
-      </div>
-
-      {/* Días del mes */}
-      <div className="grid grid-cols-7 gap-1">
-        {days.map(({ date, isCurrentMonth, isSelectable }, index) => {
-          const dateStr = date.toISOString().split("T")[0];
-          const isToday = dateStr === today.toISOString().split("T")[0];
-          const isSelected = value === dateStr;
-
-          return (
-            <motion.button
-              key={index}
-              type="button"
-              onClick={() => handleDateSelect(date, isSelectable)}
-              disabled={!isSelectable}
-              whileHover={isSelectable ? { scale: 1.05 } : {}}
-              whileTap={isSelectable ? { scale: 0.95 } : {}}
-              className={cn(
-                "aspect-square rounded-lg text-sm font-medium transition-all relative min-h-[40px]",
-                !isCurrentMonth && "text-slate-300",
-                isCurrentMonth && !isSelectable && "text-slate-400 cursor-not-allowed",
-                isCurrentMonth && isSelectable && !isSelected && !isToday && "text-slate-700 hover:bg-slate-100",
-                isToday && !isSelected && "bg-primary/10 text-primary font-bold ring-2 ring-primary/20",
-                isSelected && "bg-primary text-white font-bold shadow-lg shadow-primary/25",
-              )}
-            >
-              {date.getDate()}
-              {isSelectable && !isSelected && (
-                <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary"></div>
-              )}
-            </motion.button>
-          );
-        })}
-      </div>
-
-      {/* Leyenda */}
-      <div className="mt-3 pt-3 border-t border-slate-200 flex flex-wrap items-center justify-center gap-3 text-xs text-slate-600">
-        <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded bg-primary"></div>
-          <span>Seleccionado</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded bg-primary/10 ring-2 ring-primary/20"></div>
-          <span>Hoy</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded bg-slate-100"></div>
-          <span>Disponible</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Componente de Horarios Agrupados
-function TimeSlotsPicker({
-  slots,
-  selectedTime,
-  onSelectTime
-}: {
-  slots: string[];
-  selectedTime: string;
-  onSelectTime: (time: string) => void;
-}) {
-  // Agrupar horarios por período del día
-  const groupedSlots = useMemo(() => {
-    const morning: string[] = [];
-    const afternoon: string[] = [];
-    const evening: string[] = [];
-
-    slots.forEach(slot => {
-      const [hour] = slot.split(':').map(Number);
-      if (hour < 12) {
-        morning.push(slot);
-      } else if (hour < 18) {
-        afternoon.push(slot);
-      } else {
-        evening.push(slot);
-      }
-    });
-
-    return { morning, afternoon, evening };
-  }, [slots]);
-
-  const renderTimeSlots = (timeSlots: string[], title: string) => {
-    if (timeSlots.length === 0) return null;
-
-    return (
-      <div>
-        <h4 className="text-sm font-semibold text-slate-700 mb-2">{title}</h4>
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 max-w-2xl mx-auto">
-          {timeSlots.map((slot) => (
-            <motion.button
-              key={slot}
-              type="button"
-              onClick={() => onSelectTime(slot)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={cn(
-                "h-11 rounded-lg font-medium text-sm transition-all",
-                selectedTime === slot
-                  ? "bg-primary text-white shadow-lg shadow-primary/25 border-2 border-primary"
-                  : "bg-white border-2 border-slate-200 text-slate-700 hover:border-primary/50 hover:bg-primary/5"
-              )}
-            >
-              {slot}
-            </motion.button>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
-  return (
-    <div className="space-y-5">
-      {renderTimeSlots(groupedSlots.morning, "Mañana")}
-      {renderTimeSlots(groupedSlots.afternoon, "Tarde")}
-      {renderTimeSlots(groupedSlots.evening, "Noche")}
-    </div>
-  );
-}
 
 export default function PublicAgendaPage() {
   const params = useParams();
   const username = params?.username as string;
   const { toast } = useToast();
+  
+  // Estados principales
   const [profile, setProfile] = useState<Profile | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [availability, setAvailability] = useState<Record<string, Array<{ start: string; end: string }>>>({});
   const [bookedSlots, setBookedSlots] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [bookingSuccess, setBookingSuccess] = useState(false);
-  const [showSummary, setShowSummary] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [submitting, setSubmitting] = useState(false);
+  
+  // Stepper y formulario
+  const [step, setStep] = useState(1);
+  const totalSteps = 4;
   const [formData, setFormData] = useState({
     client_name: "",
     client_phone: "",
@@ -285,850 +39,316 @@ export default function PublicAgendaPage() {
     time: "",
   });
 
-  // Obtener categorías únicas
+  const selectedService = services.find(s => s.id === formData.service_id);
+
+  // Categorías
   const categories = useMemo(() => {
     const cats = new Set<string>();
-    services.forEach(service => {
-      cats.add(service.category || "General");
-    });
+    services.forEach(service => cats.add(service.category || "General"));
     return ["all", ...Array.from(cats).sort()];
   }, [services]);
 
-  // Filtrar servicios por categoría
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+
   const filteredServices = useMemo(() => {
     if (selectedCategory === "all") return services;
     return services.filter(s => (s.category || "General") === selectedCategory);
   }, [services, selectedCategory]);
 
-  // Calcular horarios disponibles basados en configuración
+  // Horarios disponibles
   const getAvailableTimeSlots = (): string[] => {
     if (!formData.date) return [];
-
     const dayName = getDayName(formData.date);
     const dayAvailability = availability[dayName];
-
-    if (!dayAvailability || dayAvailability.length === 0) {
-      console.log(`❌ Día ${dayName} sin disponibilidad configurada`);
-      return []; // Día no disponible
-    }
-
-    // Obtener duración del servicio seleccionado si existe
-    const selectedService = services.find(s => s.id === formData.service_id);
+    if (!dayAvailability || dayAvailability.length === 0) return [];
     const serviceDuration = selectedService?.duration;
-
-    // Debug: log de bloques y duración con estructura completa
-    console.log(`📋 Bloques para ${dayName}:`, JSON.stringify(dayAvailability, null, 2));
-    console.log(`⏱️ Duración del servicio:`, serviceDuration);
-    console.log(`🔍 Servicio seleccionado:`, selectedService ? {
-      id: selectedService.id,
-      name: selectedService.name,
-      duration: selectedService.duration
-    } : 'NINGUNO');
-
-    // Generar slots usando los bloques exactos configurados
     const availableSlots = generateAvailableSlots(dayAvailability, 30, serviceDuration);
-    
-    console.log(`✅ Slots generados:`, availableSlots);
-    console.log(`🚫 Slots ocupados:`, bookedSlots);
-    
-    // Filtrar horarios ya reservados
-    const filtered = availableSlots.filter(slot => !bookedSlots.includes(slot));
-    console.log(`🎯 Slots finales disponibles:`, filtered);
-    
-    return filtered;
+    return availableSlots.filter(slot => !bookedSlots.includes(slot));
   };
 
+  // Agrupar horarios por período
+  const groupedTimeSlots = useMemo(() => {
+    const slots = getAvailableTimeSlots();
+    const morning: string[] = [];
+    const afternoon: string[] = [];
+    const evening: string[] = [];
+    slots.forEach(slot => {
+      const [hour] = slot.split(':').map(Number);
+      if (hour < 12) morning.push(slot);
+      else if (hour < 18) afternoon.push(slot);
+      else evening.push(slot);
+    });
+    return { morning, afternoon, evening };
+  }, [formData.date, bookedSlots, availability, selectedService]);
+
+  // Fetch data
   useEffect(() => {
-    if (username) {
-      fetchProfessionalData();
-    }
+    if (username) fetchProfessionalData();
   }, [username]);
+
+  useEffect(() => {
+    if (formData.date && profile) fetchBookedSlots();
+  }, [formData.date, profile]);
 
   async function fetchProfessionalData() {
     if (!username) return;
-
     try {
       setLoading(true);
-
-      // Find profile by username
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("*")
         .eq("username", username)
         .single();
-
       if (profileError || !profile) {
-        toast({
-          title: "Error",
-          description: "Profesional no encontrado. Verifica que el enlace sea correcto.",
-          variant: "destructive",
-        });
+        toast({ title: "Error", description: "Profesional no encontrado", variant: "destructive" });
         return;
       }
-
-      const professionalProfile = profile;
-      setProfile(professionalProfile);
-
-      // Fetch services
-      const { data: servicesData, error: servicesError } = await supabase
+      setProfile(profile);
+      const { data: servicesData } = await supabase
         .from("services")
         .select("*")
-        .eq("user_id", professionalProfile.id)
-        .order("category")
-        .order("created_at", { ascending: true });
-
-      if (servicesError) throw servicesError;
-
+        .eq("user_id", profile.id);
       setServices(servicesData || []);
-
-      // Fetch availability
-      const { data: availabilityData, error: availabilityError } = await supabase
+      const { data: availData } = await supabase
         .from("availability")
         .select("*")
-        .eq("user_id", professionalProfile.id)
-        .eq("enabled", true)
-        .order("day_of_week")
-        .order("start_time");
-
-      if (!availabilityError && availabilityData) {
-        // Agrupar por día
-        const availabilityMap: Record<string, Array<{ start: string; end: string }>> = {};
-        availabilityData.forEach((item) => {
-          const day = item.day_of_week;
-          if (!availabilityMap[day]) {
-            availabilityMap[day] = [];
-          }
-          // Extraer solo HH:mm del formato TIME de PostgreSQL
-          // Supabase puede devolver TIME como string "HH:mm:ss" o como objeto
-          let startStr = '';
-          let endStr = '';
-          
-          if (typeof item.start_time === 'string') {
-            startStr = item.start_time.substring(0, 5);
-          } else if (item.start_time) {
-            // Si es un objeto, intentar extraer como string
-            const startTimeStr = String(item.start_time);
-            startStr = startTimeStr.substring(0, 5);
-          }
-          
-          if (typeof item.end_time === 'string') {
-            endStr = item.end_time.substring(0, 5);
-          } else if (item.end_time) {
-            const endTimeStr = String(item.end_time);
-            endStr = endTimeStr.substring(0, 5);
-          }
-          
-          // Validar formato HH:mm
-          if (!startStr.match(/^\d{2}:\d{2}$/) || !endStr.match(/^\d{2}:\d{2}$/)) {
-            console.warn(`⚠️ Formato de tiempo inválido para ${day}:`, {
-              start_time: item.start_time,
-              end_time: item.end_time,
-              startStr,
-              endStr
-            });
-            return; // Saltar este bloque
-          }
-          
-          availabilityMap[day].push({
-            start: startStr,
-            end: endStr,
-          });
+        .eq("user_id", profile.id)
+        .eq("enabled", true);
+      const availMap: Record<string, Array<{ start: string; end: string }>> = {};
+      availData?.forEach((item) => {
+        const day = item.day_of_week as string;
+        if (!availMap[day]) availMap[day] = [];
+        availMap[day].push({
+          start: item.start_time.substring(0, 5),
+          end: item.end_time.substring(0, 5),
         });
-        
-        // Debug: log de disponibilidad cargada con detalles completos
-        console.log('📅 Disponibilidad cargada desde BD:', JSON.stringify(availabilityMap, null, 2));
-        console.log('📊 Total de días con disponibilidad:', Object.keys(availabilityMap).length);
-        Object.entries(availabilityMap).forEach(([day, blocks]) => {
-          console.log(`  - ${day}: ${blocks.length} bloque(s)`, blocks);
-        });
-        setAvailability(availabilityMap);
-      } else {
-        // Si no hay datos de disponibilidad, mostrar mensaje de debug
-        console.log('⚠️ No hay disponibilidad configurada en la BD para este profesional');
-        setAvailability({});
-      }
+      });
+      setAvailability(availMap);
+      setLoading(false);
     } catch (error: any) {
       console.error("Fetch error:", error);
-      toast({
-        title: "Error",
-        description: "No se pudo cargar la información",
-        variant: "destructive",
-      });
-    } finally {
+      toast({ title: "Error", description: "Error al cargar datos", variant: "destructive" });
       setLoading(false);
     }
   }
 
-  // Cargar horarios ocupados cuando se selecciona una fecha
-  useEffect(() => {
-    if (formData.date && profile) {
-      fetchBookedSlots(formData.date, profile.id);
-    } else {
-      setBookedSlots([]);
-    }
-  }, [formData.date, profile]);
-
-  async function fetchBookedSlots(date: string, userId: string) {
+  async function fetchBookedSlots() {
+    if (!formData.date || !profile) return;
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("appointments")
-        .select("time")
-        .eq("user_id", userId)
-        .eq("date", date)
-        .in("status", ["pending", "confirmed"]);
-
-      if (error) throw error;
-
-      const booked = (data || []).map(apt => apt.time.substring(0, 5));
-      setBookedSlots(booked);
-    } catch (error) {
-      console.error("Error fetching booked slots:", error);
-      setBookedSlots([]);
+        .select("appointment_time")
+        .eq("user_id", profile.id)
+        .eq("appointment_date", formData.date)
+        .neq("status", "cancelled");
+      const slots = (data || []).map((a: any) => a.appointment_time.substring(0, 5));
+      setBookedSlots(slots);
+    } catch (error: any) {
+      console.error("Fetch booked slots error:", error);
     }
   }
-
-  // Seleccionar servicio desde tarjeta
-  const handleServiceSelect = (serviceId: string) => {
-    setFormData({ ...formData, service_id: serviceId });
-    // Scroll suave al formulario
-    const formElement = document.getElementById("booking-form");
-    if (formElement) {
-      formElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    }
-  };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-
-    if (!profile) return;
-
-    // Mostrar resumen antes de confirmar
-    if (!showSummary) {
-      setShowSummary(true);
-      return;
-    }
-
-    // Confirmar reserva
+    if (!profile || !selectedService) return;
     try {
-      setLoading(true);
-
-      // Create appointment
-      const { error } = await supabase.from("appointments").insert([
-        {
-          user_id: profile.id,
-          client_name: formData.client_name,
-          client_phone: sanitizePhone(formData.client_phone),
-          service_id: formData.service_id,
-          date: formData.date,
-          time: formData.time,
-          status: profile.auto_confirm ? "confirmed" : "pending",
-        },
-      ]);
-
+      setSubmitting(true);
+      const { error } = await supabase.from("appointments").insert([{
+        user_id: profile.id,
+        service_id: formData.service_id,
+        client_name: formData.client_name,
+        client_phone: sanitizePhone(formData.client_phone),
+        appointment_date: formData.date,
+        appointment_time: formData.time + ":00",
+        status: profile.auto_confirm ? "confirmed" : "pending",
+      }]);
       if (error) throw error;
-
-      // Show success
-      setBookingSuccess(true);
-
-      // Reset form
-      setFormData({
-        client_name: "",
-        client_phone: "",
-        service_id: "",
-        date: "",
-        time: "",
-      });
-      setShowSummary(false);
-      setSelectedCategory("all");
-
-      toast({
-        title: "¡Reserva exitosa!",
-        description: profile.auto_confirm
-          ? "Tu cita ha sido confirmada automáticamente"
-          : "Recibirás una confirmación pronto",
-      });
+      toast({ title: "¡Reserva exitosa!", description: "Tu cita ha sido registrada" });
+      setStep(4);
     } catch (error: any) {
-      console.error("Booking error:", error);
-      toast({
-        title: "Error",
-        description: error.message || "No se pudo crear la reserva",
-        variant: "destructive",
-      });
+      console.error("Submit error:", error);
+      toast({ title: "Error", description: "No se pudo crear la reserva", variant: "destructive" });
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   }
 
-  if (loading && !profile) {
+  const handleServiceSelect = (serviceId: string) => {
+    setFormData({ ...formData, service_id: serviceId });
+    setStep(2);
+  };
+
+  const steps = [
+    { number: 1, title: "Servicio", desc: "Elige lo que necesitas" },
+    { number: 2, title: "Fecha y hora", desc: "Cuándo quieres reservar" },
+    { number: 3, title: "Tus datos", desc: "Nombre y teléfono" },
+    { number: 4, title: "¡Listo!", desc: "Reserva confirmada" },
+  ];
+
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin h-12 w-12 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-slate-600 font-medium">Cargando...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center"><div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mx-auto mb-4"></div><p className="text-slate-600">Cargando...</p></div>
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
-        <Card className="max-w-md shadow-xl">
-          <CardHeader>
-            <CardTitle>Profesional no encontrado</CardTitle>
-            <CardDescription>
-              El profesional que buscas no existe o su agenda no está disponible
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/">
-              <Button className="w-full">Volver al inicio</Button>
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
+      <div className="min-h-screen flex items-center justify-center p-4"><div className="text-center max-w-md"><h1 className="text-2xl font-bold text-slate-900 mb-4">Profesional no encontrado</h1><p className="text-slate-600 mb-6">El enlace que intentas acceder no existe o ha sido deshabilitado.</p><Link href="/"><Button>Volver al inicio</Button></Link></div></div>
     );
   }
-
-  if (bookingSuccess) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Card className="max-w-md shadow-xl">
-            <CardHeader className="text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-10 h-10 text-primary" />
-              </div>
-              <CardTitle className="text-2xl">¡Reserva Exitosa!</CardTitle>
-              <CardDescription className="text-base">
-                {profile.auto_confirm
-                  ? "Tu cita ha sido confirmada automáticamente"
-                  : "Recibirás una confirmación pronto"}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <p className="text-sm text-center text-slate-600">
-                  Te hemos enviado un recordatorio por email. Si tienes alguna duda, contacta
-                  directamente con {profile.business_name || profile.name}.
-                </p>
-                <Button
-                  className="w-full bg-gradient-to-r from-primary to-accent hover:brightness-110"
-                  onClick={() => setBookingSuccess(false)}
-                >
-                  Hacer otra reserva
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
-    );
-  }
-
-  const selectedService = services.find(s => s.id === formData.service_id);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
-      {/* Header mejorado */}
-      <header className="border-b border-slate-200/80 bg-white/80 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
-        <div className="container mx-auto px-4 py-4">
+      {/* Header */}
+      <header className="border-b border-slate-200/70 bg-white/60 backdrop-blur-md sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-3">
           <div className="flex items-center gap-3">
-            {profile.business_logo_url ? (
-              <img 
-                src={profile.business_logo_url}
-                alt={`${profile.business_name || profile.name} Logo`}
-                className="h-10 w-10 sm:h-12 sm:w-12 object-contain rounded-lg"
-              />
-            ) : (
-              profile.photo_url && (
-                <img 
-                  src={profile.photo_url}
-                  alt={`${profile.business_name || profile.name}`}
-                  className="h-10 w-10 sm:h-12 sm:w-12 object-cover rounded-full"
-                />
-              )
+            {(profile.business_logo_url || profile.photo_url) && (
+              <img src={profile.business_logo_url || profile.photo_url || ''} alt="Logo" className="h-10 w-10 object-cover rounded-lg" />
             )}
-            <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-              {profile.business_name || profile.name}
-            </span>
+            <span className="text-xl font-bold text-slate-900">{profile.business_name || profile.name}</span>
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-accent/5 to-transparent py-16">
-        <div className="absolute inset-0 bg-grid-slate-100/50 [mask-image:linear-gradient(0deg,white,transparent)]"></div>
-        <div className="container mx-auto px-4 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center max-w-3xl mx-auto"
-          >
-            {profile.business_logo_url && (
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="mb-8 flex justify-center"
-              >
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl blur-xl"></div>
-                  <img
-                    src={profile.business_logo_url}
-                    alt={`${profile.business_name || profile.name} Logo`}
-                    className="relative h-32 w-auto object-contain max-w-xs rounded-2xl shadow-lg"
-                  />
-                </div>
-              </motion.div>
-            )}
-            <h1 className="text-5xl sm:text-6xl font-bold mb-4 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent">
-              {profile.business_name || profile.name}
-            </h1>
-            {profile.bio && (
-              <p className="text-lg text-slate-600 max-w-2xl mx-auto mt-4 leading-relaxed">
-                {profile.bio}
-              </p>
-            )}
-            {profile.auto_confirm && (
-              <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-full text-sm text-green-700">
-                <Sparkles className="w-4 h-4" />
-                <span>Confirmación instantánea</span>
-              </div>
-            )}
-          </motion.div>
-        </div>
-      </section>
-
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-12 max-w-6xl">
-        {/* Services Section con categorías */}
-        {services.length > 0 && (
-          <section className="mb-16">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <div className="text-center mb-8">
-                <h2 className="text-3xl sm:text-4xl font-bold mb-3 bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                  Nuestros Servicios
-                </h2>
-                <p className="text-slate-600">Elige el servicio que mejor se adapte a tus necesidades</p>
-              </div>
-
-              {/* Categorías */}
-              {categories.length > 2 && (
-                <div className="flex flex-wrap gap-2 justify-center mb-8">
-                  {categories.map((category) => (
-                    <button
-                      key={category}
-                      onClick={() => {
-                        setSelectedCategory(category);
-                        setFormData({ ...formData, service_id: "" });
-                      }}
-                      className={cn(
-                        "px-4 py-2 rounded-full text-sm font-medium transition-all",
-                        selectedCategory === category
-                          ? "bg-gradient-to-r from-primary to-accent text-white shadow-lg scale-105"
-                          : "bg-white border border-slate-200 text-slate-700 hover:border-primary/50 hover:shadow-md"
-                      )}
-                    >
-                      {category === "all" ? "Todos" : category}
-                    </button>
-                  ))}
+      <div className="container mx-auto px-4 py-8 max-w-3xl">
+        {/* Stepper */}
+        <div className="flex items-center justify-center mb-8 px-4">
+          <div className="flex items-center gap-3 sm:gap-4">
+            {steps.map((s, i) => (
+              <div key={s.number} className="flex items-center">
+                <div className="flex flex-col items-center gap-2">
+                  <div className={cn("w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center font-bold text-base sm:text-lg transition-all duration-300", step === s.number ? "bg-gradient-to-r from-primary to-accent text-white shadow-lg scale-110" : step > s.number ? "bg-primary/10 text-primary ring-2 ring-primary/20" : "bg-slate-100 text-slate-400")}>
+                    {step > s.number ? <Check className="w-6 h-6" /> : s.number}
+                  </div>
+                  <span className={cn("text-xs sm:text-sm font-medium transition-colors text-center max-w-[80px]", step === s.number ? "text-slate-900" : "text-slate-500")}>{s.title}</span>
                 </div>
-              )}
-
-              {/* Tarjetas de servicios mejoradas */}
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredServices.map((service, index) => {
-                  const isSelected = formData.service_id === service.id;
-                  return (
-                    <motion.div
-                      key={service.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: index * 0.1 }}
-                    >
-                      <Card
-                        className={cn(
-                          "cursor-pointer transition-all duration-300 h-full",
-                          "hover:shadow-xl hover:scale-[1.02] hover:border-primary/50",
-                          isSelected
-                            ? "border-2 border-primary shadow-xl bg-gradient-to-br from-primary/5 to-accent/5 scale-[1.02]"
-                            : "border border-slate-200 hover:border-slate-300"
-                        )}
-                        onClick={() => handleServiceSelect(service.id)}
-                      >
-                        <CardHeader className="pb-3">
-                          <div className="flex items-start justify-between mb-2">
-                            <CardTitle className="text-xl font-bold text-slate-900 pr-2">
-                              {service.name}
-                            </CardTitle>
-                            {isSelected && (
-                              <div className="flex-shrink-0">
-                                <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                                  <CheckCircle className="w-4 h-4 text-white" />
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                          {service.category && service.category !== "General" && (
-                            <span className="inline-block px-2 py-1 text-xs font-medium text-primary bg-primary/10 rounded-full">
-                              {service.category}
-                            </span>
-                          )}
-                        </CardHeader>
-                        <CardContent className="pt-0">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3 text-slate-600">
-                              <div className="flex items-center gap-1">
-                                <Clock className="w-4 h-4" />
-                                <span className="text-sm font-medium">{service.duration} min</span>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                                {formatCurrency(service.price)}
-                              </div>
-                            </div>
-                          </div>
-                          {isSelected && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: "auto" }}
-                              className="mt-4 pt-4 border-t border-primary/20"
-                            >
-                              <p className="text-sm text-primary font-medium flex items-center gap-2">
-                                <CheckCircle className="w-4 h-4" />
-                                Seleccionado
-                              </p>
-                            </motion.div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  );
-                })}
+                {i < steps.length - 1 && <div className={cn("h-1 w-8 sm:w-12 mx-2 sm:mx-3 rounded transition-all duration-300", step > s.number ? "bg-primary/30" : "bg-slate-200")} />}
               </div>
-            </motion.div>
-          </section>
-        )}
+            ))}
+          </div>
+        </div>
 
-        {/* Booking Form mejorado */}
-        <section id="booking-form">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <Card className="shadow-xl border-slate-200 overflow-hidden">
-              <div className="bg-gradient-to-r from-primary/10 via-accent/5 to-primary/10 p-6 border-b border-slate-200">
-                <CardHeader className="p-0">
-                  <CardTitle className="flex items-center gap-3 text-2xl">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-accent flex items-center justify-center">
-                      <Calendar className="w-5 h-5 text-white" />
-                    </div>
-                    Reservar una cita
-                  </CardTitle>
-                  <CardDescription className="text-base mt-2">
-                    Completa tus datos y selecciona fecha y hora
-                  </CardDescription>
-                </CardHeader>
+        {/* Content Card */}
+        <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }} className="rounded-2xl border border-slate-200/70 bg-white/70 backdrop-blur shadow-xl overflow-hidden">
+          {/* Header del Card */}
+          <div className="border-b border-slate-200/70 bg-white/60 backdrop-blur px-4 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <img src="/logo.png" alt={APP_NAME} className="h-6 w-6 object-contain" />
+                <span className="text-sm font-bold text-slate-900">{APP_NAME}</span>
               </div>
-              <CardContent className="p-6">
+              <span className="text-xs text-slate-500">Paso {step} de {totalSteps}</span>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="p-6 min-h-[320px] flex flex-col">
+            {/* Step 1: Servicios */}
+            {step === 1 && (
+              <div className="flex-1">
+                <div className="text-center mb-6">
+                  <h4 className="text-xl font-bold text-slate-900 mb-1">{profile.business_name || profile.name}</h4>
+                  {profile.bio && <p className="text-sm text-slate-600">{profile.bio}</p>}
+                </div>
                 {services.length === 0 ? (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-center py-12"
-                  >
-                    <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                      <Calendar className="w-10 h-10 text-primary" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-3">
-                      Pronto podrás agendar con este link
-                    </h3>
-                    <p className="text-slate-600 max-w-md mx-auto mb-2">
-                      {profile.business_name || profile.name} está configurando sus servicios. 
-                      Muy pronto podrás agendar tu cita aquí.
-                    </p>
-                    <p className="text-sm text-slate-500">
-                      Si tienes dudas, contacta directamente con el profesional.
-                    </p>
-                  </motion.div>
+                  <div className="text-center py-8"><Calendar className="w-12 h-12 text-slate-300 mx-auto mb-4" /><p className="text-slate-600 font-medium">Pronto podrás agendar con este link</p><p className="text-sm text-slate-500 mt-2">El profesional aún no ha configurado sus servicios</p></div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Servicio seleccionado destacado */}
-                    {selectedService && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="p-4 bg-gradient-to-r from-primary/10 to-accent/10 rounded-xl border-2 border-primary/20"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-slate-600 mb-1">Servicio seleccionado</p>
-                            <p className="font-bold text-slate-900">{selectedService.name}</p>
-                            <p className="text-sm text-slate-500 mt-1 flex items-center gap-4">
-                              <span className="flex items-center gap-1">
-                                <Clock className="w-3 h-3" />
-                                {selectedService.duration} min
-                              </span>
-                              <span className="font-semibold text-primary">
-                                {formatCurrency(selectedService.price)}
-                              </span>
-                            </p>
-                          </div>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setFormData({ ...formData, service_id: "" })}
-                          >
-                            Cambiar
-                          </Button>
-                        </div>
-                      </motion.div>
+                  <>
+                    {categories.length > 2 && (
+                      <div className="flex flex-wrap gap-2 justify-center mb-4">
+                        {categories.map((cat) => (<button key={cat} onClick={() => setSelectedCategory(cat)} className={cn("px-3 py-1 rounded-full text-xs font-medium transition-all", selectedCategory === cat ? "bg-primary text-white shadow-md" : "bg-slate-100 text-slate-700 hover:bg-slate-200")}>{cat === "all" ? "Todos" : cat}</button>))}
+                      </div>
                     )}
-
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="client_name" className="text-base font-medium">
-                          Tu nombre completo
-                        </Label>
-                        <Input
-                          id="client_name"
-                          type="text"
-                          placeholder="Juan Pérez"
-                          required
-                          value={formData.client_name}
-                          onChange={(e) =>
-                            setFormData({ ...formData, client_name: e.target.value })
-                          }
-                          className="h-11"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="client_phone" className="text-base font-medium">
-                          Tu teléfono (WhatsApp)
-                        </Label>
-                        <Input
-                          id="client_phone"
-                          type="tel"
-                          placeholder="+56912345678"
-                          required
-                          value={formData.client_phone}
-                          onChange={(e) =>
-                            setFormData({ ...formData, client_phone: e.target.value })
-                          }
-                          className="h-11"
-                        />
-                      </div>
+                    <h5 className="font-semibold text-slate-900 mb-3">Elige tu servicio</h5>
+                    <div className="space-y-3">
+                      {filteredServices.map((service) => (<button key={service.id} onClick={() => handleServiceSelect(service.id)} className="w-full rounded-lg border-2 border-slate-200 bg-white p-3 hover:border-primary/50 hover:shadow-md transition-all"><div className="flex items-center justify-between"><div className="text-left"><div className="font-medium text-slate-900">{service.name}</div><div className="text-xs text-slate-600 flex items-center gap-1 mt-1"><Clock className="w-3 h-3" />{service.duration} min</div></div><div className="flex items-center gap-2"><div className="font-bold text-slate-900">{formatCurrency(service.price)}</div><ChevronRight className="w-5 h-5 text-slate-400" /></div></div></button>))}
                     </div>
+                  </>
+                )}
+              </div>
+            )}
 
-                    {/* Select de servicio (fallback si no seleccionó desde tarjeta) */}
-                    {!selectedService && (
-                      <div className="space-y-2">
-                        <Label htmlFor="service_id">Servicio</Label>
-                        <input
-                          type="hidden"
-                          id="service_id"
-                          name="service_id"
-                          value={formData.service_id}
-                          required
-                        />
-                        <Select
-                          value={formData.service_id}
-                          onValueChange={(value) =>
-                            setFormData({ ...formData, service_id: value })
-                          }
-                          required
-                        >
-                          <SelectTrigger aria-labelledby="service_id" className="h-11">
-                            <SelectValue placeholder="Selecciona un servicio" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {filteredServices.map((service) => (
-                              <SelectItem key={service.id} value={service.id}>
-                                {service.name} - {formatCurrency(service.price)} ({service.duration} min)
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
-
-                    {/* Selector de Fecha y Hora - Estilo Mejorado */}
-                    <div className="space-y-6">
-                      {/* Calendario Visual */}
-                      <div className="space-y-4">
-                        <Label className="text-lg font-semibold text-slate-900 flex items-center gap-2">
-                          <Calendar className="w-5 h-5 text-primary" />
-                          Selecciona una fecha
-                        </Label>
-                        <DatePickerCalendar
-                          value={formData.date}
-                          onChange={(date) => setFormData({ ...formData, date, time: "" })}
-                          minDate={new Date().toISOString().split("T")[0]}
-                          availability={availability}
-                        />
-                      </div>
-
-                      {/* Horarios Disponibles Agrupados */}
-                      {formData.date && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="space-y-4"
-                        >
-                          <Label className="text-lg font-semibold text-slate-900 flex items-center gap-2">
-                            <Clock className="w-5 h-5 text-primary" />
-                            Elige tu horario
-                          </Label>
-                          <input
-                            type="hidden"
-                            id="date"
-                            name="date"
-                            value={formData.date}
-                            required
-                          />
-                          <input
-                            type="hidden"
-                            id="time"
-                            name="time"
-                            value={formData.time}
-                            required
-                          />
-                          {getAvailableTimeSlots().length > 0 ? (
-                            <TimeSlotsPicker
-                              slots={getAvailableTimeSlots()}
-                              selectedTime={formData.time}
-                              onSelectTime={(time) => setFormData({ ...formData, time })}
-                            />
-                          ) : (
-                            <div className="p-6 bg-amber-50 border-2 border-amber-200 rounded-xl text-center">
-                              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-amber-100 mb-3">
-                                <span className="text-2xl">⚠️</span>
-                              </div>
-                              <p className="text-sm text-amber-700 font-medium">
-                                No hay horarios disponibles
-                              </p>
-                              <p className="text-xs text-amber-600 mt-1">
-                                Selecciona otra fecha
-                              </p>
-                            </div>
-                          )}
-                        </motion.div>
+            {/* Step 2: Fecha y Hora */}
+            {step === 2 && selectedService && (
+              <div className="flex-1">
+                <h5 className="font-semibold text-slate-900 mb-3">Selecciona fecha y hora</h5>
+                <div className="space-y-4">
+                  <div className="rounded-lg border border-primary/20 bg-primary/5 p-2 text-xs">
+                    <div className="flex items-center justify-between"><span className="font-medium text-slate-900">{selectedService.name}</span><span className="text-slate-600">{formatCurrency(selectedService.price)}</span></div>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-slate-700 block mb-1.5">Fecha</label>
+                    <input type="date" id="date" name="date" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value, time: "" })} min={new Date().toISOString().split("T")[0]} required className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all" />
+                  </div>
+                  {formData.date && (
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium text-slate-700 block">Hora</label>
+                      <input type="hidden" id="time" name="time" value={formData.time} required />
+                      {getAvailableTimeSlots().length > 0 ? (
+                        <div className="space-y-3">
+                          {groupedTimeSlots.morning.length > 0 && (<div><h6 className="text-xs font-semibold text-slate-600 mb-2">Mañana</h6><div className="grid grid-cols-3 gap-1.5">{groupedTimeSlots.morning.map((time) => (<button key={time} type="button" onClick={() => setFormData({ ...formData, time })} className={cn("px-2 py-2 rounded-lg text-xs font-medium transition-all", formData.time === time ? "bg-primary text-white shadow-md" : "border border-slate-200 hover:bg-slate-50 text-slate-700")}>{time}</button>))}</div></div>)}
+                          {groupedTimeSlots.afternoon.length > 0 && (<div><h6 className="text-xs font-semibold text-slate-600 mb-2">Tarde</h6><div className="grid grid-cols-3 gap-1.5">{groupedTimeSlots.afternoon.map((time) => (<button key={time} type="button" onClick={() => setFormData({ ...formData, time })} className={cn("px-2 py-2 rounded-lg text-xs font-medium transition-all", formData.time === time ? "bg-primary text-white shadow-md" : "border border-slate-200 hover:bg-slate-50 text-slate-700")}>{time}</button>))}</div></div>)}
+                          {groupedTimeSlots.evening.length > 0 && (<div><h6 className="text-xs font-semibold text-slate-600 mb-2">Noche</h6><div className="grid grid-cols-3 gap-1.5">{groupedTimeSlots.evening.map((time) => (<button key={time} type="button" onClick={() => setFormData({ ...formData, time })} className={cn("px-2 py-2 rounded-lg text-xs font-medium transition-all", formData.time === time ? "bg-primary text-white shadow-md" : "border border-slate-200 hover:bg-slate-50 text-slate-700")}>{time}</button>))}</div></div>)}
+                        </div>
+                      ) : (
+                        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-center"><p className="text-sm text-amber-700">No hay horarios disponibles para este día</p></div>
                       )}
                     </div>
+                  )}
+                  <button onClick={() => { setStep(1); setFormData({ ...formData, date: "", time: "" }); }} className="text-xs text-primary hover:underline flex items-center gap-1 font-medium mt-2">← Cambiar servicio</button>
+                </div>
+              </div>
+            )}
 
-                    {/* Resumen antes de confirmar */}
-                    {showSummary && selectedService && formData.date && formData.time && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="p-6 bg-gradient-to-br from-primary/5 via-accent/5 to-primary/5 rounded-xl border-2 border-primary/20 space-y-4"
-                      >
-                        <h3 className="font-bold text-lg text-slate-900 flex items-center gap-2">
-                          <Calendar className="w-5 h-5 text-primary" />
-                          Resumen de tu Reserva
-                        </h3>
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <span className="text-slate-600 block mb-1">Servicio:</span>
-                            <span className="font-semibold text-slate-900">{selectedService.name}</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-600 block mb-1">Duración:</span>
-                            <span className="font-semibold text-slate-900">{selectedService.duration} min</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-600 block mb-1">Fecha:</span>
-                            <span className="font-semibold text-slate-900">{formatDateFriendly(formData.date)}</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-600 block mb-1">Hora:</span>
-                            <span className="font-semibold text-slate-900">{formData.time}</span>
-                          </div>
-                        </div>
-                        <div className="pt-4 border-t border-slate-200 flex justify-between items-center">
-                          <span className="text-slate-900 font-bold text-lg">Total:</span>
-                          <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                            {formatCurrency(selectedService.price)}
-                          </span>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setShowSummary(false)}
-                          className="w-full"
-                        >
-                          Modificar
-                        </Button>
-                      </motion.div>
-                    )}
+            {/* Step 3: Datos */}
+            {step === 3 && selectedService && (
+              <div className="flex-1">
+                <h5 className="font-semibold text-slate-900 mb-4">Completa tus datos</h5>
+                <form onSubmit={handleSubmit} className="space-y-3">
+                  {formData.date && formData.time && (<div className="rounded-lg bg-primary/5 border border-primary/20 p-2 text-xs space-y-1"><div className="flex justify-between"><span className="font-medium">{selectedService.name}</span><span>{formatCurrency(selectedService.price)}</span></div><div className="text-slate-600">{formatDateFriendly(formData.date)} · {formData.time}</div></div>)}
+                  <div><label htmlFor="client_name" className="text-xs font-medium text-slate-700 block mb-1">Nombre</label><Input id="client_name" name="client_name" placeholder="Tu nombre completo" value={formData.client_name} onChange={(e) => setFormData({ ...formData, client_name: e.target.value })} required className="h-10" /></div>
+                  <div><label htmlFor="client_phone" className="text-xs font-medium text-slate-700 block mb-1">Teléfono</label><Input id="client_phone" name="client_phone" type="tel" placeholder="+56 9 1234 5678" value={formData.client_phone} onChange={(e) => setFormData({ ...formData, client_phone: e.target.value })} required className="h-10" /></div>
+                </form>
+              </div>
+            )}
 
-                    <Button 
-                      type="submit" 
-                      className="w-full h-12 text-base font-semibold bg-gradient-to-r from-primary to-accent hover:brightness-110 shadow-lg"
-                      disabled={loading || !formData.service_id || !formData.date || !formData.time}
-                    >
-                      {loading 
-                        ? "Reservando..." 
-                        : showSummary 
-                        ? "Confirmar Reserva" 
-                        : "Revisar y Confirmar"}
-                    </Button>
+            {/* Step 4: Confirmación */}
+            {step === 4 && selectedService && (
+              <div className="flex-1 flex flex-col items-center justify-center text-center">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4"><Check className="w-8 h-8 text-primary" /></div>
+                <h5 className="text-xl font-bold text-slate-900 mb-2">¡Reserva confirmada!</h5>
+                <p className="text-sm text-slate-600 mb-4">{profile.auto_confirm ? "Tu cita ha sido confirmada automáticamente" : "Recibirás confirmación pronto"}</p>
+                <div className="w-full bg-slate-50 rounded-lg p-4 text-left"><div className="text-xs text-slate-600 space-y-1"><div><span className="font-medium">Servicio:</span> {selectedService.name}</div><div><span className="font-medium">Duración:</span> {selectedService.duration} min</div><div><span className="font-medium">Fecha:</span> {formatDateFriendly(formData.date)}, {formData.time}</div><div><span className="font-medium">Cliente:</span> {formData.client_name}</div><div><span className="font-medium">Total:</span> {formatCurrency(selectedService.price)}</div></div></div>
+              </div>
+            )}
 
-                    <p className="text-xs text-slate-500 text-center leading-relaxed">
-                      Al agendar, aceptas el uso de tus datos personales para gestionar
-                      esta cita, conforme a la{" "}
-                      <Link href="/privacy" className="text-primary hover:underline font-medium" target="_blank">
-                        Ley 19.628
-                      </Link>
-                      .
-                    </p>
-                  </form>
-                )}
-              </CardContent>
-            </Card>
-          </motion.div>
-        </section>
+            {/* Navigation */}
+            <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-200">
+              <Button variant="outline" size="sm" onClick={() => setStep(Math.max(1, step - 1))} disabled={step === 1 || step === 4} className="text-sm">Anterior</Button>
+              {step < 3 ? (
+                <Button size="sm" onClick={() => setStep(Math.min(totalSteps, step + 1))} disabled={(step === 1 && !formData.service_id) || (step === 2 && (!formData.date || !formData.time))} className="bg-gradient-to-r from-primary to-accent text-white text-sm disabled:opacity-50">Siguiente<ChevronRight className="w-4 h-4 ml-1" /></Button>
+              ) : step === 3 ? (
+                <Button size="sm" onClick={handleSubmit} disabled={submitting || !formData.client_name || !formData.client_phone} className="bg-gradient-to-r from-primary to-accent text-white text-sm disabled:opacity-50">{submitting ? "Reservando..." : "Confirmar"}</Button>
+              ) : (
+                <Button size="sm" onClick={() => { setStep(1); setFormData({ client_name: "", client_phone: "", service_id: "", date: "", time: "" }); }} variant="outline" className="text-sm">Nueva reserva</Button>
+              )}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Info */}
+        <p className="text-center text-sm text-slate-600 mt-6">{steps[step - 1].desc}</p>
       </div>
 
-      {/* Footer mejorado */}
+      {/* Footer */}
       <footer className="border-t border-slate-200 bg-white/50 backdrop-blur-sm py-12 mt-20">
         <div className="container mx-auto px-4 text-center">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <img 
-              src="/logo.png" 
-              alt={`${APP_NAME} Logo`}
-              className="h-6 w-6 object-contain"
-            />
-            <p className="text-sm text-slate-600">
-              Agenda powered by{" "}
-              <Link href="/" className="text-primary hover:underline font-semibold">
-                {APP_NAME}
-              </Link>
-            </p>
-          </div>
-          <div className="flex justify-center gap-6 text-xs text-slate-500">
-            <Link href="/privacy" className="hover:text-primary transition-colors">
-              Privacidad
-            </Link>
-            <Link href="/terms" className="hover:text-primary transition-colors">
-              Términos
-            </Link>
-          </div>
+          <div className="flex items-center justify-center gap-2 mb-4"><img src="/logo.png" alt={APP_NAME} className="h-6 w-6 object-contain" /><p className="text-sm text-slate-600">Agenda powered by <Link href="/" className="text-primary hover:underline font-semibold">{APP_NAME}</Link></p></div>
+          <p className="text-xs text-slate-500">© 2025 {APP_NAME}. Todos los derechos reservados.</p>
         </div>
       </footer>
     </div>
