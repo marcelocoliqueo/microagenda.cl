@@ -701,17 +701,6 @@ export default function DashboardPage() {
   }, [appointments]);
 
   const { totalAppointments, confirmedAppointments, pendingAppointments, totalRevenue, confirmationRate } = stats;
-  
-  // Memoizar estilos para evitar recálculos
-  const cardStyles = useMemo(() => {
-    const primaryColor = brandColor.primary;
-    return {
-      borderColor: hexToRgba(primaryColor, 0.3),
-      background: `linear-gradient(to bottom right, ${hexToRgba(primaryColor, 0.1)}, white)`,
-      backgroundColor: hexToRgba(primaryColor, 0.15),
-      hoverBackground: `linear-gradient(to bottom right, ${hexToRgba(primaryColor, 0.1)}, transparent)`,
-    };
-  }, [brandColor.primary]);
 
   if (loading) {
     return (
@@ -1007,37 +996,19 @@ export default function DashboardPage() {
             transition={{ delay: 0.3, duration: 0.4 }}
             layout
           >
-            <Card 
-              className="border-slate-200/70 bg-gradient-to-br from-white to-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden group will-change-transform"
-              style={{ 
-                borderColor: cardStyles.borderColor,
-                background: cardStyles.background
-              }}
-            >
-              <div 
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-                style={{ background: cardStyles.hoverBackground }}
-              />
+            <Card className="border-green-200/70 bg-gradient-to-br from-green-50/50 to-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden group will-change-transform">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
               <CardContent className="p-6 relative">
                 <div className="flex items-center justify-between mb-4">
-                  <div 
-                    className="w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
-                    style={{ backgroundColor: cardStyles.backgroundColor }}
-                  >
-                    <CheckCircle2 className="w-6 h-6" style={{ color: brandColor.primary }} />
+                  <div className="w-12 h-12 rounded-xl bg-green-100/80 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <CheckCircle2 className="w-6 h-6 text-green-600" />
                   </div>
-                  <span 
-                    className="text-xs font-semibold px-2 py-1 rounded-full tabular-nums"
-                    style={{ 
-                      backgroundColor: cardStyles.backgroundColor,
-                      color: brandColor.primary
-                    }}
-                  >
+                  <span className="text-xs font-semibold px-2 py-1 bg-green-100 text-green-700 rounded-full tabular-nums">
                     {confirmationRate}%
                   </span>
                 </div>
                 <p className="text-sm text-slate-600 font-medium mb-1">Confirmadas</p>
-                <p className="text-3xl font-bold tabular-nums" style={{ color: brandColor.primary }}>{confirmedAppointments}</p>
+                <p className="text-3xl font-bold text-green-600 tabular-nums">{confirmedAppointments}</p>
                 <p className="text-xs text-slate-500 mt-2">Tasa de confirmación</p>
               </CardContent>
             </Card>
@@ -1078,7 +1049,7 @@ export default function DashboardPage() {
               <CardContent className="p-6 relative">
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <DollarSign className="w-6 h-6 text-primary" />
+                    <DollarSign className="w-6 h-6 text-green-600" />
                   </div>
                   <TrendingUp className="w-5 h-5 text-primary" />
                 </div>
