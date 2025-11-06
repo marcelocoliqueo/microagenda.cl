@@ -10,21 +10,74 @@ const SelectValue = SelectPrimitive.Value;
 const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
->(({ className, children, ...props }, ref) => (
-  <SelectPrimitive.Trigger
-    ref={ref}
-    className={cn(
-      "flex h-10 w-full items-center justify-between rounded-xl border border-border bg-surface px-3 py-2 text-sm ring-offset-background placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-      className
-    )}
-    {...props}
-  >
-    {children}
-    <SelectPrimitive.Icon asChild>
-      <ChevronDown className="h-4 w-4 opacity-50" />
-    </SelectPrimitive.Icon>
-  </SelectPrimitive.Trigger>
-));
+>(({ className, children, ...props }, ref) => {
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+  
+  React.useImperativeHandle(ref, () => triggerRef.current!);
+  
+  React.useEffect(() => {
+    const trigger = triggerRef.current;
+    if (!trigger) return;
+    
+    const observer = new MutationObserver(() => {
+      const isOpen = trigger.getAttribute('data-state') === 'open';
+      if (isOpen) {
+        trigger.style.borderColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.5)`;
+        trigger.style.boxShadow = `0 0 0 2px rgba(var(--color-primary-rgb, 16, 185, 129), 0.2)`;
+      } else {
+        const isFocused = document.activeElement === trigger;
+        if (!isFocused) {
+          trigger.style.borderColor = '';
+          trigger.style.boxShadow = '';
+        }
+      }
+    });
+    
+    observer.observe(trigger, { attributes: true, attributeFilter: ['data-state'] });
+    
+    return () => observer.disconnect();
+  }, []);
+  
+  return (
+    <SelectPrimitive.Trigger
+      ref={triggerRef}
+      className={cn(
+        "flex h-10 w-full items-center justify-between rounded-xl border border-border bg-surface px-3 py-2 text-sm ring-offset-background placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all",
+        className
+      )}
+      onMouseEnter={(e) => {
+        const isOpen = e.currentTarget.getAttribute('data-state') === 'open';
+        if (!isOpen) {
+          e.currentTarget.style.borderColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.3)`;
+        }
+      }}
+      onMouseLeave={(e) => {
+        const isOpen = e.currentTarget.getAttribute('data-state') === 'open';
+        const isFocused = document.activeElement === e.currentTarget;
+        if (!isOpen && !isFocused) {
+          e.currentTarget.style.borderColor = '';
+        }
+      }}
+      onFocus={(e) => {
+        e.currentTarget.style.borderColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.5)`;
+        e.currentTarget.style.boxShadow = `0 0 0 2px rgba(var(--color-primary-rgb, 16, 185, 129), 0.2)`;
+      }}
+      onBlur={(e) => {
+        const isOpen = e.currentTarget.getAttribute('data-state') === 'open';
+        if (!isOpen) {
+          e.currentTarget.style.borderColor = '';
+          e.currentTarget.style.boxShadow = '';
+        }
+      }}
+      {...props}
+    >
+      {children}
+      <SelectPrimitive.Icon asChild>
+        <ChevronDown className="h-4 w-4 opacity-50" />
+      </SelectPrimitive.Icon>
+    </SelectPrimitive.Trigger>
+  );
+});
 SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;
 
 const SelectContent = React.forwardRef<
@@ -76,14 +129,34 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full cursor-default select-none items-center rounded-lg py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-background focus:text-text data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex w-full cursor-default select-none items-center rounded-lg py-1.5 pl-8 pr-2 text-sm outline-none focus:text-text data-[disabled]:pointer-events-none data-[disabled]:opacity-50 transition-colors",
       className
     )}
+    onFocus={(e) => {
+      e.currentTarget.style.backgroundColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.1)`;
+      e.currentTarget.style.color = `var(--color-primary)`;
+    }}
+    onBlur={(e) => {
+      e.currentTarget.style.backgroundColor = '';
+      e.currentTarget.style.color = '';
+    }}
+    onMouseEnter={(e) => {
+      if (!e.currentTarget.hasAttribute('data-disabled')) {
+        e.currentTarget.style.backgroundColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.1)`;
+        e.currentTarget.style.color = `var(--color-primary)`;
+      }
+    }}
+    onMouseLeave={(e) => {
+      if (!e.currentTarget.hasAttribute('data-disabled')) {
+        e.currentTarget.style.backgroundColor = '';
+        e.currentTarget.style.color = '';
+      }
+    }}
     {...props}
   >
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
       <SelectPrimitive.ItemIndicator>
-        <Check className="h-4 w-4" />
+        <Check className="h-4 w-4" style={{ color: "var(--color-primary)" }} />
       </SelectPrimitive.ItemIndicator>
     </span>
     <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
