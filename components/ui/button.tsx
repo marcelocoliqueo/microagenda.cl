@@ -4,17 +4,17 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        default: "text-white",
         destructive: "bg-red-500 text-white hover:bg-red-600",
         outline:
-          "border border-border bg-surface hover:bg-background hover:text-text",
-        secondary: "bg-accent text-accent-foreground hover:bg-accent/90",
-        ghost: "hover:bg-background hover:text-text",
-        link: "text-primary underline-offset-4 hover:underline",
+          "border border-border bg-surface",
+        secondary: "text-white",
+        ghost: "",
+        link: "underline-offset-4",
       },
       size: {
         default: "h-10 px-4 py-2",
@@ -39,9 +39,83 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
+    
+    // Estilos dinámicos según la variante
+    const getDynamicStyles = (): React.CSSProperties => {
+      switch (variant) {
+        case "default":
+          return {
+            background: `linear-gradient(to right, var(--color-primary), var(--color-accent))`,
+            color: "white",
+          };
+        case "secondary":
+          return {
+            background: `linear-gradient(to right, var(--color-accent), var(--color-primary))`,
+            color: "white",
+          };
+        case "outline":
+          return {};
+        case "ghost":
+          return {};
+        case "link":
+          return {
+            color: "var(--color-primary)",
+          };
+        default:
+          return {};
+      }
+    };
+    
+    const dynamicStyles = getDynamicStyles();
+    
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
+        style={{
+          ...dynamicStyles,
+          '--ring-color': 'var(--color-primary)',
+          ...(props.style || {}),
+        } as React.CSSProperties & { '--ring-color': string }}
+        onMouseEnter={(e) => {
+          if (variant === "default" || variant === "secondary") {
+            e.currentTarget.style.opacity = "0.9";
+            e.currentTarget.style.transform = "scale(1.02)";
+          } else if (variant === "outline") {
+            e.currentTarget.style.borderColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.5)`;
+            e.currentTarget.style.backgroundColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.05)`;
+            e.currentTarget.style.color = `var(--color-primary)`;
+          } else if (variant === "ghost") {
+            e.currentTarget.style.backgroundColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.1)`;
+            e.currentTarget.style.color = `var(--color-primary)`;
+          } else if (variant === "link") {
+            e.currentTarget.style.opacity = "0.8";
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (variant === "default" || variant === "secondary") {
+            e.currentTarget.style.opacity = "";
+            e.currentTarget.style.transform = "";
+          } else if (variant === "outline") {
+            e.currentTarget.style.borderColor = "";
+            e.currentTarget.style.backgroundColor = "";
+            e.currentTarget.style.color = "";
+          } else if (variant === "ghost") {
+            e.currentTarget.style.backgroundColor = "";
+            e.currentTarget.style.color = "";
+          } else if (variant === "link") {
+            e.currentTarget.style.opacity = "";
+          }
+        }}
+        onFocus={(e) => {
+          if (variant !== "destructive") {
+            e.currentTarget.style.boxShadow = `0 0 0 2px rgba(var(--color-primary-rgb, 16, 185, 129), 0.2)`;
+          }
+        }}
+        onBlur={(e) => {
+          if (variant !== "destructive") {
+            e.currentTarget.style.boxShadow = "";
+          }
+        }}
         ref={ref}
         {...props}
       />
