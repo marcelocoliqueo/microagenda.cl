@@ -1088,17 +1088,28 @@ export default function DashboardPage() {
                 {appointments.map((appointment) => (
                   <div
                     key={appointment.id}
-                    className="flex items-center justify-between p-4 border border-border rounded-xl hover:bg-background/50 transition-colors"
+                    className="flex items-center justify-between p-4 border-2 border-slate-200 rounded-xl transition-all"
+                    style={{
+                      transition: "border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.5)`;
+                      e.currentTarget.style.backgroundColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.02)`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = "rgb(226, 232, 240)"; // slate-200
+                      e.currentTarget.style.backgroundColor = "transparent";
+                    }}
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h4 className="font-semibold">{appointment.client_name}</h4>
+                        <h4 className="font-semibold text-slate-900">{appointment.client_name}</h4>
                         <span className={`text-xs px-2 py-1 rounded-lg ${STATUS_COLORS[appointment.status]}`}>
                           {STATUS_LABELS[appointment.status]}
                         </span>
                       </div>
-                      <div className="text-sm text-muted space-y-1">
-                        <p>{appointment.service?.name}</p>
+                      <div className="text-sm text-slate-600 space-y-1">
+                        <p className="font-medium text-slate-700">{appointment.service?.name}</p>
                         <p>
                           {formatDate(appointment.date)} · {formatTime(appointment.time)}
                         </p>
