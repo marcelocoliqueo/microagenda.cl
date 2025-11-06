@@ -55,7 +55,7 @@ export default function PublicAgendaPage() {
     return services.filter(s => (s.category || "General") === selectedCategory);
   }, [services, selectedCategory]);
 
-  // Horarios disponibles
+  // Horarios disponibles - NUEVO: cada bloque = 1 slot
   const getAvailableTimeSlots = (): string[] => {
     if (!formData.date) {
       console.log('⚠️ No hay fecha seleccionada');
@@ -67,24 +67,22 @@ export default function PublicAgendaPage() {
     
     const dayAvailability = availability[dayName];
     console.log('🕒 Disponibilidad del día:', dayAvailability);
-    console.log('🕒 DETALLES completos:', JSON.stringify(dayAvailability, null, 2));
     
     if (!dayAvailability || dayAvailability.length === 0) {
       console.log('❌ No hay disponibilidad configurada para', dayName);
       return [];
     }
     
-    const serviceDuration = selectedService?.duration;
-    console.log('⏱️ Duración del servicio:', serviceDuration);
-    
-    const availableSlots = generateAvailableSlots(dayAvailability, 30, serviceDuration);
-    console.log('✅ Slots generados:', availableSlots.length, availableSlots);
+    // NUEVO: Cada bloque configurado = 1 slot (solo hora de inicio)
+    // NO generar intervalos cada 30 min
+    const availableSlots = dayAvailability.map(block => block.start);
+    console.log('✅ Slots (bloques completos):', availableSlots);
     
     const bookedForDay = bookedSlots;
     console.log('🚫 Slots ocupados:', bookedForDay);
     
     const finalSlots = availableSlots.filter(slot => !bookedForDay.includes(slot));
-    console.log('🎯 Slots finales disponibles:', finalSlots.length, finalSlots);
+    console.log('🎯 Slots finales disponibles:', finalSlots);
     
     return finalSlots;
   };

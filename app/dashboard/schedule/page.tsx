@@ -170,6 +170,49 @@ export default function SchedulePage() {
     if (!user) return;
 
     try {
+      // Validar que no haya bloques entrelazados
+      for (const [day, config] of Object.entries(availability)) {
+        if (config.enabled && config.blocks.length > 1) {
+          const blocks = config.blocks.slice().sort((a, b) => a.start.localeCompare(b.start));
+          
+          for (let i = 0; i < blocks.length - 1; i++) {
+            const current = blocks[i];
+            const next = blocks[i + 1];
+            
+            // Validar que start < end
+            if (current.start >= current.end) {
+              toast({
+                title: "Error de validación",
+                description: `${dayNames[day]}: La hora de inicio debe ser menor que la hora de fin`,
+                variant: "destructive",
+              });
+              return;
+            }
+            
+            // Validar que no haya solapamiento
+            if (current.end > next.start) {
+              toast({
+                title: "Error de validación",
+                description: `${dayNames[day]}: Los bloques no pueden estar entrelazados. El bloque ${current.start}-${current.end} se solapa con ${next.start}-${next.end}`,
+                variant: "destructive",
+              });
+              return;
+            }
+          }
+          
+          // Validar el último bloque
+          const lastBlock = blocks[blocks.length - 1];
+          if (lastBlock.start >= lastBlock.end) {
+            toast({
+              title: "Error de validación",
+              description: `${dayNames[day]}: La hora de inicio debe ser menor que la hora de fin`,
+              variant: "destructive",
+            });
+            return;
+          }
+        }
+      }
+      
       // Primero eliminar todos los registros existentes del usuario
       const { error: deleteError } = await supabase
         .from("availability")
