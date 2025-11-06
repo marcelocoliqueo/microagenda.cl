@@ -2,8 +2,8 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "next/navigation";
-import { motion } from "framer-motion";
-import { Calendar, Clock, CheckCircle, Sparkles, Check, ChevronRight, User, Phone as PhoneIcon } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Calendar, Clock, CheckCircle, Sparkles, Check, ChevronRight, User, Phone as PhoneIcon, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -274,33 +274,278 @@ export default function PublicAgendaPage() {
 
             {/* Step 2: Fecha y Hora */}
             {step === 2 && selectedService && (
-              <div className="flex-1">
-                <h5 className="font-semibold text-slate-900 mb-3">Selecciona fecha y hora</h5>
-                <div className="space-y-4">
-                  <div className="rounded-lg border border-primary/20 bg-primary/5 p-2 text-xs">
-                    <div className="flex items-center justify-between"><span className="font-medium text-slate-900">{selectedService.name}</span><span className="text-slate-600">{formatCurrency(selectedService.price)}</span></div>
+              <div className="flex-1 space-y-5">
+                {/* Resumen del servicio */}
+                <motion.div 
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-accent/10 p-3 border border-primary/20"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-10 h-10 rounded-lg bg-white/80 flex items-center justify-center">
+                        <Sparkles className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-slate-900 text-sm">{selectedService.name}</p>
+                        <p className="text-xs text-slate-600 flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {selectedService.duration} min
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-lg font-bold text-primary">{formatCurrency(selectedService.price)}</p>
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-xs font-medium text-slate-700 block mb-1.5">Fecha</label>
-                    <input type="date" id="date" name="date" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value, time: "" })} min={new Date().toISOString().split("T")[0]} required className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all" />
+                </motion.div>
+
+                {/* Mini Calendario */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h6 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-primary" />
+                      Selecciona tu fecha
+                    </h6>
+                    {formData.date && (
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, date: "", time: "" })}
+                        className="text-xs text-slate-500 hover:text-primary transition-colors"
+                      >
+                        Cambiar
+                      </button>
+                    )}
                   </div>
+                  
+                  {/* Selector de días (próximos 14 días) */}
+                  <div className="grid grid-cols-7 gap-1.5">
+                    {(() => {
+                      const days = [];
+                      const today = new Date();
+                      for (let i = 0; i < 14; i++) {
+                        const date = new Date(today);
+                        date.setDate(today.getDate() + i);
+                        const dateStr = date.toISOString().split("T")[0];
+                        const dayOfWeek = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][date.getDay()];
+                        const hasAvailability = availability[dayOfWeek] && availability[dayOfWeek].length > 0;
+                        const dayName = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"][date.getDay()];
+                        const isSelected = formData.date === dateStr;
+                        const isToday = i === 0;
+                        
+                        days.push(
+                          <motion.button
+                            key={dateStr}
+                            type="button"
+                            onClick={() => hasAvailability ? setFormData({ ...formData, date: dateStr, time: "" }) : null}
+                            disabled={!hasAvailability}
+                            whileHover={hasAvailability ? { scale: 1.05 } : {}}
+                            whileTap={hasAvailability ? { scale: 0.95 } : {}}
+                            className={cn(
+                              "relative p-2 rounded-lg text-center transition-all duration-200",
+                              isSelected && "bg-gradient-to-br from-primary to-accent text-white shadow-lg ring-2 ring-primary/20",
+                              !isSelected && hasAvailability && "bg-white border border-slate-200 hover:border-primary/50 hover:shadow-md text-slate-700",
+                              !hasAvailability && "bg-slate-50 text-slate-300 cursor-not-allowed",
+                              isToday && !isSelected && "ring-2 ring-primary/20"
+                            )}
+                          >
+                            <div className={cn("text-[10px] font-medium mb-0.5", isSelected ? "text-white/80" : "text-slate-500")}>
+                              {dayName}
+                            </div>
+                            <div className={cn("text-sm font-bold", isSelected && "text-white")}>
+                              {date.getDate()}
+                            </div>
+                            {hasAvailability && !isSelected && (
+                              <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary"></div>
+                            )}
+                          </motion.button>
+                        );
+                      }
+                      return days;
+                    })()}
+                  </div>
+                  
+                  <input type="hidden" id="date" name="date" value={formData.date} required />
+                </div>
+
+                {/* Horarios disponibles */}
+                <AnimatePresence mode="wait">
                   {formData.date && (
-                    <div className="space-y-2">
-                      <label className="text-xs font-medium text-slate-700 block">Hora</label>
+                    <motion.div
+                      key={formData.date}
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="space-y-3"
+                    >
+                      <div className="flex items-center justify-between">
+                        <h6 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-primary" />
+                          Elige tu horario
+                        </h6>
+                        {formData.time && (
+                          <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, time: "" })}
+                            className="text-xs text-slate-500 hover:text-primary transition-colors"
+                          >
+                            Cambiar
+                          </button>
+                        )}
+                      </div>
+                      
                       <input type="hidden" id="time" name="time" value={formData.time} required />
+                      
                       {getAvailableTimeSlots().length > 0 ? (
-                        <div className="space-y-3">
-                          {groupedTimeSlots.morning.length > 0 && (<div><h6 className="text-xs font-semibold text-slate-600 mb-2">Mañana</h6><div className="grid grid-cols-3 gap-1.5">{groupedTimeSlots.morning.map((time) => (<button key={time} type="button" onClick={() => setFormData({ ...formData, time })} className={cn("px-2 py-2 rounded-lg text-xs font-medium transition-all", formData.time === time ? "bg-primary text-white shadow-md" : "border border-slate-200 hover:bg-slate-50 text-slate-700")}>{time}</button>))}</div></div>)}
-                          {groupedTimeSlots.afternoon.length > 0 && (<div><h6 className="text-xs font-semibold text-slate-600 mb-2">Tarde</h6><div className="grid grid-cols-3 gap-1.5">{groupedTimeSlots.afternoon.map((time) => (<button key={time} type="button" onClick={() => setFormData({ ...formData, time })} className={cn("px-2 py-2 rounded-lg text-xs font-medium transition-all", formData.time === time ? "bg-primary text-white shadow-md" : "border border-slate-200 hover:bg-slate-50 text-slate-700")}>{time}</button>))}</div></div>)}
-                          {groupedTimeSlots.evening.length > 0 && (<div><h6 className="text-xs font-semibold text-slate-600 mb-2">Noche</h6><div className="grid grid-cols-3 gap-1.5">{groupedTimeSlots.evening.map((time) => (<button key={time} type="button" onClick={() => setFormData({ ...formData, time })} className={cn("px-2 py-2 rounded-lg text-xs font-medium transition-all", formData.time === time ? "bg-primary text-white shadow-md" : "border border-slate-200 hover:bg-slate-50 text-slate-700")}>{time}</button>))}</div></div>)}
+                        <div className="space-y-4">
+                          {groupedTimeSlots.morning.length > 0 && (
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 rounded-md bg-amber-100 flex items-center justify-center">
+                                  <span className="text-xs">🌅</span>
+                                </div>
+                                <span className="text-xs font-semibold text-slate-700">Mañana</span>
+                              </div>
+                              <div className="grid grid-cols-4 gap-2">
+                                {groupedTimeSlots.morning.map((time) => (
+                                  <motion.button
+                                    key={time}
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, time })}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    className={cn(
+                                      "relative py-2.5 rounded-lg text-xs font-semibold transition-all duration-200",
+                                      formData.time === time
+                                        ? "bg-gradient-to-br from-primary to-accent text-white shadow-lg ring-2 ring-primary/20"
+                                        : "bg-white border-2 border-slate-200 text-slate-700 hover:border-primary/50 hover:shadow-md hover:bg-primary/5"
+                                    )}
+                                  >
+                                    {time}
+                                    {formData.time === time && (
+                                      <motion.div
+                                        layoutId="time-selected"
+                                        className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white flex items-center justify-center"
+                                      >
+                                        <Check className="w-3 h-3 text-primary" />
+                                      </motion.div>
+                                    )}
+                                  </motion.button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {groupedTimeSlots.afternoon.length > 0 && (
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 rounded-md bg-orange-100 flex items-center justify-center">
+                                  <span className="text-xs">☀️</span>
+                                </div>
+                                <span className="text-xs font-semibold text-slate-700">Tarde</span>
+                              </div>
+                              <div className="grid grid-cols-4 gap-2">
+                                {groupedTimeSlots.afternoon.map((time) => (
+                                  <motion.button
+                                    key={time}
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, time })}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    className={cn(
+                                      "relative py-2.5 rounded-lg text-xs font-semibold transition-all duration-200",
+                                      formData.time === time
+                                        ? "bg-gradient-to-br from-primary to-accent text-white shadow-lg ring-2 ring-primary/20"
+                                        : "bg-white border-2 border-slate-200 text-slate-700 hover:border-primary/50 hover:shadow-md hover:bg-primary/5"
+                                    )}
+                                  >
+                                    {time}
+                                    {formData.time === time && (
+                                      <motion.div
+                                        layoutId="time-selected"
+                                        className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white flex items-center justify-center"
+                                      >
+                                        <Check className="w-3 h-3 text-primary" />
+                                      </motion.div>
+                                    )}
+                                  </motion.button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {groupedTimeSlots.evening.length > 0 && (
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 rounded-md bg-indigo-100 flex items-center justify-center">
+                                  <span className="text-xs">🌙</span>
+                                </div>
+                                <span className="text-xs font-semibold text-slate-700">Noche</span>
+                              </div>
+                              <div className="grid grid-cols-4 gap-2">
+                                {groupedTimeSlots.evening.map((time) => (
+                                  <motion.button
+                                    key={time}
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, time })}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    className={cn(
+                                      "relative py-2.5 rounded-lg text-xs font-semibold transition-all duration-200",
+                                      formData.time === time
+                                        ? "bg-gradient-to-br from-primary to-accent text-white shadow-lg ring-2 ring-primary/20"
+                                        : "bg-white border-2 border-slate-200 text-slate-700 hover:border-primary/50 hover:shadow-md hover:bg-primary/5"
+                                    )}
+                                  >
+                                    {time}
+                                    {formData.time === time && (
+                                      <motion.div
+                                        layoutId="time-selected"
+                                        className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white flex items-center justify-center"
+                                      >
+                                        <Check className="w-3 h-3 text-primary" />
+                                      </motion.div>
+                                    )}
+                                  </motion.button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       ) : (
-                        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-center"><p className="text-sm text-amber-700">No hay horarios disponibles para este día</p></div>
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 rounded-xl text-center"
+                        >
+                          <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-3">
+                            <span className="text-2xl">📅</span>
+                          </div>
+                          <p className="text-sm text-amber-800 font-semibold mb-1">
+                            Sin horarios disponibles
+                          </p>
+                          <p className="text-xs text-amber-600">
+                            Prueba con otra fecha
+                          </p>
+                        </motion.div>
                       )}
-                    </div>
+                    </motion.div>
                   )}
-                  <button onClick={() => { setStep(1); setFormData({ ...formData, date: "", time: "" }); }} className="text-xs text-primary hover:underline flex items-center gap-1 font-medium mt-2">← Cambiar servicio</button>
-                </div>
+                </AnimatePresence>
+
+                {/* Botón para volver */}
+                <motion.button
+                  onClick={() => { 
+                    setStep(1); 
+                    setFormData({ ...formData, date: "", time: "" }); 
+                  }}
+                  whileHover={{ x: -2 }}
+                  className="flex items-center gap-2 text-xs text-slate-600 hover:text-primary transition-colors font-medium pt-2 border-t border-slate-200"
+                >
+                  <ChevronLeft className="w-3 h-3" />
+                  Cambiar servicio
+                </motion.button>
               </div>
             )}
 
