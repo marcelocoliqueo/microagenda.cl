@@ -65,6 +65,7 @@ export default function DashboardPage() {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNewAppointmentDialog, setShowNewAppointmentDialog] = useState(false);
+  const [showOnboardingDialog, setShowOnboardingDialog] = useState(false);
   const [showUsernameDialog, setShowUsernameDialog] = useState(false);
   const [showBusinessConfigDialog, setShowBusinessConfigDialog] = useState(false);
   const [newUsername, setNewUsername] = useState("");
@@ -131,8 +132,15 @@ export default function DashboardPage() {
 
       if (profileError) throw profileError;
       setProfile(profileData);
+      
+      // Verificar si necesita completar onboarding
+      if (!profileData.onboarding_completed) {
+        setShowOnboardingDialog(true);
+      }
+      
       // Inicializar valores para configuración de negocio
       if (profileData) {
+        setNewUsername(profileData.username || "");
         setNewBusinessName(profileData.business_name || "");
         setBusinessLogoPreview(profileData.business_logo_url || null);
       }
@@ -398,6 +406,96 @@ export default function DashboardPage() {
         variant: "destructive",
       });
       return null;
+    } finally {
+      setUploadingLogo(false);
+    }
+  }
+
+  async function handleCompleteOnboarding() {
+    if (!user) return;
+
+    // Validar username
+    if (!newUsername.trim()) {
+      toast({
+        title: "Error",
+        description: "Debes ingresar un nombre de usuario para tu agenda",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const normalizedUsername = normalizeUsername(newUsername.trim());
+
+    if (normalizedUsername.length < 3) {
+      toast({
+        title: "Error",
+        description: "El nombre de usuario debe tener al menos 3 caracteres",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setUploadingLogo(true);
+
+      let logoUrl = businessLogoPreview;
+
+      // Si hay un nuevo archivo, subirlo primero
+      if (businessLogoFile) {
+        const uploadedUrl = await handleLogoUpload(businessLogoFile);
+        if (uploadedUrl) {
+          logoUrl = uploadedUrl;
+        } else {
+          return; // Error al subir, no continuar
+        }
+      }
+
+      // Actualizar perfil con todos los datos del onboarding
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          username: normalizedUsername,
+          business_name: newBusinessName.trim() || null,
+          business_logo_url: logoUrl,
+          onboarding_completed: true,
+        })
+        .eq("id", user.id);
+
+      if (error) {
+        if (error.code === '23505') { // Unique violation
+          toast({
+            title: "Error",
+            description: "Este nombre de usuario ya está en uso. Prueba con otro.",
+            variant: "destructive",
+          });
+          return;
+        }
+        throw error;
+      }
+
+      // Actualizar perfil local
+      setProfile({
+        ...profile!,
+        username: normalizedUsername,
+        business_name: newBusinessName.trim() || null,
+        business_logo_url: logoUrl,
+        onboarding_completed: true,
+      });
+
+      setShowOnboardingDialog(false);
+      setBusinessLogoFile(null);
+
+      toast({
+        title: "¡Bienvenido a MicroAgenda!",
+        description: "Tu agenda ya está lista. Comparte tu link con tus clientes.",
+      });
+    } catch (error: any) {
+      console.error("Complete onboarding error:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo completar la configuración inicial",
+        variant: "destructive",
+      });
     } finally {
       setUploadingLogo(false);
     }
@@ -717,8 +815,8 @@ export default function DashboardPage() {
           </motion.div>
         )}
 
-        {/* Premium Public URL Card */}
-        {profile && (
+        {/* Premium Public URL Card - Solo mostrar si NO completó onboarding */}
+        {profile && !profile.onboarding_completed && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -810,8 +908,8 @@ export default function DashboardPage() {
           </motion.div>
         )}
 
-        {/* Business Configuration Card */}
-        {profile && profile.username && (
+        {/* Business Configuration Card - Solo mostrar si NO completó onboarding */}
+        {profile && !profile.onboarding_completed && profile.username && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1068,6 +1166,115 @@ export default function DashboardPage() {
         </Card>
 
       </div>
+
+      {/* Onboarding Dialog - Primera configuración */}
+      <Dialog open={showOnboardingDialog} onOpenChange={() => {}}>
+        <DialogContent className="max-w-lg" onPointerDownOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
+          <DialogHeader>
+            <DialogTitle className="text-2xl">¡Bienvenido a MicroAgenda! 🎉</DialogTitle>
+            <DialogDescription>
+              Configura tu agenda pública en 3 sencillos pasos
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-5 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="onboarding_username" className="font-medium">
+                1. Nombre de usuario para tu agenda
+              </Label>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-slate-500 whitespace-nowrap">microagenda.cl/u/</span>
+                <Input
+                  id="onboarding_username"
+                  placeholder="tu-negocio"
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value)}
+                  maxLength={50}
+                  className="flex-1"
+                />
+              </div>
+              <p className="text-xs text-slate-500">
+                Ejemplo: salon-maria, barberia-central, consultorio-dr-lopez
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="onboarding_business_name" className="font-medium">
+                2. Nombre de tu negocio
+              </Label>
+              <Input
+                id="onboarding_business_name"
+                placeholder="Ej: Salón de Belleza María"
+                value={newBusinessName}
+                onChange={(e) => setNewBusinessName(e.target.value)}
+                maxLength={100}
+              />
+              <p className="text-xs text-slate-500">
+                Este nombre aparecerá en la agenda pública
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="font-medium">3. Logo de tu negocio (opcional)</Label>
+              {businessLogoPreview ? (
+                <div className="relative inline-block">
+                  <img
+                    src={businessLogoPreview}
+                    alt="Logo preview"
+                    className="h-24 w-24 object-contain rounded-lg border border-slate-200"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setBusinessLogoFile(null);
+                      setBusinessLogoPreview(null);
+                    }}
+                    className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-white hover:bg-red-50 p-0"
+                  >
+                    <X className="h-3 w-3 text-red-600" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+                  <input
+                    type="file"
+                    id="onboarding_logo_input"
+                    accept="image/*"
+                    onChange={handleLogoChange}
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="onboarding_logo_input"
+                    className="cursor-pointer flex flex-col items-center gap-2"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center">
+                      <ImageIcon className="w-6 h-6 text-slate-400" />
+                    </div>
+                    <span className="text-sm text-slate-600 font-medium">Subir logo</span>
+                    <span className="text-xs text-slate-500">PNG, JPG hasta 10MB</span>
+                  </label>
+                </div>
+              )}
+              <p className="text-xs text-slate-500">
+                Se optimizará automáticamente para carga rápida
+              </p>
+            </div>
+          </div>
+          <div className="flex justify-end gap-3">
+            <Button
+              onClick={handleCompleteOnboarding}
+              disabled={uploadingLogo || !newUsername.trim()}
+              className="bg-gradient-to-r from-primary to-accent hover:brightness-110 disabled:opacity-50"
+              style={{
+                backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-accent))`
+              }}
+            >
+              {uploadingLogo ? "Subiendo..." : "Completar Configuración"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Username Configuration Dialog */}
       <Dialog open={showUsernameDialog} onOpenChange={(open) => {
