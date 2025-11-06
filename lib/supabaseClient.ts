@@ -77,6 +77,7 @@ export type Profile = {
   business_name: string | null;
   business_logo_url: string | null;
   bio: string | null;
+  brand_color: string;
   onboarding_completed: boolean;
   subscription_status: string;
   current_plan_id: string | null;
