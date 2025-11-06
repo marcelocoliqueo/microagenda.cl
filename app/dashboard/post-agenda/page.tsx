@@ -23,11 +23,14 @@ export default function PostAgendaPage() {
   const [loading, setLoading] = useState(true);
   
   // Estado de personalización
-  const [primaryColor, setPrimaryColor] = useState("#10B981");
+  const [primaryColor, setPrimaryColor] = useState("#8B7B7B");
   const [fontFamily, setFontFamily] = useState("Inter");
   const [bookedEmoji, setBookedEmoji] = useState("❌");
-  const [footerText, setFooterText] = useState("¡Reserva tu cita ahora! 📅");
+  const [footerText, setFooterText] = useState("Las horas se pueden modificar según disponibilidad");
   const [backgroundUrl, setBackgroundUrl] = useState<string | null>(null);
+  const [monthTitle, setMonthTitle] = useState("");
+  const [horasText, setHorasText] = useState("HORAS");
+  const [disponiblesText, setDisponiblesText] = useState("Disponibles");
 
   // Hook para obtener disponibilidad
   const { weekSchedule, weekStartDate, loading: loadingSchedule } = useAgendaSnapshot(user?.id);
@@ -150,12 +153,9 @@ export default function PostAgendaPage() {
         throw new Error("No se encontró el elemento a compartir");
       }
 
-      // Convertir a data URL para compartir
+      // Convertir a data URL para compartir (formato Instagram Story)
       const { toBlob } = await import("html-to-image");
       const blob = await toBlob(element, {
-        backgroundColor: "#ffffff",
-        width: 1080,
-        height: 1920,
         pixelRatio: 2,
       });
 
@@ -235,6 +235,12 @@ export default function PostAgendaPage() {
               onBookedEmojiChange={setBookedEmoji}
               footerText={footerText}
               onFooterTextChange={setFooterText}
+              monthTitle={monthTitle}
+              onMonthTitleChange={setMonthTitle}
+              horasText={horasText}
+              onHorasTextChange={setHorasText}
+              disponiblesText={disponiblesText}
+              onDisponiblesTextChange={setDisponiblesText}
             />
 
             <UploadBackground
@@ -257,18 +263,25 @@ export default function PostAgendaPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col items-center space-y-6">
-                {/* Vista previa del post */}
-                <AgendaPreviewCard
-                  weekSchedule={weekSchedule}
-                  weekStartDate={weekStartDate}
-                  businessName={profile?.business_name}
-                  businessLogoUrl={profile?.business_logo_url}
-                  backgroundUrl={backgroundUrl}
-                  primaryColor={primaryColor}
-                  fontFamily={fontFamily}
-                  bookedEmoji={bookedEmoji}
-                  footerText={footerText}
-                />
+                {/* Vista previa del post - Escalada para preview */}
+                <div className="w-full overflow-auto flex justify-center bg-slate-50 rounded-lg p-4">
+                  <div className="transform scale-[0.3] origin-top">
+                    <AgendaPreviewCard
+                      weekSchedule={weekSchedule}
+                      weekStartDate={weekStartDate}
+                      businessName={profile?.business_name}
+                      businessLogoUrl={profile?.business_logo_url}
+                      backgroundUrl={backgroundUrl}
+                      primaryColor={primaryColor}
+                      fontFamily={fontFamily}
+                      bookedEmoji={bookedEmoji}
+                      footerText={footerText}
+                      monthTitle={monthTitle}
+                      horasText={horasText}
+                      disponiblesText={disponiblesText}
+                    />
+                  </div>
+                </div>
 
                 {/* Botones de acción */}
                 <div className="flex gap-4 w-full max-w-md">

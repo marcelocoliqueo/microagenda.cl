@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Montserrat, Cormorant_Garamond, Dancing_Script } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthHandler } from "@/components/AuthHandler";
@@ -7,6 +7,16 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { APP_NAME, APP_DESCRIPTION } from "@/lib/constants";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-montserrat" });
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  variable: "--font-cormorant",
+  weight: ["300", "400", "500", "600", "700"]
+});
+const dancing = Dancing_Script({
+  subsets: ["latin"],
+  variable: "--font-dancing"
+});
 
 // Force all pages to be dynamic - no static generation
 export const dynamic = 'force-dynamic';
@@ -54,7 +64,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className="overflow-x-hidden">
-      <body className={`${inter.variable} font-sans`}>
+      <body className={`${inter.variable} ${montserrat.variable} ${cormorant.variable} ${dancing.variable} font-sans`}>
         <ThemeProvider>
           <AuthHandler />
         {children}

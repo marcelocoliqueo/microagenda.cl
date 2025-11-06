@@ -1,10 +1,9 @@
 "use client";
 
-import { Palette, Type, Smile, MessageSquare } from "lucide-react";
+import { Palette, Type, Calendar, MessageSquare } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface StyleControlsProps {
   primaryColor: string;
@@ -15,33 +14,25 @@ interface StyleControlsProps {
   onBookedEmojiChange: (emoji: string) => void;
   footerText: string;
   onFooterTextChange: (text: string) => void;
+  monthTitle?: string;
+  onMonthTitleChange?: (title: string) => void;
+  horasText?: string;
+  onHorasTextChange?: (text: string) => void;
+  disponiblesText?: string;
+  onDisponiblesTextChange?: (text: string) => void;
 }
-
-const fontOptions = [
-  { value: "Inter", label: "Inter (Moderno)" },
-  { value: "Poppins", label: "Poppins (Elegante)" },
-  { value: "Roboto", label: "Roboto (Clásico)" },
-  { value: "Open Sans", label: "Open Sans (Legible)" },
-  { value: "Montserrat", label: "Montserrat (Bold)" },
-];
-
-const emojiOptions = [
-  { value: "❌", label: "❌ Cruz" },
-  { value: "🚫", label: "🚫 Prohibido" },
-  { value: "⛔", label: "⛔ Señal" },
-  { value: "🔒", label: "🔒 Cerrado" },
-  { value: "💤", label: "💤 Ocupado" },
-];
 
 export function StyleControls({
   primaryColor,
   onPrimaryColorChange,
-  fontFamily,
-  onFontFamilyChange,
-  bookedEmoji,
-  onBookedEmojiChange,
   footerText,
   onFooterTextChange,
+  monthTitle,
+  onMonthTitleChange,
+  horasText = "HORAS",
+  onHorasTextChange,
+  disponiblesText = "Disponibles",
+  onDisponiblesTextChange,
 }: StyleControlsProps) {
   return (
     <div className="space-y-4">
@@ -70,47 +61,53 @@ export function StyleControls({
         </CardContent>
       </Card>
 
-      {/* Tipografía */}
+      {/* Título del Mes */}
+      <Card>
+        <CardContent className="p-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-5 h-5" style={{ color: "var(--color-primary)" }} />
+            <Label className="font-semibold">Título del Mes</Label>
+          </div>
+          <Input
+            type="text"
+            value={monthTitle || ""}
+            onChange={(e) => onMonthTitleChange?.(e.target.value)}
+            placeholder="Deja vacío para usar el mes actual"
+            maxLength={20}
+          />
+          <p className="text-xs text-slate-500">Se mostrará en la parte superior del post</p>
+        </CardContent>
+      </Card>
+
+      {/* Textos "HORAS" y "Disponibles" */}
       <Card>
         <CardContent className="p-4 space-y-3">
           <div className="flex items-center gap-2">
             <Type className="w-5 h-5" style={{ color: "var(--color-primary)" }} />
-            <Label className="font-semibold">Tipografía</Label>
+            <Label className="font-semibold">Encabezado del Recuadro</Label>
           </div>
-          <Select value={fontFamily} onValueChange={onFontFamilyChange}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {fontOptions.map((font) => (
-                <SelectItem key={font.value} value={font.value}>
-                  {font.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </CardContent>
-      </Card>
-
-      {/* Emoji para Horas Ocupadas */}
-      <Card>
-        <CardContent className="p-4 space-y-3">
-          <div className="flex items-center gap-2">
-            <Smile className="w-5 h-5" style={{ color: "var(--color-primary)" }} />
-            <Label className="font-semibold">Emoji para Horas Ocupadas</Label>
+          <div className="space-y-2">
+            <div>
+              <Label className="text-xs text-slate-500">Texto en mayúsculas</Label>
+              <Input
+                type="text"
+                value={horasText}
+                onChange={(e) => onHorasTextChange?.(e.target.value)}
+                placeholder="HORAS"
+                maxLength={15}
+              />
+            </div>
+            <div>
+              <Label className="text-xs text-slate-500">Texto en cursiva</Label>
+              <Input
+                type="text"
+                value={disponiblesText}
+                onChange={(e) => onDisponiblesTextChange?.(e.target.value)}
+                placeholder="Disponibles"
+                maxLength={15}
+              />
+            </div>
           </div>
-          <Select value={bookedEmoji} onValueChange={onBookedEmojiChange}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {emojiOptions.map((emoji) => (
-                <SelectItem key={emoji.value} value={emoji.value}>
-                  {emoji.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </CardContent>
       </Card>
 
@@ -125,7 +122,7 @@ export function StyleControls({
             type="text"
             value={footerText}
             onChange={(e) => onFooterTextChange(e.target.value)}
-            placeholder="Ej: ¡Reserva tu cita ahora! 📅"
+            placeholder="Ej: Las horas se pueden modificar según disponibilidad"
             maxLength={100}
           />
           <p className="text-xs text-slate-500">{footerText.length}/100 caracteres</p>
