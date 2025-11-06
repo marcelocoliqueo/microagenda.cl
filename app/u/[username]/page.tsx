@@ -57,18 +57,46 @@ export default function PublicAgendaPage() {
 
   // Horarios disponibles
   const getAvailableTimeSlots = (): string[] => {
-    if (!formData.date) return [];
+    if (!formData.date) {
+      console.log('⚠️ No hay fecha seleccionada');
+      return [];
+    }
+    
     const dayName = getDayName(formData.date);
+    console.log('📅 Obteniendo horarios para:', formData.date, '→', dayName);
+    
     const dayAvailability = availability[dayName];
-    if (!dayAvailability || dayAvailability.length === 0) return [];
+    console.log('🕒 Disponibilidad del día:', dayAvailability);
+    
+    if (!dayAvailability || dayAvailability.length === 0) {
+      console.log('❌ No hay disponibilidad configurada para', dayName);
+      return [];
+    }
+    
     const serviceDuration = selectedService?.duration;
+    console.log('⏱️ Duración del servicio:', serviceDuration);
+    
     const availableSlots = generateAvailableSlots(dayAvailability, 30, serviceDuration);
-    return availableSlots.filter(slot => !bookedSlots.includes(slot));
+    console.log('✅ Slots generados:', availableSlots.length, availableSlots);
+    
+    const bookedForDay = bookedSlots;
+    console.log('🚫 Slots ocupados:', bookedForDay);
+    
+    const finalSlots = availableSlots.filter(slot => !bookedForDay.includes(slot));
+    console.log('🎯 Slots finales disponibles:', finalSlots.length, finalSlots);
+    
+    return finalSlots;
   };
 
   // Agrupar horarios por período
   const groupedTimeSlots = useMemo(() => {
+    if (!formData.date) {
+      return { morning: [], afternoon: [], evening: [] };
+    }
+    
     const slots = getAvailableTimeSlots();
+    console.log('🔍 Agrupando slots para fecha:', formData.date, 'Total slots:', slots.length, slots);
+    
     const morning: string[] = [];
     const afternoon: string[] = [];
     const evening: string[] = [];
@@ -78,8 +106,10 @@ export default function PublicAgendaPage() {
       else if (hour < 18) afternoon.push(slot);
       else evening.push(slot);
     });
+    
+    console.log('📊 Agrupación:', { morning: morning.length, afternoon: afternoon.length, evening: evening.length });
     return { morning, afternoon, evening };
-  }, [formData.date, bookedSlots, availability, selectedService]);
+  }, [formData.date, formData.service_id, bookedSlots, availability]);
 
   // Fetch data
   useEffect(() => {
