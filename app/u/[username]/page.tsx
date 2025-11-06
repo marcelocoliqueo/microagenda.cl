@@ -67,6 +67,7 @@ export default function PublicAgendaPage() {
     
     const dayAvailability = availability[dayName];
     console.log('🕒 Disponibilidad del día:', dayAvailability);
+    console.log('🕒 DETALLES completos:', JSON.stringify(dayAvailability, null, 2));
     
     if (!dayAvailability || dayAvailability.length === 0) {
       console.log('❌ No hay disponibilidad configurada para', dayName);
