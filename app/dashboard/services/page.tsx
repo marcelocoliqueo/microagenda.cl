@@ -280,14 +280,15 @@ export default function ServicesPage() {
                     key={service.id}
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="p-4 border border-slate-200 rounded-xl hover:shadow-md transition-all"
+                    className="p-4 border-2 border-slate-200 rounded-xl hover:shadow-md transition-all"
+                    style={{
+                      transition: "border-color 0.3s ease, box-shadow 0.3s ease"
+                    }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = "var(--color-primary)";
-                      e.currentTarget.style.borderWidth = "2px";
+                      e.currentTarget.style.borderColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.5)`;
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.borderColor = "rgb(226, 232, 240)"; // slate-200
-                      e.currentTarget.style.borderWidth = "1px";
                     }}
                   >
                     <div className="flex items-start justify-between mb-3">

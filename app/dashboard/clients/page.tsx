@@ -470,14 +470,15 @@ export default function ClientsPage() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="p-4 border border-slate-200 rounded-xl hover:shadow-md transition-all"
+                    className="p-4 border-2 border-slate-200 rounded-xl hover:shadow-md transition-all"
+                    style={{
+                      transition: "border-color 0.3s ease, box-shadow 0.3s ease"
+                    }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = "var(--color-primary)";
-                      e.currentTarget.style.borderWidth = "2px";
+                      e.currentTarget.style.borderColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.5)`;
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.borderColor = "rgb(226, 232, 240)"; // slate-200
-                      e.currentTarget.style.borderWidth = "1px";
                     }}
                   >
                     <div className="flex items-center justify-between">
