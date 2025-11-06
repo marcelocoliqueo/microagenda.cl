@@ -31,6 +31,7 @@ export default function PublicAgendaPage() {
   // Stepper y formulario
   const [step, setStep] = useState(1);
   const totalSteps = 4;
+  const [calendarWeekOffset, setCalendarWeekOffset] = useState(0); // Para navegar por semanas
   const [formData, setFormData] = useState({
     client_name: "",
     client_phone: "",
@@ -346,36 +347,50 @@ export default function PublicAgendaPage() {
 
                 {/* Mini Calendario */}
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h6 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-primary" />
-                      Selecciona tu fecha
-                    </h6>
-                    {formData.date && (
-                      <button
-                        type="button"
-                        onClick={() => setFormData({ ...formData, date: "", time: "" })}
-                        className="text-xs text-slate-500 hover:text-primary transition-colors"
-                      >
-                        Cambiar
-                      </button>
-                    )}
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <h6 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-primary" />
+                        Selecciona tu fecha
+                      </h6>
+                      {formData.date && (
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, date: "", time: "" })}
+                          className="text-xs text-slate-500 hover:text-primary transition-colors"
+                        >
+                          Cambiar
+                        </button>
+                      )}
+                    </div>
+                    {/* Mostrar mes actual */}
+                    <p className="text-xs text-slate-500">
+                      {(() => {
+                        const today = new Date();
+                        const offsetDate = new Date(today);
+                        offsetDate.setDate(today.getDate() + (calendarWeekOffset * 14));
+                        const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+                        return `${monthNames[offsetDate.getMonth()]} ${offsetDate.getFullYear()}`;
+                      })()}
+                    </p>
                   </div>
                   
-                  {/* Selector de días (próximos 14 días) */}
+                  {/* Selector de días (14 días por página) */}
                   <div className="grid grid-cols-7 gap-1.5">
                     {(() => {
                       const days = [];
                       const today = new Date();
+                      const startOffset = calendarWeekOffset * 14;
+                      
                       for (let i = 0; i < 14; i++) {
                         const date = new Date(today);
-                        date.setDate(today.getDate() + i);
+                        date.setDate(today.getDate() + startOffset + i);
                         const dateStr = date.toISOString().split("T")[0];
                         const dayOfWeek = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][date.getDay()];
                         const hasAvailability = availability[dayOfWeek] && availability[dayOfWeek].length > 0;
                         const dayName = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"][date.getDay()];
                         const isSelected = formData.date === dateStr;
-                        const isToday = i === 0;
+                        const isToday = startOffset + i === 0;
                         
                         days.push(
                           <motion.button
@@ -407,6 +422,34 @@ export default function PublicAgendaPage() {
                       }
                       return days;
                     })()}
+                  </div>
+                  
+                  {/* Navegación de calendario */}
+                  <div className="flex items-center justify-between pt-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setCalendarWeekOffset(Math.max(0, calendarWeekOffset - 1))}
+                      disabled={calendarWeekOffset === 0}
+                      className="h-8 px-3 text-xs"
+                    >
+                      <ChevronLeft className="w-4 h-4 mr-1" />
+                      Anterior
+                    </Button>
+                    <span className="text-xs text-slate-500">
+                      {calendarWeekOffset === 0 ? "Esta semana" : `+${calendarWeekOffset * 14} días`}
+                    </span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setCalendarWeekOffset(calendarWeekOffset + 1)}
+                      className="h-8 px-3 text-xs"
+                    >
+                      Siguiente
+                      <ChevronRight className="w-4 h-4 ml-1" />
+                    </Button>
                   </div>
                   
                   <input type="hidden" id="date" name="date" value={formData.date} required />
