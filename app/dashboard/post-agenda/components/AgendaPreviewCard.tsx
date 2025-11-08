@@ -16,6 +16,16 @@ interface AgendaPreviewCardProps {
   monthTitle?: string;
   horasText?: string;
   disponiblesText?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  boxBackgroundColor?: string;
+  boxOpacity?: number;
+  borderRadius?: number;
+  showBusinessName?: boolean;
+  monthFontSize?: number;
+  titleFontSize?: number;
+  dayFontSize?: number;
+  slotFontSize?: number;
 }
 
 export function AgendaPreviewCard({
@@ -31,6 +41,16 @@ export function AgendaPreviewCard({
   monthTitle,
   horasText = "HORAS",
   disponiblesText = "Disponibles",
+  backgroundColor = "#FFE4E4",
+  textColor = "#000000",
+  boxBackgroundColor = "#FFFFFF",
+  boxOpacity = 95,
+  borderRadius = 60,
+  showBusinessName = true,
+  monthFontSize = 120,
+  titleFontSize = 72,
+  dayFontSize = 52,
+  slotFontSize = 48,
 }: AgendaPreviewCardProps) {
   // Obtener el mes actual
   const currentMonth = useMemo(() => {
@@ -44,8 +64,8 @@ export function AgendaPreviewCard({
       className="relative w-[1080px] h-[1920px] mx-auto overflow-hidden"
       style={{
         fontFamily: fontFamily || "'Inter', sans-serif",
-        backgroundColor: backgroundUrl ? "transparent" : "#FFE4E4",
-        backgroundImage: backgroundUrl ? `url(${backgroundUrl})` : "linear-gradient(135deg, #FFE4E4 0%, #FFC9C9 100%)",
+        backgroundColor: backgroundUrl ? "transparent" : backgroundColor,
+        backgroundImage: backgroundUrl ? `url(${backgroundUrl})` : `linear-gradient(135deg, ${backgroundColor} 0%, ${backgroundColor}CC 100%)`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
@@ -57,8 +77,9 @@ export function AgendaPreviewCard({
         {/* Mes en la parte superior */}
         <div className="mb-12">
           <h1
-            className="text-[120px] font-light tracking-[0.3em] text-center"
+            className="font-light tracking-[0.3em] text-center"
             style={{
+              fontSize: `${monthFontSize}px`,
               color: primaryColor,
               fontFamily: "'Cormorant Garamond', serif",
               letterSpacing: "0.3em",
@@ -70,8 +91,10 @@ export function AgendaPreviewCard({
 
         {/* Recuadro blanco central */}
         <div
-          className="w-[880px] bg-white/95 backdrop-blur-sm rounded-[60px] shadow-2xl p-16"
+          className="w-[880px] backdrop-blur-sm shadow-2xl p-16"
           style={{
+            backgroundColor: `${boxBackgroundColor}${Math.round((boxOpacity / 100) * 255).toString(16).padStart(2, '0')}`,
+            borderRadius: `${borderRadius}px`,
             boxShadow: "0 30px 60px rgba(0, 0, 0, 0.15)",
           }}
         >
@@ -79,8 +102,9 @@ export function AgendaPreviewCard({
           <div className="text-center mb-16">
             <div className="flex items-baseline justify-center gap-3">
               <span
-                className="text-[72px] font-bold tracking-[0.15em]"
+                className="font-bold tracking-[0.15em]"
                 style={{
+                  fontSize: `${titleFontSize}px`,
                   color: primaryColor,
                   fontFamily: "'Montserrat', sans-serif",
                   letterSpacing: "0.15em",
@@ -89,8 +113,9 @@ export function AgendaPreviewCard({
                 {horasText}
               </span>
               <span
-                className="text-[72px] font-light italic"
+                className="font-light italic"
                 style={{
+                  fontSize: `${titleFontSize}px`,
                   color: primaryColor,
                   fontFamily: "'Dancing Script', cursive",
                 }}
@@ -111,8 +136,9 @@ export function AgendaPreviewCard({
                 <div key={day.day} className="space-y-6">
                   {/* Nombre del día */}
                   <h3
-                    className="text-[52px] font-bold tracking-[0.1em] text-center"
+                    className="font-bold tracking-[0.1em] text-center"
                     style={{
+                      fontSize: `${dayFontSize}px`,
                       color: primaryColor,
                       fontFamily: "'Montserrat', sans-serif",
                       letterSpacing: "0.1em",
@@ -126,8 +152,9 @@ export function AgendaPreviewCard({
                     {day.freeSlots.map((slot, idx) => (
                       <div
                         key={idx}
-                        className="px-10 py-4 rounded-full text-[48px] font-medium"
+                        className="px-10 py-4 rounded-full font-medium"
                         style={{
+                          fontSize: `${slotFontSize}px`,
                           border: `3px solid ${primaryColor}`,
                           color: primaryColor,
                           fontFamily: "'Montserrat', sans-serif",
@@ -170,7 +197,7 @@ export function AgendaPreviewCard({
         </div>
 
         {/* Instagram handle o logo al final (opcional) */}
-        {businessName && (
+        {businessName && showBusinessName && (
           <div className="mt-12">
             <p
               className="text-[44px] font-light tracking-wider"

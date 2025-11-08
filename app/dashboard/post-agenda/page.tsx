@@ -12,7 +12,7 @@ import { downloadImage } from "./utils/downloadImage";
 import { sharePost } from "./utils/sharePost";
 import { useAgendaSnapshot } from "./hooks/useAgendaSnapshot";
 import { AgendaPreviewCard } from "./components/AgendaPreviewCard";
-import { StyleControls } from "./components/StyleControls";
+import { AdvancedStyleControls } from "./components/AdvancedStyleControls";
 import { UploadBackground } from "./components/UploadBackground";
 
 export default function PostAgendaPage() {
@@ -31,6 +31,18 @@ export default function PostAgendaPage() {
   const [monthTitle, setMonthTitle] = useState("");
   const [horasText, setHorasText] = useState("HORAS");
   const [disponiblesText, setDisponiblesText] = useState("Disponibles");
+
+  // Nuevas opciones de personalización
+  const [backgroundColor, setBackgroundColor] = useState("#FFE4E4");
+  const [textColor, setTextColor] = useState("#000000");
+  const [boxBackgroundColor, setBoxBackgroundColor] = useState("#FFFFFF");
+  const [boxOpacity, setBoxOpacity] = useState(95);
+  const [borderRadius, setBorderRadius] = useState(60);
+  const [showBusinessName, setShowBusinessName] = useState(true);
+  const [monthFontSize, setMonthFontSize] = useState(120);
+  const [titleFontSize, setTitleFontSize] = useState(72);
+  const [dayFontSize, setDayFontSize] = useState(52);
+  const [slotFontSize, setSlotFontSize] = useState(48);
 
   // Hook para obtener disponibilidad
   const { weekSchedule, weekStartDate, loading: loadingSchedule } = useAgendaSnapshot(user?.id);
@@ -223,24 +235,38 @@ export default function PostAgendaPage() {
         </motion.div>
 
         {/* Layout principal: Controles a la izquierda, Preview a la derecha */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Panel izquierdo: Controles */}
-          <div className="lg:col-span-1 space-y-6">
-            <StyleControls
+          <div className="space-y-6">
+            <AdvancedStyleControls
               primaryColor={primaryColor}
               onPrimaryColorChange={setPrimaryColor}
-              fontFamily={fontFamily}
-              onFontFamilyChange={setFontFamily}
-              bookedEmoji={bookedEmoji}
-              onBookedEmojiChange={setBookedEmoji}
-              footerText={footerText}
-              onFooterTextChange={setFooterText}
+              backgroundColor={backgroundColor}
+              onBackgroundColorChange={setBackgroundColor}
+              boxBackgroundColor={boxBackgroundColor}
+              onBoxBackgroundColorChange={setBoxBackgroundColor}
               monthTitle={monthTitle}
               onMonthTitleChange={setMonthTitle}
               horasText={horasText}
               onHorasTextChange={setHorasText}
               disponiblesText={disponiblesText}
               onDisponiblesTextChange={setDisponiblesText}
+              footerText={footerText}
+              onFooterTextChange={setFooterText}
+              boxOpacity={boxOpacity}
+              onBoxOpacityChange={setBoxOpacity}
+              borderRadius={borderRadius}
+              onBorderRadiusChange={setBorderRadius}
+              showBusinessName={showBusinessName}
+              onShowBusinessNameChange={setShowBusinessName}
+              monthFontSize={monthFontSize}
+              onMonthFontSizeChange={setMonthFontSize}
+              titleFontSize={titleFontSize}
+              onTitleFontSizeChange={setTitleFontSize}
+              dayFontSize={dayFontSize}
+              onDayFontSizeChange={setDayFontSize}
+              slotFontSize={slotFontSize}
+              onSlotFontSizeChange={setSlotFontSize}
             />
 
             <UploadBackground
@@ -250,8 +276,8 @@ export default function PostAgendaPage() {
             />
           </div>
 
-          {/* Panel central: Vista previa */}
-          <div className="lg:col-span-2">
+          {/* Panel derecho: Vista previa */}
+          <div>
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -263,23 +289,36 @@ export default function PostAgendaPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col items-center space-y-6">
-                {/* Vista previa del post - Escalada para preview */}
-                <div className="w-full overflow-auto flex justify-center bg-slate-50 rounded-lg p-4">
-                  <div className="transform scale-[0.3] origin-top">
-                    <AgendaPreviewCard
-                      weekSchedule={weekSchedule}
-                      weekStartDate={weekStartDate}
-                      businessName={profile?.business_name}
-                      businessLogoUrl={profile?.business_logo_url}
-                      backgroundUrl={backgroundUrl}
-                      primaryColor={primaryColor}
-                      fontFamily={fontFamily}
-                      bookedEmoji={bookedEmoji}
-                      footerText={footerText}
-                      monthTitle={monthTitle}
-                      horasText={horasText}
-                      disponiblesText={disponiblesText}
-                    />
+                {/* Vista previa del post - Formato tipo móvil */}
+                <div className="w-full max-w-[360px] mx-auto bg-slate-100 rounded-2xl p-3 shadow-lg">
+                  <div className="bg-white rounded-xl overflow-hidden" style={{ aspectRatio: '9/16' }}>
+                    <div className="w-full h-full overflow-auto">
+                      <div className="transform scale-[0.333] origin-top-left" style={{ width: '1080px', height: '1920px' }}>
+                        <AgendaPreviewCard
+                          weekSchedule={weekSchedule}
+                          weekStartDate={weekStartDate}
+                          businessName={profile?.business_name}
+                          businessLogoUrl={profile?.business_logo_url}
+                          backgroundUrl={backgroundUrl}
+                          primaryColor={primaryColor}
+                          fontFamily={fontFamily}
+                          bookedEmoji={bookedEmoji}
+                          footerText={footerText}
+                          monthTitle={monthTitle}
+                          horasText={horasText}
+                          disponiblesText={disponiblesText}
+                          backgroundColor={backgroundColor}
+                          boxBackgroundColor={boxBackgroundColor}
+                          boxOpacity={boxOpacity}
+                          borderRadius={borderRadius}
+                          showBusinessName={showBusinessName}
+                          monthFontSize={monthFontSize}
+                          titleFontSize={titleFontSize}
+                          dayFontSize={dayFontSize}
+                          slotFontSize={slotFontSize}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
 
