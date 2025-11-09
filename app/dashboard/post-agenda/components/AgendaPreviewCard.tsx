@@ -58,6 +58,11 @@ export function AgendaPreviewCard({
     return weekStartDate.toLocaleDateString("es-CL", { month: "long" }).toUpperCase();
   }, [weekStartDate, monthTitle]);
 
+  // Verificar si hay disponibilidad en algún día
+  const hasAnyAvailability = useMemo(() => {
+    return weekSchedule.some(day => day.freeSlots.length > 0);
+  }, [weekSchedule]);
+
   return (
     <div
       id="agenda-preview-card"
@@ -125,58 +130,95 @@ export function AgendaPreviewCard({
             </div>
           </div>
 
-          {/* Horarios por día */}
+          {/* Horarios por día o mensaje vacío */}
           <div className="space-y-12">
-            {weekSchedule.map((day) => {
-              const hasAvailability = day.freeSlots.length > 0;
+            {!hasAnyAvailability ? (
+              // Mensaje cuando no hay disponibilidad configurada
+              <div className="text-center py-16">
+                <p
+                  className="text-[48px] font-light italic mb-8"
+                  style={{
+                    color: primaryColor,
+                    fontFamily: "'Dancing Script', cursive",
+                    opacity: 0.7,
+                  }}
+                >
+                  📅
+                </p>
+                <p
+                  className="text-[42px] font-medium tracking-wide"
+                  style={{
+                    color: primaryColor,
+                    fontFamily: "'Montserrat', sans-serif",
+                    opacity: 0.8,
+                  }}
+                >
+                  Configura tus horarios
+                </p>
+                <p
+                  className="text-[36px] font-light mt-6"
+                  style={{
+                    color: primaryColor,
+                    fontFamily: "'Montserrat', sans-serif",
+                    opacity: 0.6,
+                  }}
+                >
+                  en el panel de Horarios
+                </p>
+              </div>
+            ) : (
+              // Mostrar días con disponibilidad
+              weekSchedule.map((day) => {
+                const hasAvailability = day.freeSlots.length > 0;
 
-              if (!hasAvailability) return null;
+                if (!hasAvailability) return null;
 
-              return (
-                <div key={day.day} className="space-y-6">
-                  {/* Nombre del día */}
-                  <h3
-                    className="font-bold tracking-[0.1em] text-center"
-                    style={{
-                      fontSize: `${dayFontSize}px`,
-                      color: primaryColor,
-                      fontFamily: "'Montserrat', sans-serif",
-                      letterSpacing: "0.1em",
-                    }}
-                  >
-                    {day.dayName.toUpperCase()} {day.day}
-                  </h3>
-
-                  {/* Horarios en formato píldora */}
-                  <div className="flex flex-wrap justify-center gap-6">
-                    {day.freeSlots.map((slot, idx) => (
-                      <div
-                        key={idx}
-                        className="px-10 py-4 rounded-full font-medium"
-                        style={{
-                          fontSize: `${slotFontSize}px`,
-                          border: `3px solid ${primaryColor}`,
-                          color: primaryColor,
-                          fontFamily: "'Montserrat', sans-serif",
-                        }}
-                      >
-                        {slot}
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Separador */}
-                  {weekSchedule.indexOf(day) < weekSchedule.filter(d => d.freeSlots.length > 0).length - 1 && (
-                    <div
-                      className="h-[2px] w-full mx-auto mt-8"
+                return (
+                  <div key={day.day} className="space-y-6">
+                    {/* Nombre del día */}
+                    <h3
+                      className="font-bold tracking-[0.1em] text-center"
                       style={{
-                        background: `linear-gradient(to right, transparent, ${primaryColor}40, transparent)`
+                        fontSize: `${dayFontSize}px`,
+                        color: primaryColor,
+                        fontFamily: "'Montserrat', sans-serif",
+                        letterSpacing: "0.1em",
                       }}
-                    />
-                  )}
-                </div>
-              );
-            })}
+                    >
+                      {day.dayName.toUpperCase()} {day.day}
+                    </h3>
+
+                    {/* Horarios en formato píldora */}
+                    <div className="flex flex-wrap justify-center gap-6">
+                      {day.freeSlots.map((slot, idx) => (
+                        <div
+                          key={idx}
+                          className="px-10 py-4 rounded-full font-medium"
+                          style={{
+                            fontSize: `${slotFontSize}px`,
+                            border: `3px solid ${primaryColor}`,
+                            color: primaryColor,
+                            fontFamily: "'Montserrat', sans-serif",
+                          }}
+                        >
+                          {slot}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Separador */}
+                    {weekSchedule.indexOf(day) < weekSchedule.filter(d => d.freeSlots.length > 0).length - 1 && (
+                      <div
+                        className="h-[2px] w-full mx-auto mt-8"
+                        style={{
+                          background: `linear-gradient(to right, transparent, ${primaryColor}40, transparent)`
+                        }}
+                      />
+                    )}
+                  </div>
+                );
+              })
+            )}
           </div>
 
           {/* Texto final dentro del recuadro */}

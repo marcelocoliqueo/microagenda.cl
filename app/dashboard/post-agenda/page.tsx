@@ -47,6 +47,9 @@ export default function PostAgendaPage() {
   // Hook para obtener disponibilidad
   const { weekSchedule, weekStartDate, loading: loadingSchedule } = useAgendaSnapshot(user?.id);
 
+  // Verificar si hay disponibilidad configurada
+  const hasAvailability = weekSchedule.some(day => day.freeSlots.length > 0);
+
   useEffect(() => {
     checkAuth();
   }, []);
@@ -233,6 +236,39 @@ export default function PostAgendaPage() {
             Genera y comparte un post visual con tu disponibilidad semanal
           </p>
         </motion.div>
+
+        {/* Mensaje informativo cuando no hay disponibilidad */}
+        {!hasAvailability && !loadingSchedule && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
+          >
+            <Card className="border-amber-200 bg-amber-50">
+              <CardContent className="pt-6">
+                <div className="flex items-start gap-3">
+                  <Calendar className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-amber-900 mb-1">
+                      No hay horarios configurados
+                    </p>
+                    <p className="text-sm text-amber-700">
+                      Configura tus horarios de disponibilidad en{" "}
+                      <a
+                        href="/dashboard/schedule"
+                        className="font-semibold underline hover:text-amber-900"
+                        style={{ color: "var(--color-primary)" }}
+                      >
+                        Horarios
+                      </a>{" "}
+                      para generar tu post de agenda.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Layout principal: Controles a la izquierda, Preview a la derecha */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

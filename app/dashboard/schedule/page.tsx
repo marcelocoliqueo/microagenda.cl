@@ -172,43 +172,69 @@ export default function SchedulePage() {
     try {
       // Validar que no haya bloques entrelazados
       for (const [day, config] of Object.entries(availability)) {
-        if (config.enabled && config.blocks.length > 1) {
-          const blocks = config.blocks.slice().sort((a, b) => a.start.localeCompare(b.start));
+        if (config.enabled && config.blocks.length > 0) {
+          const blocks = config.blocks.slice();
           
-          for (let i = 0; i < blocks.length - 1; i++) {
-            const current = blocks[i];
-            const next = blocks[i + 1];
+          // Validar cada bloque individualmente
+          for (let i = 0; i < blocks.length; i++) {
+            const block = blocks[i];
             
             // Validar que start < end
-            if (current.start >= current.end) {
+            if (block.start >= block.end) {
               toast({
                 title: "Error de validación",
-                description: `${dayNames[day]}: La hora de inicio debe ser menor que la hora de fin`,
-                variant: "destructive",
-              });
-              return;
-            }
-            
-            // Validar que no haya solapamiento
-            if (current.end > next.start) {
-              toast({
-                title: "Error de validación",
-                description: `${dayNames[day]}: Los bloques no pueden estar entrelazados. El bloque ${current.start}-${current.end} se solapa con ${next.start}-${next.end}`,
+                description: `${dayNames[day]}: La hora de inicio debe ser menor que la hora de fin en el bloque ${i + 1}`,
                 variant: "destructive",
               });
               return;
             }
           }
           
-          // Validar el último bloque
-          const lastBlock = blocks[blocks.length - 1];
-          if (lastBlock.start >= lastBlock.end) {
-            toast({
-              title: "Error de validación",
-              description: `${dayNames[day]}: La hora de inicio debe ser menor que la hora de fin`,
-              variant: "destructive",
-            });
-            return;
+          // Validar solapamientos entre todos los bloques
+          if (blocks.length > 1) {
+            for (let i = 0; i < blocks.length; i++) {
+              for (let j = i + 1; j < blocks.length; j++) {
+                const block1 = blocks[i];
+                const block2 = blocks[j];
+                
+                // Convertir a minutos para comparar fácilmente
+                const parseTime = (time: string) => {
+                  const [hours, minutes] = time.split(':').map(Number);
+                  return hours * 60 + minutes;
+                };
+                
+                const start1 = parseTime(block1.start);
+                const end1 = parseTime(block1.end);
+                const start2 = parseTime(block2.start);
+                const end2 = parseTime(block2.end);
+                
+                // Detectar solapamiento
+                const overlaps = (start1 < end2 && end1 > start2);
+                
+                if (overlaps) {
+                  // Determinar el tipo de solapamiento para un mensaje más claro
+                  let message = '';
+                  
+                  if (start1 <= start2 && end1 >= end2) {
+                    // Bloque 1 contiene completamente a bloque 2
+                    message = `El bloque ${block1.start}-${block1.end} contiene completamente al bloque ${block2.start}-${block2.end}. Elimina uno de ellos o ajústalos para que no se solapen.`;
+                  } else if (start2 <= start1 && end2 >= end1) {
+                    // Bloque 2 contiene completamente a bloque 1
+                    message = `El bloque ${block2.start}-${block2.end} contiene completamente al bloque ${block1.start}-${block1.end}. Elimina uno de ellos o ajústalos para que no se solapen.`;
+                  } else {
+                    // Solapamiento parcial
+                    message = `El bloque ${block1.start}-${block1.end} se solapa parcialmente con ${block2.start}-${block2.end}. Ajusta los horarios para que no se entrelacen.`;
+                  }
+                  
+                  toast({
+                    title: "Error de validación",
+                    description: `${dayNames[day]}: ${message}`,
+                    variant: "destructive",
+                  });
+                  return;
+                }
+              }
+            }
           }
         }
       }
