@@ -42,7 +42,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : "button";
     const pathname = usePathname();
     const [colors, setColors] = React.useState({ primary: '#10B981', accent: '#84CC16' });
-    const [mounted, setMounted] = React.useState(false);
+    
+    // Asegurar que variant siempre tenga un valor
+    const actualVariant = variant || "default";
     
     // Leer variables CSS inmediatamente con useLayoutEffect para evitar flash
     React.useLayoutEffect(() => {
@@ -59,7 +61,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         
         // Actualizar inmediatamente
         updateColors();
-        setMounted(true);
       }
     }, [pathname]);
     
@@ -86,7 +87,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       const primaryColor = colors.primary || '#10B981';
       const accentColor = colors.accent || '#84CC16';
       
-      switch (variant) {
+      switch (actualVariant) {
         case "default":
           return {
             backgroundImage: `linear-gradient(to right, ${primaryColor}, ${accentColor})`,
@@ -110,28 +111,36 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             color: primaryColor,
           };
         default:
-          return {};
+          // Por defecto, aplicar gradiente verde
+          return {
+            backgroundImage: `linear-gradient(to right, ${primaryColor}, ${accentColor})`,
+            background: `linear-gradient(to right, ${primaryColor}, ${accentColor})`,
+            backgroundColor: 'transparent',
+            color: "white",
+          };
       }
     };
     
     const dynamicStyles = getDynamicStyles();
     
-    // Combinar estilos - el estilo inline siempre tiene prioridad sobre clases
+    // Combinar estilos - asegurar que el background siempre esté presente
     const finalStyle: React.CSSProperties & Record<string, any> = {
-      ...(props.style || {}),
+      // Primero aplicar dynamicStyles para que tenga prioridad
+      ...dynamicStyles,
       '--ring-color': 'var(--color-primary)',
-      ...dynamicStyles, // Aplicar después para que sobrescriba props.style
+      // Luego aplicar props.style (pero dynamicStyles ya tiene los valores importantes)
+      ...(props.style || {}),
     };
     
-    // Asegurar que el background siempre esté presente para variant default/secondary
-    if (variant === "default" || variant === "secondary") {
-      // Siempre asegurar que el gradiente esté presente
+    // FORZAR que el background siempre esté presente para variant default/secondary
+    if (actualVariant === "default" || actualVariant === "secondary" || !actualVariant) {
       const primaryColor = colors.primary || '#10B981';
       const accentColor = colors.accent || '#84CC16';
-      const gradient = variant === "default" 
-        ? `linear-gradient(to right, ${primaryColor}, ${accentColor})`
-        : `linear-gradient(to right, ${accentColor}, ${primaryColor})`;
+      const gradient = actualVariant === "secondary"
+        ? `linear-gradient(to right, ${accentColor}, ${primaryColor})`
+        : `linear-gradient(to right, ${primaryColor}, ${accentColor})`;
       
+      // Forzar aplicación del gradiente
       finalStyle.background = gradient;
       finalStyle.backgroundImage = gradient;
       finalStyle.backgroundColor = 'transparent';
@@ -142,42 +151,42 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(buttonVariants({ variant, size, className }))}
         style={finalStyle}
         onMouseEnter={(e) => {
-          if (variant === "default" || variant === "secondary") {
+          if (actualVariant === "default" || actualVariant === "secondary") {
             e.currentTarget.style.opacity = "0.9";
             e.currentTarget.style.transform = "scale(1.02)";
-          } else if (variant === "outline") {
+          } else if (actualVariant === "outline") {
             e.currentTarget.style.borderColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.5)`;
             e.currentTarget.style.backgroundColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.05)`;
             e.currentTarget.style.color = `var(--color-primary)`;
-          } else if (variant === "ghost") {
+          } else if (actualVariant === "ghost") {
             e.currentTarget.style.backgroundColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.1)`;
             e.currentTarget.style.color = `var(--color-primary)`;
-          } else if (variant === "link") {
+          } else if (actualVariant === "link") {
             e.currentTarget.style.opacity = "0.8";
           }
         }}
         onMouseLeave={(e) => {
-          if (variant === "default" || variant === "secondary") {
+          if (actualVariant === "default" || actualVariant === "secondary") {
             e.currentTarget.style.opacity = "";
             e.currentTarget.style.transform = "";
-          } else if (variant === "outline") {
+          } else if (actualVariant === "outline") {
             e.currentTarget.style.borderColor = "";
             e.currentTarget.style.backgroundColor = "";
             e.currentTarget.style.color = "";
-          } else if (variant === "ghost") {
+          } else if (actualVariant === "ghost") {
             e.currentTarget.style.backgroundColor = "";
             e.currentTarget.style.color = "";
-          } else if (variant === "link") {
+          } else if (actualVariant === "link") {
             e.currentTarget.style.opacity = "";
           }
         }}
         onFocus={(e) => {
-          if (variant !== "destructive") {
+          if (actualVariant !== "destructive") {
             e.currentTarget.style.boxShadow = `0 0 0 2px rgba(var(--color-primary-rgb, 16, 185, 129), 0.2)`;
           }
         }}
         onBlur={(e) => {
-          if (variant !== "destructive") {
+          if (actualVariant !== "destructive") {
             e.currentTarget.style.boxShadow = "";
           }
         }}
