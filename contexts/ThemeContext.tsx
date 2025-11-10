@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { usePathname } from "next/navigation";
 
 // Colores de marca disponibles
 export const BRAND_COLORS = [
@@ -88,14 +89,20 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [currentColorId, setCurrentColorId] = useState("emerald");
+  const pathname = usePathname();
 
-  // Cargar color guardado del localStorage
+  // Determinar si estamos en una ruta que debe usar colores personalizados
+  const shouldUseCustomColors = pathname?.startsWith('/dashboard') || pathname?.startsWith('/u/');
+
+  // Cargar color guardado del localStorage solo si estamos en rutas que lo permiten
   useEffect(() => {
-    const saved = localStorage.getItem("microagenda-brand-color");
-    if (saved && BRAND_COLORS.find(c => c.id === saved)) {
-      setCurrentColorId(saved);
+    if (shouldUseCustomColors) {
+      const saved = localStorage.getItem("microagenda-brand-color");
+      if (saved && BRAND_COLORS.find(c => c.id === saved)) {
+        setCurrentColorId(saved);
+      }
     }
-  }, []);
+  }, [shouldUseCustomColors]);
 
   // Función para convertir hex a RGB
   const hexToRgb = (hex: string): string => {
@@ -105,16 +112,19 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       : "16, 185, 129"; // Default emerald
   };
 
-  // Actualizar CSS variables cuando cambia el color
+  // Actualizar CSS variables cuando cambia el color o la ruta
   useEffect(() => {
-    const color = BRAND_COLORS.find(c => c.id === currentColorId) || BRAND_COLORS[0];
+    // Si estamos en login, registro o landing, siempre usar colores por defecto de MicroAgenda
+    const color = shouldUseCustomColors 
+      ? (BRAND_COLORS.find(c => c.id === currentColorId) || BRAND_COLORS[0])
+      : BRAND_COLORS[0]; // Siempre emerald para landing/login/register
     
     // Actualizar CSS variables en :root
     document.documentElement.style.setProperty('--color-primary', color.primary);
     document.documentElement.style.setProperty('--color-accent', color.accent);
     document.documentElement.style.setProperty('--color-primary-rgb', hexToRgb(color.primary));
     document.documentElement.style.setProperty('--color-accent-rgb', hexToRgb(color.accent));
-  }, [currentColorId]);
+  }, [currentColorId, shouldUseCustomColors]);
 
   const setBrandColor = (colorId: string) => {
     const color = BRAND_COLORS.find(c => c.id === colorId);
