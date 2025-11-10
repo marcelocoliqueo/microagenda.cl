@@ -39,18 +39,30 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
+    const [colors, setColors] = React.useState({ primary: '#10B981', accent: '#84CC16' });
+    
+    // Leer variables CSS una vez cuando el componente se monta
+    React.useEffect(() => {
+      if (typeof window !== 'undefined') {
+        const primary = getComputedStyle(document.documentElement)
+          .getPropertyValue('--color-primary').trim() || '#10B981';
+        const accent = getComputedStyle(document.documentElement)
+          .getPropertyValue('--color-accent').trim() || '#84CC16';
+        setColors({ primary, accent });
+      }
+    }, []);
     
     // Estilos dinámicos según la variante
     const getDynamicStyles = (): React.CSSProperties => {
       switch (variant) {
         case "default":
           return {
-            background: `linear-gradient(to right, var(--color-primary), var(--color-accent))`,
+            background: `linear-gradient(to right, ${colors.primary}, ${colors.accent})`,
             color: "white",
           };
         case "secondary":
           return {
-            background: `linear-gradient(to right, var(--color-accent), var(--color-primary))`,
+            background: `linear-gradient(to right, ${colors.accent}, ${colors.primary})`,
             color: "white",
           };
         case "outline":
@@ -59,7 +71,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           return {};
         case "link":
           return {
-            color: "var(--color-primary)",
+            color: colors.primary,
           };
         default:
           return {};
