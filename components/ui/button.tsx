@@ -2,6 +2,7 @@ import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
+import { usePathname } from "next/navigation";
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
@@ -39,20 +40,31 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
+    const pathname = usePathname();
     const [colors, setColors] = React.useState({ primary: '#10B981', accent: '#84CC16' });
     
-    // Leer variables CSS una vez al montar
+    // Leer variables CSS al montar y cuando cambie la ruta
     React.useEffect(() => {
       if (typeof window !== 'undefined') {
-        const primary = getComputedStyle(document.documentElement)
-          .getPropertyValue('--color-primary')
-          .trim() || '#10B981';
-        const accent = getComputedStyle(document.documentElement)
-          .getPropertyValue('--color-accent')
-          .trim() || '#84CC16';
-        setColors({ primary, accent });
+        const updateColors = () => {
+          const primary = getComputedStyle(document.documentElement)
+            .getPropertyValue('--color-primary')
+            .trim() || '#10B981';
+          const accent = getComputedStyle(document.documentElement)
+            .getPropertyValue('--color-accent')
+            .trim() || '#84CC16';
+          setColors({ primary, accent });
+        };
+        
+        // Actualizar inmediatamente
+        updateColors();
+        
+        // También actualizar después de un pequeño delay para asegurar que las variables CSS estén aplicadas
+        const timeout = setTimeout(updateColors, 100);
+        
+        return () => clearTimeout(timeout);
       }
-    }, []);
+    }, [pathname]);
     
     // Estilos dinámicos según la variante
     const getDynamicStyles = (): React.CSSProperties => {
