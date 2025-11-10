@@ -53,9 +53,9 @@ export function AgendaPreviewCard({
   showBusinessName = true,
   instagramHandle,
   monthFontSize = 120,
-  titleFontSize = 72,
-  dayFontSize = 52,
-  slotFontSize = 48,
+  titleFontSize = 64,
+  dayFontSize = 42,
+  slotFontSize = 38,
   monthFontFamily = "Cormorant Garamond",
   titleFontFamily = "Montserrat",
   dayFontFamily = "Montserrat",
@@ -155,7 +155,7 @@ export function AgendaPreviewCard({
           </div>
 
           {/* Horarios por día o mensaje vacío */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             {!hasAnyAvailability ? (
               // Mensaje cuando no hay disponibilidad configurada
               <div className="text-center py-16">
@@ -198,7 +198,7 @@ export function AgendaPreviewCard({
                 if (!hasAvailability) return null;
 
                 return (
-                  <div key={day.day} className="space-y-3">
+                  <div key={day.day} className="space-y-2">
                     {/* Nombre del día */}
                     <h3
                       className="font-bold tracking-[0.1em] text-center"
@@ -213,14 +213,14 @@ export function AgendaPreviewCard({
                     </h3>
 
                     {/* Horarios en formato píldora */}
-                    <div className="flex flex-wrap justify-center gap-4">
+                    <div className="flex flex-wrap justify-center gap-3">
                       {day.freeSlots.map((slot, idx) => (
                         <div
                           key={idx}
-                          className="px-8 py-3 rounded-full font-medium"
+                          className="px-6 py-2 rounded-full font-medium"
                           style={{
                             fontSize: `${slotFontSize}px`,
-                            border: `3px solid ${primaryColor}`,
+                            border: `2px solid ${primaryColor}`,
                             color: primaryColor,
                             fontFamily: getFontFamily(dayFontFamily),
                           }}
@@ -233,9 +233,9 @@ export function AgendaPreviewCard({
                     {/* Separador */}
                     {weekSchedule.indexOf(day) < weekSchedule.filter(d => d.freeSlots.length > 0).length - 1 && (
                       <div
-                        className="h-[2px] w-full mx-auto mt-4"
+                        className="h-[1px] w-full mx-auto mt-3"
                         style={{
-                          background: `linear-gradient(to right, transparent, ${primaryColor}40, transparent)`
+                          background: `linear-gradient(to right, transparent, ${primaryColor}30, transparent)`
                         }}
                       />
                     )}
@@ -247,9 +247,9 @@ export function AgendaPreviewCard({
 
           {/* Texto final dentro del recuadro */}
           {footerText && (
-            <div className="mt-8 pt-6">
+            <div className="mt-6 pt-4">
               <p
-                className="text-[36px] text-center font-light tracking-wide"
+                className="text-[32px] text-center font-light tracking-wide"
                 style={{
                   color: primaryColor,
                   fontFamily: "'Montserrat', sans-serif",

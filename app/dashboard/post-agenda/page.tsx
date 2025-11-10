@@ -41,9 +41,9 @@ export default function PostAgendaPage() {
   const [showBusinessName, setShowBusinessName] = useState(true);
   const [instagramHandle, setInstagramHandle] = useState("");
   const [monthFontSize, setMonthFontSize] = useState(120);
-  const [titleFontSize, setTitleFontSize] = useState(72);
-  const [dayFontSize, setDayFontSize] = useState(52);
-  const [slotFontSize, setSlotFontSize] = useState(48);
+  const [titleFontSize, setTitleFontSize] = useState(64);
+  const [dayFontSize, setDayFontSize] = useState(42);
+  const [slotFontSize, setSlotFontSize] = useState(38);
 
   // Fuentes
   const [monthFontFamily, setMonthFontFamily] = useState("Cormorant Garamond");
