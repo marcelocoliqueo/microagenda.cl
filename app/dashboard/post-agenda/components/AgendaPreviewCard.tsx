@@ -120,7 +120,7 @@ export function AgendaPreviewCard({
 
         {/* Recuadro blanco central */}
         <div
-          className="w-[880px] backdrop-blur-sm shadow-2xl p-16"
+          className="w-[900px] backdrop-blur-sm shadow-2xl px-12 py-12"
           style={{
             backgroundColor: `${boxBackgroundColor}${Math.round((boxOpacity / 100) * 255).toString(16).padStart(2, '0')}`,
             borderRadius: `${borderRadius}px`,
@@ -128,7 +128,7 @@ export function AgendaPreviewCard({
           }}
         >
           {/* Título "HORAS Disponibles" */}
-          <div className="text-center mb-16">
+          <div className="text-center mb-10">
             <div className="flex items-baseline justify-center gap-3">
               <span
                 className="font-bold tracking-[0.15em]"
@@ -155,7 +155,7 @@ export function AgendaPreviewCard({
           </div>
 
           {/* Horarios por día o mensaje vacío */}
-          <div className="space-y-12">
+          <div className="space-y-6">
             {!hasAnyAvailability ? (
               // Mensaje cuando no hay disponibilidad configurada
               <div className="text-center py-16">
@@ -198,7 +198,7 @@ export function AgendaPreviewCard({
                 if (!hasAvailability) return null;
 
                 return (
-                  <div key={day.day} className="space-y-6">
+                  <div key={day.day} className="space-y-3">
                     {/* Nombre del día */}
                     <h3
                       className="font-bold tracking-[0.1em] text-center"
@@ -213,11 +213,11 @@ export function AgendaPreviewCard({
                     </h3>
 
                     {/* Horarios en formato píldora */}
-                    <div className="flex flex-wrap justify-center gap-6">
+                    <div className="flex flex-wrap justify-center gap-4">
                       {day.freeSlots.map((slot, idx) => (
                         <div
                           key={idx}
-                          className="px-10 py-4 rounded-full font-medium"
+                          className="px-8 py-3 rounded-full font-medium"
                           style={{
                             fontSize: `${slotFontSize}px`,
                             border: `3px solid ${primaryColor}`,
@@ -233,7 +233,7 @@ export function AgendaPreviewCard({
                     {/* Separador */}
                     {weekSchedule.indexOf(day) < weekSchedule.filter(d => d.freeSlots.length > 0).length - 1 && (
                       <div
-                        className="h-[2px] w-full mx-auto mt-8"
+                        className="h-[2px] w-full mx-auto mt-4"
                         style={{
                           background: `linear-gradient(to right, transparent, ${primaryColor}40, transparent)`
                         }}
@@ -247,9 +247,9 @@ export function AgendaPreviewCard({
 
           {/* Texto final dentro del recuadro */}
           {footerText && (
-            <div className="mt-16 pt-12">
+            <div className="mt-8 pt-6">
               <p
-                className="text-[40px] text-center font-light tracking-wide"
+                className="text-[36px] text-center font-light tracking-wide"
                 style={{
                   color: primaryColor,
                   fontFamily: "'Montserrat', sans-serif",
@@ -264,9 +264,9 @@ export function AgendaPreviewCard({
 
         {/* Instagram handle al final (opcional) */}
         {displayInstagramHandle && showBusinessName && (
-          <div className="mt-12">
+          <div className="mt-10">
             <p
-              className="text-[44px] font-light tracking-wider"
+              className="text-[42px] font-light tracking-wider"
               style={{
                 color: primaryColor,
                 fontFamily: getFontFamily(dayFontFamily),
