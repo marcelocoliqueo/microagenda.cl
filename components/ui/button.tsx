@@ -41,13 +41,15 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : "button";
     const [colors, setColors] = React.useState({ primary: '#10B981', accent: '#84CC16' });
     
-    // Leer variables CSS una vez cuando el componente se monta
+    // Leer variables CSS una vez al montar
     React.useEffect(() => {
       if (typeof window !== 'undefined') {
         const primary = getComputedStyle(document.documentElement)
-          .getPropertyValue('--color-primary').trim() || '#10B981';
+          .getPropertyValue('--color-primary')
+          .trim() || '#10B981';
         const accent = getComputedStyle(document.documentElement)
-          .getPropertyValue('--color-accent').trim() || '#84CC16';
+          .getPropertyValue('--color-accent')
+          .trim() || '#84CC16';
         setColors({ primary, accent });
       }
     }, []);
