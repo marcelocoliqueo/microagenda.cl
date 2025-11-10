@@ -94,14 +94,23 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     
     const dynamicStyles = getDynamicStyles();
     
+    // Combinar estilos asegurando que el background de dynamicStyles tenga prioridad
+    const finalStyle: React.CSSProperties & Record<string, any> = {
+      ...(props.style || {}), // Primero aplicar estilos del prop
+      '--ring-color': 'var(--color-primary)',
+      ...dynamicStyles, // Luego aplicar dynamicStyles para que sobrescriba
+    };
+    
+    // Si hay un background en dynamicStyles, asegurar que tenga prioridad absoluta
+    if (dynamicStyles.background && (variant === "default" || variant === "secondary")) {
+      finalStyle.background = dynamicStyles.background;
+      finalStyle.backgroundColor = 'transparent'; // Evitar conflictos con bg-* de Tailwind
+    }
+    
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
-        style={{
-          ...dynamicStyles,
-          '--ring-color': 'var(--color-primary)',
-          ...(props.style || {}),
-        } as React.CSSProperties & { '--ring-color': string }}
+        style={finalStyle}
         onMouseEnter={(e) => {
           if (variant === "default" || variant === "secondary") {
             e.currentTarget.style.opacity = "0.9";
