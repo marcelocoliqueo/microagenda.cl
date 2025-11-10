@@ -8,6 +8,7 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface AdvancedStyleControlsProps {
   // Colores
@@ -27,14 +28,24 @@ interface AdvancedStyleControlsProps {
   onDisponiblesTextChange: (text: string) => void;
   footerText: string;
   onFooterTextChange: (text: string) => void;
+  instagramHandle: string;
+  onInstagramHandleChange: (handle: string) => void;
+  showBusinessName: boolean;
+  onShowBusinessNameChange: (show: boolean) => void;
+
+  // Fuentes
+  monthFontFamily: string;
+  onMonthFontFamilyChange: (font: string) => void;
+  titleFontFamily: string;
+  onTitleFontFamilyChange: (font: string) => void;
+  dayFontFamily: string;
+  onDayFontFamilyChange: (font: string) => void;
 
   // Opciones de estilo
   boxOpacity: number;
   onBoxOpacityChange: (opacity: number) => void;
   borderRadius: number;
   onBorderRadiusChange: (radius: number) => void;
-  showBusinessName: boolean;
-  onShowBusinessNameChange: (show: boolean) => void;
 
   // Tamaños de fuente
   monthFontSize: number;
@@ -54,6 +65,15 @@ const COLOR_PRESETS = [
   { name: "Lila Romántico", primary: "#9333EA", bg: "#FAF5FF", box: "#FFFFFF" },
   { name: "Naranja Vibrante", primary: "#EA580C", bg: "#FFF7ED", box: "#FFFFFF" },
   { name: "Gris Minimalista", primary: "#374151", bg: "#F3F4F6", box: "#FFFFFF" },
+];
+
+const FONT_OPTIONS = [
+  { value: "Cormorant Garamond", label: "Cormorant Garamond (Elegante)", family: "'Cormorant Garamond', serif" },
+  { value: "Montserrat", label: "Montserrat (Moderno)", family: "'Montserrat', sans-serif" },
+  { value: "Dancing Script", label: "Dancing Script (Cursiva)", family: "'Dancing Script', cursive" },
+  { value: "Inter", label: "Inter (Clean)", family: "'Inter', sans-serif" },
+  { value: "Playfair Display", label: "Playfair Display (Clásico)", family: "'Playfair Display', serif" },
+  { value: "Poppins", label: "Poppins (Suave)", family: "'Poppins', sans-serif" },
 ];
 
 export function AdvancedStyleControls(props: AdvancedStyleControlsProps) {
@@ -76,7 +96,7 @@ export function AdvancedStyleControls(props: AdvancedStyleControlsProps) {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="colors" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsList className="grid w-full grid-cols-5 mb-6">
             <TabsTrigger value="colors">
               <Palette className="w-4 h-4 mr-1" />
               Colores
@@ -84,6 +104,10 @@ export function AdvancedStyleControls(props: AdvancedStyleControlsProps) {
             <TabsTrigger value="text">
               <Type className="w-4 h-4 mr-1" />
               Textos
+            </TabsTrigger>
+            <TabsTrigger value="fonts">
+              <Type className="w-4 h-4 mr-1" />
+              Fuentes
             </TabsTrigger>
             <TabsTrigger value="style">
               <Settings className="w-4 h-4 mr-1" />
@@ -222,6 +246,31 @@ export function AdvancedStyleControls(props: AdvancedStyleControlsProps) {
             </div>
 
             <div className="space-y-2">
+              <Label>Instagram Handle</Label>
+              <div className="flex items-center gap-2">
+                <span className="text-slate-600">@</span>
+                <Input
+                  type="text"
+                  value={props.instagramHandle}
+                  onChange={(e) => props.onInstagramHandleChange(e.target.value)}
+                  placeholder="tu_instagram"
+                  maxLength={30}
+                  className="flex-1"
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-slate-500">Se muestra al final del post</p>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={props.showBusinessName}
+                    onCheckedChange={props.onShowBusinessNameChange}
+                  />
+                  <Label className="text-xs">Mostrar</Label>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
               <Label>Texto Final</Label>
               <Input
                 type="text"
@@ -231,6 +280,58 @@ export function AdvancedStyleControls(props: AdvancedStyleControlsProps) {
                 maxLength={100}
               />
               <p className="text-xs text-slate-500">{props.footerText.length}/100 caracteres</p>
+            </div>
+          </TabsContent>
+
+          {/* Tab: Fuentes */}
+          <TabsContent value="fonts" className="space-y-4">
+            <div className="space-y-2">
+              <Label>Fuente del Mes</Label>
+              <Select value={props.monthFontFamily} onValueChange={props.onMonthFontFamilyChange}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {FONT_OPTIONS.map((font) => (
+                    <SelectItem key={font.value} value={font.value}>
+                      {font.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Fuente del Título (HORAS/Disponibles)</Label>
+              <Select value={props.titleFontFamily} onValueChange={props.onTitleFontFamilyChange}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {FONT_OPTIONS.map((font) => (
+                    <SelectItem key={font.value} value={font.value}>
+                      {font.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Fuente de los Días y Horarios</Label>
+              <Select value={props.dayFontFamily} onValueChange={props.onDayFontFamilyChange}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {FONT_OPTIONS.map((font) => (
+                    <SelectItem key={font.value} value={font.value}>
+                      {font.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-slate-500">Se aplica tanto a días como a horarios</p>
             </div>
           </TabsContent>
 
@@ -263,17 +364,6 @@ export function AdvancedStyleControls(props: AdvancedStyleControlsProps) {
                 max={100}
                 step={5}
                 className="w-full"
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Mostrar Nombre del Negocio</Label>
-                <p className="text-xs text-slate-500">Se muestra como @nombre al final</p>
-              </div>
-              <Switch
-                checked={props.showBusinessName}
-                onCheckedChange={props.onShowBusinessNameChange}
               />
             </div>
           </TabsContent>

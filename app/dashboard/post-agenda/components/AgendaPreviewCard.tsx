@@ -22,10 +22,14 @@ interface AgendaPreviewCardProps {
   boxOpacity?: number;
   borderRadius?: number;
   showBusinessName?: boolean;
+  instagramHandle?: string;
   monthFontSize?: number;
   titleFontSize?: number;
   dayFontSize?: number;
   slotFontSize?: number;
+  monthFontFamily?: string;
+  titleFontFamily?: string;
+  dayFontFamily?: string;
 }
 
 export function AgendaPreviewCard({
@@ -47,10 +51,14 @@ export function AgendaPreviewCard({
   boxOpacity = 95,
   borderRadius = 60,
   showBusinessName = true,
+  instagramHandle,
   monthFontSize = 120,
   titleFontSize = 72,
   dayFontSize = 52,
   slotFontSize = 48,
+  monthFontFamily = "Cormorant Garamond",
+  titleFontFamily = "Montserrat",
+  dayFontFamily = "Montserrat",
 }: AgendaPreviewCardProps) {
   // Obtener el mes actual
   const currentMonth = useMemo(() => {
@@ -62,6 +70,22 @@ export function AgendaPreviewCard({
   const hasAnyAvailability = useMemo(() => {
     return weekSchedule.some(day => day.freeSlots.length > 0);
   }, [weekSchedule]);
+
+  // Mapear nombres de fuentes a familias CSS
+  const getFontFamily = (fontName: string) => {
+    const fontMap: Record<string, string> = {
+      "Cormorant Garamond": "'Cormorant Garamond', serif",
+      "Montserrat": "'Montserrat', sans-serif",
+      "Dancing Script": "'Dancing Script', cursive",
+      "Inter": "'Inter', sans-serif",
+      "Playfair Display": "'Playfair Display', serif",
+      "Poppins": "'Poppins', sans-serif",
+    };
+    return fontMap[fontName] || "'Montserrat', sans-serif";
+  };
+
+  // Determinar el Instagram handle a mostrar
+  const displayInstagramHandle = instagramHandle || businessName?.toLowerCase().replace(/\s+/g, '_') || "";
 
   return (
     <div
@@ -86,7 +110,7 @@ export function AgendaPreviewCard({
             style={{
               fontSize: `${monthFontSize}px`,
               color: primaryColor,
-              fontFamily: "'Cormorant Garamond', serif",
+              fontFamily: getFontFamily(monthFontFamily),
               letterSpacing: "0.3em",
             }}
           >
@@ -111,7 +135,7 @@ export function AgendaPreviewCard({
                 style={{
                   fontSize: `${titleFontSize}px`,
                   color: primaryColor,
-                  fontFamily: "'Montserrat', sans-serif",
+                  fontFamily: getFontFamily(titleFontFamily),
                   letterSpacing: "0.15em",
                 }}
               >
@@ -122,7 +146,7 @@ export function AgendaPreviewCard({
                 style={{
                   fontSize: `${titleFontSize}px`,
                   color: primaryColor,
-                  fontFamily: "'Dancing Script', cursive",
+                  fontFamily: getFontFamily(titleFontFamily),
                 }}
               >
                 {disponiblesText}
@@ -181,7 +205,7 @@ export function AgendaPreviewCard({
                       style={{
                         fontSize: `${dayFontSize}px`,
                         color: primaryColor,
-                        fontFamily: "'Montserrat', sans-serif",
+                        fontFamily: getFontFamily(dayFontFamily),
                         letterSpacing: "0.1em",
                       }}
                     >
@@ -198,7 +222,7 @@ export function AgendaPreviewCard({
                             fontSize: `${slotFontSize}px`,
                             border: `3px solid ${primaryColor}`,
                             color: primaryColor,
-                            fontFamily: "'Montserrat', sans-serif",
+                            fontFamily: getFontFamily(dayFontFamily),
                           }}
                         >
                           {slot}
@@ -238,17 +262,17 @@ export function AgendaPreviewCard({
           )}
         </div>
 
-        {/* Instagram handle o logo al final (opcional) */}
-        {businessName && showBusinessName && (
+        {/* Instagram handle al final (opcional) */}
+        {displayInstagramHandle && showBusinessName && (
           <div className="mt-12">
             <p
               className="text-[44px] font-light tracking-wider"
               style={{
                 color: primaryColor,
-                fontFamily: "'Montserrat', sans-serif",
+                fontFamily: getFontFamily(dayFontFamily),
               }}
             >
-              @{businessName.toLowerCase().replace(/\s+/g, '_')}
+              @{displayInstagramHandle}
             </p>
           </div>
         )}

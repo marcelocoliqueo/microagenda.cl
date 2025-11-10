@@ -39,10 +39,16 @@ export default function PostAgendaPage() {
   const [boxOpacity, setBoxOpacity] = useState(95);
   const [borderRadius, setBorderRadius] = useState(60);
   const [showBusinessName, setShowBusinessName] = useState(true);
+  const [instagramHandle, setInstagramHandle] = useState("");
   const [monthFontSize, setMonthFontSize] = useState(120);
   const [titleFontSize, setTitleFontSize] = useState(72);
   const [dayFontSize, setDayFontSize] = useState(52);
   const [slotFontSize, setSlotFontSize] = useState(48);
+
+  // Fuentes
+  const [monthFontFamily, setMonthFontFamily] = useState("Cormorant Garamond");
+  const [titleFontFamily, setTitleFontFamily] = useState("Montserrat");
+  const [dayFontFamily, setDayFontFamily] = useState("Montserrat");
 
   // Hook para obtener disponibilidad
   const { weekSchedule, weekStartDate, loading: loadingSchedule } = useAgendaSnapshot(user?.id);
@@ -289,12 +295,20 @@ export default function PostAgendaPage() {
               onDisponiblesTextChange={setDisponiblesText}
               footerText={footerText}
               onFooterTextChange={setFooterText}
+              instagramHandle={instagramHandle}
+              onInstagramHandleChange={setInstagramHandle}
+              showBusinessName={showBusinessName}
+              onShowBusinessNameChange={setShowBusinessName}
+              monthFontFamily={monthFontFamily}
+              onMonthFontFamilyChange={setMonthFontFamily}
+              titleFontFamily={titleFontFamily}
+              onTitleFontFamilyChange={setTitleFontFamily}
+              dayFontFamily={dayFontFamily}
+              onDayFontFamilyChange={setDayFontFamily}
               boxOpacity={boxOpacity}
               onBoxOpacityChange={setBoxOpacity}
               borderRadius={borderRadius}
               onBorderRadiusChange={setBorderRadius}
-              showBusinessName={showBusinessName}
-              onShowBusinessNameChange={setShowBusinessName}
               monthFontSize={monthFontSize}
               onMonthFontSizeChange={setMonthFontSize}
               titleFontSize={titleFontSize}
@@ -327,9 +341,9 @@ export default function PostAgendaPage() {
               <CardContent className="flex flex-col items-center space-y-6">
                 {/* Vista previa del post - Formato tipo móvil */}
                 <div className="w-full max-w-[360px] mx-auto bg-slate-100 rounded-2xl p-3 shadow-lg">
-                  <div className="bg-white rounded-xl overflow-hidden" style={{ aspectRatio: '9/16' }}>
-                    <div className="w-full h-full overflow-auto">
-                      <div className="transform scale-[0.333] origin-top-left" style={{ width: '1080px', height: '1920px' }}>
+                  <div className="bg-white rounded-xl overflow-hidden relative" style={{ aspectRatio: '9/16', width: '360px', height: '640px' }}>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="transform scale-[0.333]" style={{ width: '1080px', height: '1920px' }}>
                         <AgendaPreviewCard
                           weekSchedule={weekSchedule}
                           weekStartDate={weekStartDate}
@@ -348,10 +362,14 @@ export default function PostAgendaPage() {
                           boxOpacity={boxOpacity}
                           borderRadius={borderRadius}
                           showBusinessName={showBusinessName}
+                          instagramHandle={instagramHandle}
                           monthFontSize={monthFontSize}
                           titleFontSize={titleFontSize}
                           dayFontSize={dayFontSize}
                           slotFontSize={slotFontSize}
+                          monthFontFamily={monthFontFamily}
+                          titleFontFamily={titleFontFamily}
+                          dayFontFamily={dayFontFamily}
                         />
                       </div>
                     </div>

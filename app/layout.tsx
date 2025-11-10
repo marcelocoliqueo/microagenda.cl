@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Montserrat, Cormorant_Garamond, Dancing_Script } from "next/font/google";
+import { Inter, Montserrat, Cormorant_Garamond, Dancing_Script, Playfair_Display, Poppins } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthHandler } from "@/components/AuthHandler";
@@ -16,6 +16,16 @@ const cormorant = Cormorant_Garamond({
 const dancing = Dancing_Script({
   subsets: ["latin"],
   variable: "--font-dancing"
+});
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+  weight: ["400", "500", "600", "700", "800", "900"]
+});
+const poppins = Poppins({
+  subsets: ["latin"],
+  variable: "--font-poppins",
+  weight: ["300", "400", "500", "600", "700"]
 });
 
 // Force all pages to be dynamic - no static generation
@@ -64,7 +74,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className="overflow-x-hidden">
-      <body className={`${inter.variable} ${montserrat.variable} ${cormorant.variable} ${dancing.variable} font-sans`}>
+      <body className={`${inter.variable} ${montserrat.variable} ${cormorant.variable} ${dancing.variable} ${playfair.variable} ${poppins.variable} font-sans`}>
         <ThemeProvider>
           <AuthHandler />
         {children}
