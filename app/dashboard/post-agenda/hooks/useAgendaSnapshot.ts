@@ -5,6 +5,7 @@ import { generateAvailableSlots, getDayName } from "@/lib/utils";
 export interface DaySchedule {
   day: string;
   dayName: string;
+  dayNumber: number;
   availableSlots: string[];
   bookedSlots: string[];
   freeSlots: string[];
@@ -149,6 +150,7 @@ export function useAgendaSnapshot(userId: string | null) {
       schedule.push({
         day: dateStr,
         dayName: dayNames[index],
+        dayNumber: date.getDate(),
         availableSlots,
         bookedSlots: bookedForDate,
         freeSlots,

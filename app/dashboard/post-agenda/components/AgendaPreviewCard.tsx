@@ -209,7 +209,7 @@ export function AgendaPreviewCard({
                         letterSpacing: "0.1em",
                       }}
                     >
-                      {day.dayName.toUpperCase()} {day.day}
+                      {day.dayName.toUpperCase()} {day.dayNumber}
                     </h3>
 
                     {/* Horarios en formato píldora */}
