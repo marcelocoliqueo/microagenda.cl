@@ -42,9 +42,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : "button";
     const pathname = usePathname();
     const [colors, setColors] = React.useState({ primary: '#10B981', accent: '#84CC16' });
+    const [mounted, setMounted] = React.useState(false);
     
-    // Leer variables CSS al montar y cuando cambie la ruta
-    React.useEffect(() => {
+    // Leer variables CSS inmediatamente con useLayoutEffect para evitar flash
+    React.useLayoutEffect(() => {
       if (typeof window !== 'undefined') {
         const updateColors = () => {
           const primary = getComputedStyle(document.documentElement)
@@ -58,25 +59,46 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         
         // Actualizar inmediatamente
         updateColors();
-        
-        // También actualizar después de un pequeño delay para asegurar que las variables CSS estén aplicadas
-        const timeout = setTimeout(updateColors, 100);
+        setMounted(true);
+      }
+    }, [pathname]);
+    
+    // También actualizar después de un pequeño delay para asegurar que las variables CSS estén aplicadas
+    React.useEffect(() => {
+      if (typeof window !== 'undefined') {
+        const timeout = setTimeout(() => {
+          const primary = getComputedStyle(document.documentElement)
+            .getPropertyValue('--color-primary')
+            .trim() || '#10B981';
+          const accent = getComputedStyle(document.documentElement)
+            .getPropertyValue('--color-accent')
+            .trim() || '#84CC16';
+          setColors({ primary, accent });
+        }, 50);
         
         return () => clearTimeout(timeout);
       }
     }, [pathname]);
     
-    // Estilos dinámicos según la variante
+    // Estilos dinámicos según la variante - SIEMPRE con valores por defecto
     const getDynamicStyles = (): React.CSSProperties => {
+      // Usar colores actuales o valores por defecto
+      const primaryColor = colors.primary || '#10B981';
+      const accentColor = colors.accent || '#84CC16';
+      
       switch (variant) {
         case "default":
           return {
-            background: `linear-gradient(to right, ${colors.primary}, ${colors.accent})`,
+            backgroundImage: `linear-gradient(to right, ${primaryColor}, ${accentColor})`,
+            background: `linear-gradient(to right, ${primaryColor}, ${accentColor})`,
+            backgroundColor: 'transparent',
             color: "white",
           };
         case "secondary":
           return {
-            background: `linear-gradient(to right, ${colors.accent}, ${colors.primary})`,
+            backgroundImage: `linear-gradient(to right, ${accentColor}, ${primaryColor})`,
+            background: `linear-gradient(to right, ${accentColor}, ${primaryColor})`,
+            backgroundColor: 'transparent',
             color: "white",
           };
         case "outline":
@@ -85,7 +107,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           return {};
         case "link":
           return {
-            color: colors.primary,
+            color: primaryColor,
           };
         default:
           return {};
@@ -94,17 +116,25 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     
     const dynamicStyles = getDynamicStyles();
     
-    // Combinar estilos asegurando que el background de dynamicStyles tenga prioridad
+    // Combinar estilos - el estilo inline siempre tiene prioridad sobre clases
     const finalStyle: React.CSSProperties & Record<string, any> = {
-      ...(props.style || {}), // Primero aplicar estilos del prop
+      ...(props.style || {}),
       '--ring-color': 'var(--color-primary)',
-      ...dynamicStyles, // Luego aplicar dynamicStyles para que sobrescriba
+      ...dynamicStyles, // Aplicar después para que sobrescriba props.style
     };
     
-    // Si hay un background en dynamicStyles, asegurar que tenga prioridad absoluta
-    if (dynamicStyles.background && (variant === "default" || variant === "secondary")) {
-      finalStyle.background = dynamicStyles.background;
-      finalStyle.backgroundColor = 'transparent'; // Evitar conflictos con bg-* de Tailwind
+    // Asegurar que el background siempre esté presente para variant default/secondary
+    if (variant === "default" || variant === "secondary") {
+      // Siempre asegurar que el gradiente esté presente
+      const primaryColor = colors.primary || '#10B981';
+      const accentColor = colors.accent || '#84CC16';
+      const gradient = variant === "default" 
+        ? `linear-gradient(to right, ${primaryColor}, ${accentColor})`
+        : `linear-gradient(to right, ${accentColor}, ${primaryColor})`;
+      
+      finalStyle.background = gradient;
+      finalStyle.backgroundImage = gradient;
+      finalStyle.backgroundColor = 'transparent';
     }
     
     return (
