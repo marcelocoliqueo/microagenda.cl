@@ -199,6 +199,11 @@ export default function PostAgendaPage() {
             description: "La imagen se ha compartido correctamente",
           });
         }
+      } else if (result.cancelled) {
+        // Usuario canceló, no mostrar ningún mensaje
+        // Limpiar URL antes de salir
+        URL.revokeObjectURL(dataUrl);
+        return;
       } else {
         throw new Error(result.error || "Error desconocido");
       }
@@ -226,19 +231,19 @@ export default function PostAgendaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-6 sm:mb-8"
         >
-          <div className="flex items-center gap-3 mb-2">
-            <Sparkles className="w-8 h-8" style={{ color: "var(--color-primary)" }} />
-            <h1 className="text-3xl font-bold text-slate-900">Post de Agenda</h1>
+          <div className="flex items-center gap-2 sm:gap-3 mb-2">
+            <Sparkles className="w-6 h-6 sm:w-8 sm:h-8" style={{ color: "var(--color-primary)" }} />
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Post de Agenda</h1>
           </div>
-          <p className="text-slate-600">
+          <p className="text-sm sm:text-base text-slate-600">
             Genera y comparte un post visual con tu disponibilidad semanal
           </p>
         </motion.div>
@@ -251,14 +256,14 @@ export default function PostAgendaPage() {
             className="mb-6"
           >
             <Card className="border-amber-200 bg-amber-50">
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-3">
-                  <Calendar className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+              <CardContent className="p-4 sm:pt-6">
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600 mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-sm font-medium text-amber-900 mb-1">
+                    <p className="text-xs sm:text-sm font-medium text-amber-900 mb-1">
                       No hay horarios configurados
                     </p>
-                    <p className="text-sm text-amber-700">
+                    <p className="text-xs sm:text-sm text-amber-700">
                       Configura tus horarios de disponibilidad en{" "}
                       <a
                         href="/dashboard/schedule"
@@ -329,21 +334,21 @@ export default function PostAgendaPage() {
           {/* Panel derecho: Vista previa */}
           <div>
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5" style={{ color: "var(--color-primary)" }} />
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <Calendar className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: "var(--color-primary)" }} />
                   Vista Previa
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-xs sm:text-sm">
                   Esta es la vista previa de tu post. Los horarios se actualizan automáticamente.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="flex flex-col items-center space-y-6">
+              <CardContent className="flex flex-col items-center space-y-4 sm:space-y-6 p-4 sm:p-6">
                 {/* Vista previa del post - Formato tipo móvil */}
-                <div className="w-full max-w-[360px] mx-auto bg-slate-100 rounded-2xl p-3 shadow-lg">
-                  <div className="bg-white rounded-xl overflow-hidden relative" style={{ aspectRatio: '9/16', width: '360px', height: '640px' }}>
+                <div className="w-full max-w-[280px] sm:max-w-[360px] mx-auto bg-slate-100 rounded-2xl p-2 sm:p-3 shadow-lg">
+                  <div className="bg-white rounded-xl overflow-hidden relative" style={{ aspectRatio: '9/16', width: '100%', maxWidth: '360px', height: 'auto' }}>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="transform scale-[0.333]" style={{ width: '1080px', height: '1920px' }}>
+                      <div className="transform scale-[0.259] sm:scale-[0.333]" style={{ width: '1080px', height: '1920px' }}>
                         <AgendaPreviewCard
                           weekSchedule={weekSchedule}
                           weekStartDate={weekStartDate}
@@ -377,10 +382,10 @@ export default function PostAgendaPage() {
                 </div>
 
                 {/* Botones de acción */}
-                <div className="flex gap-4 w-full max-w-md">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:max-w-md">
                   <Button
                     onClick={handleDownload}
-                    className="flex-1"
+                    className="flex-1 w-full"
                     style={{
                       background: `linear-gradient(to right, var(--color-primary), var(--color-accent))`,
                       color: "white",
@@ -392,7 +397,7 @@ export default function PostAgendaPage() {
                   <Button
                     onClick={handleShare}
                     variant="outline"
-                    className="flex-1"
+                    className="flex-1 w-full"
                   >
                     <Share2 className="w-4 h-4 mr-2" />
                     Compartir
