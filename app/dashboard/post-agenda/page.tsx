@@ -199,13 +199,13 @@ export default function PostAgendaPage() {
             description: "La imagen se ha compartido correctamente",
           });
         }
-      } else if (result.cancelled) {
+      } else if ("cancelled" in result && result.cancelled) {
         // Usuario canceló, no mostrar ningún mensaje
         // Limpiar URL antes de salir
         URL.revokeObjectURL(dataUrl);
         return;
       } else {
-        throw new Error(result.error || "Error desconocido");
+        throw new Error("error" in result ? result.error : "Error desconocido");
       }
 
       // Limpiar URL
