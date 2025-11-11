@@ -1,23 +1,25 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  LayoutDashboard, 
-  Calendar, 
-  Users, 
-  BarChart3, 
-  Settings, 
+import {
+  LayoutDashboard,
+  Calendar,
+  Users,
+  BarChart3,
+  Settings,
   Palette,
   ChevronLeft,
   ChevronRight,
   Sparkles,
   Package,
   Clock,
-  Image
+  Image,
+  Menu,
+  X
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { APP_NAME } from "@/lib/constants";
@@ -38,15 +40,155 @@ const navigation = [
 export function Sidebar() {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const { brandColor, setBrandColor, allColors } = useTheme();
 
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMobileMenuOpen]);
+
   return (
     <>
-      {/* Sidebar */}
+      {/* Mobile Header - Show only on mobile */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 h-16 bg-white border-b border-slate-200 shadow-sm flex items-center justify-between px-4">
+        <div className="flex items-center gap-2">
+          <img src="/logo.png" alt={APP_NAME} className="h-8 w-8" />
+          <span className="font-bold text-lg bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] bg-clip-text text-transparent">
+            {APP_NAME}
+          </span>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="p-2"
+        >
+          {isMobileMenuOpen ? (
+            <X className="w-6 h-6" />
+          ) : (
+            <Menu className="w-6 h-6" />
+          )}
+        </Button>
+      </div>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="lg:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+            />
+
+            {/* Mobile Menu Drawer */}
+            <motion.aside
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="lg:hidden fixed left-0 top-16 bottom-0 z-50 w-[280px] bg-white border-r border-slate-200 shadow-2xl flex flex-col overflow-y-auto"
+            >
+              {/* Navigation */}
+              <nav className="flex-1 py-6 px-3">
+                <div className="space-y-1">
+                  {navigation.map((item) => {
+                    const isActive = item.href === "/dashboard"
+                      ? pathname === item.href
+                      : pathname === item.href || pathname.startsWith(item.href + "/");
+                    const Icon = item.icon;
+
+                    return (
+                      <Link key={item.name} href={item.href}>
+                        <motion.div
+                          whileTap={{ scale: 0.98 }}
+                          className={cn(
+                            "flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200",
+                            isActive
+                              ? "bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] text-white shadow-lg"
+                              : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                          )}
+                        >
+                          <Icon className={cn("w-5 h-5 flex-shrink-0", isActive ? "text-white" : "")}
+                            style={!isActive ? { color: "var(--color-primary)" } : {}}
+                          />
+                          <span className="flex-1 font-medium text-sm">{item.name}</span>
+                          {item.badge && (
+                            <span className={cn(
+                              "text-[10px] font-bold px-2 py-0.5 rounded-full",
+                              isActive ? "bg-white/20 text-white" : ""
+                            )}
+                            style={!isActive ? {
+                              backgroundColor: `rgba(var(--color-primary-rgb, 16, 185, 129), 0.1)`,
+                              color: `var(--color-primary)`
+                            } : {}}
+                            >
+                              {item.badge}
+                            </span>
+                          )}
+                        </motion.div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </nav>
+
+              {/* Color Picker in Mobile Menu */}
+              <div className="px-3 pb-6">
+                <Card className="border-slate-200/70 bg-gradient-to-br from-slate-50 to-white">
+                  <CardContent className="p-4">
+                    <button
+                      onClick={() => setShowColorPicker(!showColorPicker)}
+                      className="flex items-center gap-2 text-sm font-medium text-slate-700 w-full mb-3"
+                    >
+                      <Palette className="w-4 h-4" />
+                      <span>Color de Marca</span>
+                      <Sparkles className="w-3 h-3 ml-auto text-amber-500" />
+                    </button>
+                    {showColorPicker && (
+                      <div className="grid grid-cols-4 gap-2">
+                        {allColors.map((color) => (
+                          <button
+                            key={color.id}
+                            onClick={() => setBrandColor(color.id)}
+                            className={cn(
+                              "w-10 h-10 rounded-lg transition-all",
+                              brandColor.id === color.id && "ring-2 ring-offset-2 ring-slate-400"
+                            )}
+                            style={{ backgroundColor: color.primary }}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Desktop Sidebar - Hidden on mobile */}
       <motion.aside
         animate={{ width: isCollapsed ? "80px" : "280px" }}
-        className="fixed left-0 top-0 z-40 h-screen bg-white border-r border-slate-200/70 shadow-xl flex flex-col"
+        className="hidden lg:flex fixed left-0 top-0 z-40 h-screen bg-white border-r border-slate-200/70 shadow-xl flex-col"
       >
         {/* Logo Section */}
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200/70 bg-gradient-to-br from-slate-50 to-white">
