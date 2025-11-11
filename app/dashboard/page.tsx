@@ -730,33 +730,33 @@ export default function DashboardPage() {
     <div className="min-h-screen pb-8">
       {/* User Welcome Header */}
       <header className="sticky top-0 z-10 border-b border-slate-200/70 bg-white/95 backdrop-blur-md shadow-sm" style={{ zIndex: 10 }}>
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 max-w-7xl">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6 max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-between"
+            className="flex items-center justify-between gap-3"
           >
-            <div>
-              <h2 className="text-2xl font-bold text-slate-900">
+            <div className="min-w-0 flex-1">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900 truncate">
                 ¡Hola, {profile?.name || "Usuario"}! 👋
               </h2>
-              <p className="text-slate-600 text-sm mt-1">
+              <p className="text-slate-600 text-xs sm:text-sm mt-1">
                 Así va tu negocio hoy
               </p>
             </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 handleLogout();
               }}
-              className="cursor-pointer pointer-events-auto"
+              className="cursor-pointer pointer-events-auto flex-shrink-0"
               type="button"
             >
-              <LogOut className="w-4 h-4 mr-2" />
-              Salir
+              <LogOut className="w-4 h-4 lg:mr-2" />
+              <span className="hidden lg:inline">Salir</span>
             </Button>
           </motion.div>
         </div>
@@ -772,29 +772,29 @@ export default function DashboardPage() {
           >
             <Card className="border-2 border-primary/20 bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 overflow-hidden relative shadow-lg">
               <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] opacity-10" />
-              <CardContent className="p-6 relative">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0">
-                      <TrendingUp className="w-6 h-6 text-white" />
+              <CardContent className="p-4 sm:p-6 relative">
+                <div className="flex flex-col items-start gap-4">
+                  <div className="flex items-start gap-3 w-full">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0">
+                      <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
-                    <div>
-                      <h3 className="font-bold text-lg mb-1">
-                        {profile.subscription_status === "trial" ? "🎉 Prueba Gratuita de 3 Días Activa" : "⚠️ Suscripción Inactiva"}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-base sm:text-lg mb-1">
+                        {profile.subscription_status === "trial" ? "🎉 Prueba Gratuita Activa" : "⚠️ Suscripción Inactiva"}
                       </h3>
-                      <p className="text-sm text-slate-600 mb-2">
-                        {profile.subscription_status === "trial" 
+                      <p className="text-xs sm:text-sm text-slate-600 mb-2">
+                        {profile.subscription_status === "trial"
                           ? "Disfruta de todas las funciones premium durante 3 días. Luego solo " + formatCurrency(PLAN_PRICE) + "/mes"
                           : "Activa tu plan por solo " + formatCurrency(PLAN_PRICE) + "/mes y desbloquea todo el potencial"}
                       </p>
                       <div className="flex flex-wrap gap-2">
-                        <span className="text-xs px-2 py-1 bg-white rounded-full text-slate-700 font-medium">✓ Citas ilimitadas</span>
-                        <span className="text-xs px-2 py-1 bg-white rounded-full text-slate-700 font-medium">✓ Recordatorios automáticos</span>
-                        <span className="text-xs px-2 py-1 bg-white rounded-full text-slate-700 font-medium">✓ Estadísticas detalladas</span>
+                        <span className="text-[10px] sm:text-xs px-2 py-1 bg-white rounded-full text-slate-700 font-medium">✓ Citas ilimitadas</span>
+                        <span className="text-[10px] sm:text-xs px-2 py-1 bg-white rounded-full text-slate-700 font-medium">✓ Recordatorios</span>
+                        <span className="text-[10px] sm:text-xs px-2 py-1 bg-white rounded-full text-slate-700 font-medium">✓ Estadísticas</span>
                       </div>
                     </div>
                   </div>
-                  <Button onClick={handleSubscribe} size="lg" className="bg-gradient-to-r from-primary to-accent hover:brightness-110 whitespace-nowrap shadow-lg">
+                  <Button onClick={handleSubscribe} size="lg" className="bg-gradient-to-r from-primary to-accent hover:brightness-110 w-full sm:w-auto shadow-lg">
                     <DollarSign className="w-4 h-4 mr-2" />
                     Activar Plan
                   </Button>
@@ -814,34 +814,34 @@ export default function DashboardPage() {
             style={{ position: 'relative', zIndex: 20 }}
           >
             <Card className="border-slate-200/70 bg-white/70 backdrop-blur shadow-lg hover:shadow-xl transition-shadow" style={{ position: 'relative', zIndex: 20 }}>
-              <CardContent className="p-6" style={{ position: 'relative', zIndex: 30 }}>
+              <CardContent className="p-4 sm:p-6" style={{ position: 'relative', zIndex: 30 }}>
                 {profile.username ? (
-                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                  <div className="flex flex-col gap-4">
                     <div className="flex-1 w-full">
                       <div className="flex items-center gap-2 mb-3">
-                        <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(var(--color-primary), 0.1)' }}>
-                          <ExternalLink className="w-5 h-5" style={{ color: 'var(--color-primary)' }} />
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(var(--color-primary), 0.1)' }}>
+                          <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: 'var(--color-primary)' }} />
                         </div>
                         <div>
-                          <Label className="text-sm font-semibold text-slate-900">Tu Agenda Pública</Label>
-                          <p className="text-xs text-slate-500">Comparte este enlace con tus clientes</p>
+                          <Label className="text-xs sm:text-sm font-semibold text-slate-900">Tu Agenda Pública</Label>
+                          <p className="text-[10px] sm:text-xs text-slate-500">Comparte este enlace con tus clientes</p>
                         </div>
                       </div>
-                      <code className="block text-sm bg-slate-100 px-4 py-3 rounded-lg border border-slate-200 font-mono break-all" style={{ color: 'var(--color-primary)' }}>
+                      <code className="block text-xs sm:text-sm bg-slate-100 px-3 py-2 sm:px-4 sm:py-3 rounded-lg border border-slate-200 font-mono break-all" style={{ color: 'var(--color-primary)' }}>
                         {publicUrl}
                       </code>
                     </div>
-                    <div className="flex flex-col gap-2 relative z-20">
+                    <div className="flex flex-col sm:flex-row gap-2 relative z-20">
                       <Button
                         variant="outline"
-                        size="lg"
+                        size="default"
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
                           navigator.clipboard.writeText(publicUrl);
                           toast({ title: "¡Copiado!", description: "Enlace copiado al portapapeles" });
                         }}
-                        className="whitespace-nowrap relative z-20 pointer-events-auto"
+                        className="w-full sm:w-auto relative z-20 pointer-events-auto"
                         type="button"
                       >
                         <ExternalLink className="w-4 h-4 mr-2" />
@@ -849,14 +849,14 @@ export default function DashboardPage() {
                       </Button>
                       <Button
                         variant="ghost"
-                        size="sm"
+                        size="default"
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
                           setNewUsername(profile.username || "");
                           setShowUsernameDialog(true);
                         }}
-                        className="text-xs relative z-20 pointer-events-auto"
+                        className="w-full sm:w-auto text-xs sm:text-sm relative z-20 pointer-events-auto"
                         type="button"
                       >
                         Editar nombre de usuario
@@ -906,36 +906,36 @@ export default function DashboardPage() {
             className="mb-8"
           >
             <Card className="border-slate-200/70 bg-white/70 backdrop-blur shadow-lg hover:shadow-xl transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex flex-col gap-4">
                   <div className="flex-1 w-full">
                     <div className="flex items-center gap-2 mb-3">
-                      <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(var(--color-primary), 0.1)' }}>
-                        <Building2 className="w-5 h-5" style={{ color: 'var(--color-primary)' }} />
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(var(--color-primary), 0.1)' }}>
+                        <Building2 className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: 'var(--color-primary)' }} />
                       </div>
                       <div>
-                        <Label className="text-sm font-semibold text-slate-900">Información del Negocio</Label>
-                        <p className="text-xs text-slate-500">Personaliza cómo apareces en tu agenda pública</p>
+                        <Label className="text-xs sm:text-sm font-semibold text-slate-900">Información del Negocio</Label>
+                        <p className="text-[10px] sm:text-xs text-slate-500">Personaliza cómo apareces en tu agenda pública</p>
                       </div>
                     </div>
                     <div className="space-y-2">
                       {profile.business_name && (
-                        <p className="text-sm text-slate-700">
+                        <p className="text-xs sm:text-sm text-slate-700">
                           <span className="font-medium">Nombre:</span> {profile.business_name}
                         </p>
                       )}
                       {profile.business_logo_url && (
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-slate-700">Logo:</span>
+                          <span className="text-xs sm:text-sm font-medium text-slate-700">Logo:</span>
                           <img
                             src={profile.business_logo_url}
                             alt="Logo del negocio"
-                            className="h-12 w-12 object-contain rounded-lg border border-slate-200"
+                            className="h-10 w-10 sm:h-12 sm:w-12 object-contain rounded-lg border border-slate-200"
                           />
                         </div>
                       )}
                       {!profile.business_name && !profile.business_logo_url && (
-                        <p className="text-sm text-slate-500 italic">
+                        <p className="text-xs sm:text-sm text-slate-500 italic">
                           No has configurado información del negocio aún
                         </p>
                       )}
@@ -944,7 +944,7 @@ export default function DashboardPage() {
                   <div className="flex flex-col gap-2">
                     <Button
                       variant="outline"
-                      size="lg"
+                      size="default"
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -953,7 +953,7 @@ export default function DashboardPage() {
                         setBusinessLogoFile(null);
                         setShowBusinessConfigDialog(true);
                       }}
-                      className="whitespace-nowrap"
+                      className="w-full sm:w-auto"
                       type="button"
                     >
                       <Building2 className="w-4 h-4 mr-2" />
@@ -1088,7 +1088,7 @@ export default function DashboardPage() {
                 {appointments.map((appointment) => (
                   <div
                     key={appointment.id}
-                    className="flex items-center justify-between p-4 border-2 border-slate-200 rounded-xl transition-all"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border-2 border-slate-200 rounded-xl transition-all gap-3"
                     style={{
                       transition: "border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease"
                     }}
@@ -1101,27 +1101,29 @@ export default function DashboardPage() {
                       e.currentTarget.style.backgroundColor = "transparent";
                     }}
                   >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h4 className="font-semibold text-slate-900">{appointment.client_name}</h4>
-                        <span className={`text-xs px-2 py-1 rounded-lg ${STATUS_COLORS[appointment.status]}`}>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start sm:items-center gap-2 mb-2 flex-wrap">
+                        <h4 className="font-semibold text-sm sm:text-base text-slate-900 truncate">{appointment.client_name}</h4>
+                        <span className={`text-[10px] sm:text-xs px-2 py-1 rounded-lg whitespace-nowrap ${STATUS_COLORS[appointment.status]}`}>
                           {STATUS_LABELS[appointment.status]}
                         </span>
                       </div>
-                      <div className="text-sm text-slate-600 space-y-1">
+                      <div className="text-xs sm:text-sm text-slate-600 space-y-1">
                         <p className="font-medium text-slate-700">{appointment.service?.name}</p>
-                        <p>
-                          {formatDate(appointment.date)} · {formatTime(appointment.time)}
+                        <p className="flex flex-wrap gap-1">
+                          <span>{formatDate(appointment.date)}</span>
+                          <span>·</span>
+                          <span>{formatTime(appointment.time)}</span>
                         </p>
-                        <p>{appointment.client_phone}</p>
+                        <p className="truncate">{appointment.client_phone}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
                       <Select
                         value={appointment.status}
                         onValueChange={(value) => handleStatusChange(appointment.id, value)}
                       >
-                        <SelectTrigger className="w-[140px]">
+                        <SelectTrigger className="w-full sm:w-[140px]">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -1136,6 +1138,7 @@ export default function DashboardPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleDeleteAppointment(appointment.id)}
+                        className="w-full sm:w-auto"
                       >
                         Eliminar
                       </Button>
