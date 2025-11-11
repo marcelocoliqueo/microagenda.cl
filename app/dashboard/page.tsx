@@ -55,6 +55,10 @@ import {
 } from "@/lib/constants";
 import { createSubscriptionPreference } from "@/lib/mercadopagoClient";
 import { useTheme } from "@/contexts/ThemeContext";
+import type { AppointmentFilter } from "@/lib/appointmentFilters";
+import { filterAppointments, getFilterTitle, getFilterDescription } from "@/lib/appointmentFilters";
+import { AppointmentFilters } from "@/components/AppointmentFilters";
+import { TodayTimeline } from "@/components/TodayTimeline";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -73,6 +77,7 @@ export default function DashboardPage() {
   const [businessLogoFile, setBusinessLogoFile] = useState<File | null>(null);
   const [businessLogoPreview, setBusinessLogoPreview] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<AppointmentFilter>("upcoming");
   
   // Función para normalizar el username (reemplazar espacios con guiones y limpiar)
   const normalizeUsername = (input: string): string => {
@@ -690,7 +695,7 @@ export default function DashboardPage() {
     const revenue = appointments
       .filter(a => a.status === APPOINTMENT_STATUSES.COMPLETED)
       .reduce((sum, a) => sum + (a.service?.price || 0), 0);
-    
+
     return {
       totalAppointments: total,
       confirmedAppointments: confirmed,
@@ -701,6 +706,11 @@ export default function DashboardPage() {
   }, [appointments]);
 
   const { totalAppointments, confirmedAppointments, pendingAppointments, totalRevenue, confirmationRate } = stats;
+
+  // Filtrar citas según el filtro activo
+  const filteredAppointments = useMemo(() => {
+    return filterAppointments(appointments, activeFilter);
+  }, [appointments, activeFilter]);
 
   if (loading) {
     return (
@@ -1064,10 +1074,10 @@ export default function DashboardPage() {
         {/* Appointments List */}
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
-                <CardTitle>Próximas Citas</CardTitle>
-                <CardDescription>Gestiona tus citas programadas</CardDescription>
+                <CardTitle>{getFilterTitle(activeFilter)}</CardTitle>
+                <CardDescription>{getFilterDescription(activeFilter)}</CardDescription>
               </div>
               <NewAppointmentDialog
                 services={services}
@@ -1077,15 +1087,43 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
+            {/* Filtros */}
+            <AppointmentFilters
+              appointments={appointments}
+              activeFilter={activeFilter}
+              onFilterChange={setActiveFilter}
+            />
+
+            {/* Lista de citas */}
             {appointmentsLoading ? (
               <div className="text-center py-8 text-muted">Cargando citas...</div>
-            ) : appointments.length === 0 ? (
-              <div className="text-center py-8 text-muted">
-                No tienes citas programadas
+            ) : filteredAppointments.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                  <Calendar className="w-8 h-8 text-slate-400" />
+                </div>
+                <p className="text-slate-600 font-medium mb-2">
+                  {activeFilter === "today" && "No tienes citas para hoy"}
+                  {activeFilter === "upcoming" && "No tienes citas próximas"}
+                  {activeFilter === "completed" && "No tienes citas completadas"}
+                  {activeFilter === "all" && "No tienes citas programadas"}
+                </p>
+                <p className="text-sm text-slate-500">
+                  {activeFilter !== "all" && appointments.length > 0
+                    ? "Prueba con otro filtro"
+                    : "Crea tu primera cita para comenzar"}
+                </p>
               </div>
+            ) : activeFilter === "today" ? (
+              /* Vista Timeline para citas de hoy */
+              <TodayTimeline
+                appointments={filteredAppointments}
+                onStatusChange={handleStatusChange}
+                onDelete={handleDeleteAppointment}
+              />
             ) : (
               <div className="space-y-3">
-                {appointments.map((appointment) => (
+                {filteredAppointments.map((appointment) => (
                   <div
                     key={appointment.id}
                     className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border-2 border-slate-200 rounded-xl transition-all gap-3"

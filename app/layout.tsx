@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     default: APP_NAME,
     template: `%s | ${APP_NAME}`,
   },
-  description: APP_DESCRIPTION,
+  description: "Gestiona reservas con una experiencia a la altura de tu marca. La alternativa simple a las agendas complicadas y caras. 40% más barato · 100% más fácil.",
   keywords: [
     "agenda",
     "citas",
@@ -48,16 +48,67 @@ export const metadata: Metadata = {
     "masajista",
     "psicólogo",
     "tatuador",
+    "agenda online",
+    "sistema de reservas",
+    "chile",
   ],
-  icons: {
-    icon: [
-      { url: '/logo.png', type: 'image/png' },
-    ],
-    apple: [
-      { url: '/logo.png', type: 'image/png' },
+  authors: [{ name: APP_NAME }],
+  creator: APP_NAME,
+  publisher: APP_NAME,
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL('https://microagenda.cl'),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'es_CL',
+    url: 'https://microagenda.cl',
+    siteName: APP_NAME,
+    title: APP_NAME,
+    description: "Gestiona reservas con una experiencia a la altura de tu marca. La alternativa simple a las agendas complicadas y caras. 40% más barato · 100% más fácil.",
+    images: [
+      {
+        url: '/logo.png',
+        width: 512,
+        height: 512,
+        alt: `${APP_NAME} Logo`,
+      },
     ],
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: APP_NAME,
+    description: "Gestiona reservas con una experiencia a la altura de tu marca. La alternativa simple a las agendas complicadas y caras.",
+    images: ['/logo.png'],
+  },
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: '32x32', type: 'image/x-icon' },
+      { url: '/logo.png', type: 'image/png', sizes: '512x512' },
+      { url: '/logo.svg', type: 'image/svg+xml' },
+    ],
+    apple: [
+      { url: '/logo.png', type: 'image/png', sizes: '512x512' },
+    ],
+    shortcut: '/favicon.ico',
+  },
   manifest: '/manifest.json',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 };
 
 export const viewport = {

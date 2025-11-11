@@ -40,6 +40,19 @@ export async function sharePost(imageUrl: string, title: string = "Mi Agenda Sem
       }
     }
   } catch (error: any) {
+    // Si el usuario canceló el diálogo de compartir, no es un error real
+    const isUserCancellation = 
+      error.name === "AbortError" || 
+      error.name === "NotAllowedError" ||
+      error.message?.toLowerCase().includes("cancel") ||
+      error.message?.toLowerCase().includes("abort") ||
+      error.message === "Share Canceled";
+    
+    if (isUserCancellation) {
+      // Usuario canceló, no mostrar error
+      return { success: false, cancelled: true };
+    }
+    
     console.error("Error al compartir:", error);
     return { success: false, error: error.message };
   }

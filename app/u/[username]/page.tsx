@@ -170,8 +170,21 @@ export default function PublicAgendaPage() {
         .select("*")
         .eq("username", username)
         .single();
-      if (profileError || !profile) {
+      
+      if (profileError) {
+        console.error("Error fetching profile:", profileError);
+        // Si es un error de permisos (RLS), mostrar mensaje más específico
+        if (profileError.code === "PGRST116" || profileError.message?.includes("permission")) {
+          console.error("RLS Policy Error: El perfil existe pero no hay acceso público configurado");
+        }
         toast({ title: "Error", description: "Profesional no encontrado", variant: "destructive" });
+        setLoading(false);
+        return;
+      }
+      
+      if (!profile) {
+        toast({ title: "Error", description: "Profesional no encontrado", variant: "destructive" });
+        setLoading(false);
         return;
       }
       setProfile(profile);
