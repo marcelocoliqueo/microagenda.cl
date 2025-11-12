@@ -8,6 +8,10 @@ import {
   Save,
   Plus,
   Trash2,
+  Timer,
+  CheckCircle2,
+  Ban,
+  Calendar as CalendarIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,11 +31,21 @@ type DayAvailability = {
   blocks: TimeBlock[];
 };
 
+type BlockedDate = {
+  id: string;
+  start_date: string;
+  end_date: string;
+  reason: string;
+};
+
 export default function SchedulePage() {
   const router = useRouter();
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [bufferTime, setBufferTime] = useState<number>(0);
+  const [blockedDates, setBlockedDates] = useState<BlockedDate[]>([]);
+  const [newBlock, setNewBlock] = useState({ start_date: "", end_date: "", reason: "" });
 
   // Availability settings - ahora con múltiples bloques por día
   // Para usuarios nuevos: todos los días vienen deshabilitados y sin bloques
@@ -70,6 +84,8 @@ export default function SchedulePage() {
 
       setUser(session.user);
       await fetchAvailability(session.user.id);
+      await fetchBufferTime(session.user.id);
+      await fetchBlockedDates(session.user.id);
     } catch (error: any) {
       console.error("Auth check error:", error);
       toast({
@@ -124,6 +140,124 @@ export default function SchedulePage() {
     } catch (error: any) {
       console.error("Fetch availability error:", error);
       // No mostramos toast aquí porque es opcional tener horarios guardados
+    }
+  }
+
+  async function fetchBufferTime(userId: string) {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("buffer_time_minutes")
+        .eq("id", userId)
+        .single();
+
+      if (error) throw error;
+
+      if (data && data.buffer_time_minutes !== null) {
+        setBufferTime(data.buffer_time_minutes);
+      }
+    } catch (error: any) {
+      console.error("Fetch buffer time error:", error);
+      // No mostramos toast aquí porque es opcional
+    }
+  }
+
+  async function fetchBlockedDates(userId: string) {
+    try {
+      const { data, error } = await supabase
+        .from("blocked_dates")
+        .select("*")
+        .eq("user_id", userId)
+        .order("start_date");
+
+      if (error) throw error;
+
+      if (data) {
+        setBlockedDates(data);
+      }
+    } catch (error: any) {
+      console.error("Fetch blocked dates error:", error);
+      // No mostramos toast aquí porque es opcional
+    }
+  }
+
+  async function addBlockedDate() {
+    if (!user) return;
+
+    if (!newBlock.start_date || !newBlock.end_date) {
+      toast({
+        title: "Error",
+        description: "Debes seleccionar fecha de inicio y fin",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newBlock.start_date > newBlock.end_date) {
+      toast({
+        title: "Error",
+        description: "La fecha de inicio debe ser menor o igual a la fecha de fin",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from("blocked_dates")
+        .insert({
+          user_id: user.id,
+          start_date: newBlock.start_date,
+          end_date: newBlock.end_date,
+          reason: newBlock.reason || "Bloqueado",
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setBlockedDates([...blockedDates, data]);
+      setNewBlock({ start_date: "", end_date: "", reason: "" });
+
+      toast({
+        title: "¡Bloqueado!",
+        description: "El período ha sido bloqueado exitosamente",
+      });
+    } catch (error: any) {
+      console.error("Add blocked date error:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo agregar el bloqueo",
+        variant: "destructive",
+      });
+    }
+  }
+
+  async function removeBlockedDate(id: string) {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from("blocked_dates")
+        .delete()
+        .eq("id", id)
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+
+      setBlockedDates(blockedDates.filter((block) => block.id !== id));
+
+      toast({
+        title: "Eliminado",
+        description: "El bloqueo ha sido eliminado",
+      });
+    } catch (error: any) {
+      console.error("Remove blocked date error:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo eliminar el bloqueo",
+        variant: "destructive",
+      });
     }
   }
 
@@ -278,6 +412,14 @@ export default function SchedulePage() {
         if (insertError) throw insertError;
       }
 
+      // Guardar buffer time en el perfil
+      const { error: bufferError } = await supabase
+        .from("profiles")
+        .update({ buffer_time_minutes: bufferTime })
+        .eq("id", user.id);
+
+      if (bufferError) throw bufferError;
+
       toast({
         title: "¡Guardado!",
         description: "Tus horarios de disponibilidad han sido actualizados",
@@ -329,11 +471,89 @@ export default function SchedulePage() {
         </p>
       </motion.div>
 
-      {/* Availability Section */}
+      {/* Buffer Time Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
+        className="mb-6"
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Timer className="w-5 h-5" style={{ color: "var(--color-primary)" }} />
+              Tiempo de Preparación
+            </CardTitle>
+            <CardDescription>
+              Define un tiempo de buffer entre citas consecutivas para preparación, limpieza o descanso.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <Label htmlFor="buffer-time" className="text-sm font-medium text-slate-700 min-w-[200px]">
+                  Tiempo entre citas:
+                </Label>
+                <select
+                  id="buffer-time"
+                  value={bufferTime}
+                  onChange={(e) => setBufferTime(Number(e.target.value))}
+                  className="flex h-10 w-full max-w-xs rounded-md border border-slate-300 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value={0}>Sin buffer (citas consecutivas)</option>
+                  <option value={5}>5 minutos</option>
+                  <option value={10}>10 minutos</option>
+                  <option value={15}>15 minutos</option>
+                  <option value={20}>20 minutos</option>
+                  <option value={30}>30 minutos</option>
+                  <option value={45}>45 minutos</option>
+                  <option value={60}>60 minutos</option>
+                </select>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex gap-3">
+                  <div className="flex-shrink-0">
+                    <Timer className="w-5 h-5 text-blue-600 mt-0.5" />
+                  </div>
+                  <div className="text-sm text-blue-900">
+                    <p className="font-medium mb-1">¿Qué es el tiempo de preparación?</p>
+                    <p className="text-blue-700">
+                      Es el tiempo que necesitas entre citas para preparar el espacio, limpiar, o simplemente tomar un descanso.
+                      Si una cita termina a las 10:00 y tienes un buffer de 15 minutos, la próxima cita disponible será a las 10:15.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {bufferTime > 0 && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0">
+                      <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5" />
+                    </div>
+                    <div className="text-sm text-green-900">
+                      <p className="font-medium">
+                        Tiempo de buffer activo: {bufferTime} minutos
+                      </p>
+                      <p className="text-green-700 mt-1">
+                        Ejemplo: Si tienes una cita de 60 minutos a las 10:00, terminará a las 11:00.
+                        Con {bufferTime} minutos de buffer, la próxima cita disponible será a las {new Date(0, 0, 0, 11, bufferTime).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Availability Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
       >
         <Card>
           <CardHeader>
@@ -465,6 +685,192 @@ export default function SchedulePage() {
                 <p className="text-xs text-slate-500 mt-2">
                   * Los horarios se aplicarán para la generación de citas disponibles. Puedes tener múltiples bloques por día, por ejemplo: mañana y tarde.
                 </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Blocked Dates Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="mt-6"
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Ban className="w-5 h-5" style={{ color: "var(--color-primary)" }} />
+              Bloquear Fechas
+            </CardTitle>
+            <CardDescription>
+              Bloquea períodos específicos (vacaciones, feriados, días libres) para que no se puedan agendar citas.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {/* Add new blocked date form */}
+              <div className="p-4 border-2 border-dashed border-slate-300 rounded-lg">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="start-date" className="text-sm font-medium text-slate-700 mb-2 block">
+                      Fecha Inicio
+                    </Label>
+                    <Input
+                      id="start-date"
+                      type="date"
+                      value={newBlock.start_date}
+                      onChange={(e) => setNewBlock({ ...newBlock, start_date: e.target.value })}
+                      min={new Date().toISOString().split('T')[0]}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="end-date" className="text-sm font-medium text-slate-700 mb-2 block">
+                      Fecha Fin
+                    </Label>
+                    <Input
+                      id="end-date"
+                      type="date"
+                      value={newBlock.end_date}
+                      onChange={(e) => setNewBlock({ ...newBlock, end_date: e.target.value })}
+                      min={newBlock.start_date || new Date().toISOString().split('T')[0]}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="reason" className="text-sm font-medium text-slate-700 mb-2 block">
+                      Motivo (opcional)
+                    </Label>
+                    <Input
+                      id="reason"
+                      type="text"
+                      placeholder="Ej: Vacaciones, Feriado"
+                      value={newBlock.reason}
+                      onChange={(e) => setNewBlock({ ...newBlock, reason: e.target.value })}
+                      maxLength={200}
+                    />
+                  </div>
+                </div>
+
+                <Button
+                  onClick={addBlockedDate}
+                  className="mt-4 bg-gradient-to-r from-primary to-accent hover:brightness-110"
+                  style={{
+                    backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-accent))`
+                  }}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Agregar Bloqueo
+                </Button>
+              </div>
+
+              {/* List of blocked dates */}
+              {blockedDates.length > 0 ? (
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium text-slate-700">
+                    Períodos Bloqueados ({blockedDates.length}):
+                  </Label>
+                  <div className="space-y-2">
+                    {blockedDates.map((block) => {
+                      const startDate = new Date(block.start_date + 'T00:00:00');
+                      const endDate = new Date(block.end_date + 'T00:00:00');
+                      const isSameDay = block.start_date === block.end_date;
+                      const isPast = endDate < new Date();
+
+                      return (
+                        <motion.div
+                          key={block.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          className={`flex items-center justify-between p-4 rounded-lg border-2 ${
+                            isPast
+                              ? 'bg-slate-50 border-slate-200'
+                              : 'bg-red-50 border-red-200'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={`p-2 rounded-lg ${
+                              isPast ? 'bg-slate-200' : 'bg-red-100'
+                            }`}>
+                              <CalendarIcon className={`w-5 h-5 ${
+                                isPast ? 'text-slate-600' : 'text-red-600'
+                              }`} />
+                            </div>
+                            <div>
+                              <p className={`font-semibold ${
+                                isPast ? 'text-slate-900' : 'text-red-900'
+                              }`}>
+                                {isSameDay
+                                  ? startDate.toLocaleDateString('es-CL', {
+                                      weekday: 'long',
+                                      day: 'numeric',
+                                      month: 'long',
+                                      year: 'numeric'
+                                    })
+                                  : `${startDate.toLocaleDateString('es-CL', {
+                                      day: 'numeric',
+                                      month: 'short'
+                                    })} - ${endDate.toLocaleDateString('es-CL', {
+                                      day: 'numeric',
+                                      month: 'short',
+                                      year: 'numeric'
+                                    })}`
+                                }
+                              </p>
+                              {block.reason && (
+                                <p className={`text-sm ${
+                                  isPast ? 'text-slate-600' : 'text-red-700'
+                                }`}>
+                                  {block.reason}
+                                </p>
+                              )}
+                              {isPast && (
+                                <p className="text-xs text-slate-500 mt-1">
+                                  Período pasado
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeBlockedDate(block.id)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8 bg-slate-50 rounded-lg border-2 border-slate-200">
+                  <Ban className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+                  <p className="text-slate-600 font-medium">No hay fechas bloqueadas</p>
+                  <p className="text-sm text-slate-500 mt-1">
+                    Agrega períodos para bloquear la agenda
+                  </p>
+                </div>
+              )}
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex gap-3">
+                  <div className="flex-shrink-0">
+                    <Ban className="w-5 h-5 text-blue-600 mt-0.5" />
+                  </div>
+                  <div className="text-sm text-blue-900">
+                    <p className="font-medium mb-1">¿Cómo funcionan los bloqueos?</p>
+                    <p className="text-blue-700">
+                      Las fechas bloqueadas no aparecerán disponibles para que tus clientes agenden citas.
+                      Útil para vacaciones, feriados o días que no puedes atender.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </CardContent>

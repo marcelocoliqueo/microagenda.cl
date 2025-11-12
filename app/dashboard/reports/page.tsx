@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import {
   BarChart3,
   TrendingUp,
+  TrendingDown,
   Calendar,
   DollarSign,
   Clock,
@@ -15,6 +16,9 @@ import {
   AlertCircle,
   Download,
   Filter,
+  ArrowUpRight,
+  ArrowDownRight,
+  Minus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,8 +31,23 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabaseClient";
-import { formatCurrency, formatDate, APPOINTMENT_STATUSES } from "@/lib/constants";
+import { formatCurrency, formatDate, formatTime, APPOINTMENT_STATUSES } from "@/lib/constants";
 import { useTheme } from "@/contexts/ThemeContext";
+import {
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
 type Stats = {
   totalAppointments: number;
@@ -42,6 +61,14 @@ type Stats = {
   topService: { name: string; count: number } | null;
   peakHour: { hour: string; count: number } | null;
   peakDay: { day: string; count: number } | null;
+  recentAppointments: any[];
+  dailyStats: { date: string; appointments: number; revenue: number }[];
+  serviceBreakdown: { name: string; value: number }[];
+  statusBreakdown: { name: string; value: number; color: string }[];
+  growth: {
+    appointments: number;
+    revenue: number;
+  };
 };
 
 export default function ReportsPage() {
@@ -59,6 +86,25 @@ export default function ReportsPage() {
     const g = parseInt(hex.slice(3, 5), 16);
     const b = parseInt(hex.slice(5, 7), 16);
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
+  // Helper para mostrar el indicador de crecimiento
+  const GrowthIndicator = ({ value }: { value: number }) => {
+    if (value === 0) {
+      return (
+        <span className="flex items-center gap-1 text-xs text-slate-500">
+          <Minus className="w-3 h-3" />
+          Sin cambios
+        </span>
+      );
+    }
+    const isPositive = value > 0;
+    return (
+      <span className={`flex items-center gap-1 text-xs font-semibold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+        {isPositive ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+        {Math.abs(value).toFixed(1)}%
+      </span>
+    );
   };
 
   useEffect(() => {
@@ -139,6 +185,11 @@ export default function ReportsPage() {
           topService: null,
           peakHour: null,
           peakDay: null,
+          recentAppointments: [],
+          dailyStats: [],
+          serviceBreakdown: [],
+          statusBreakdown: [],
+          growth: { appointments: 0, revenue: 0 },
         });
         return;
       }
@@ -208,6 +259,71 @@ export default function ReportsPage() {
         peakDay = { day, count };
       }
 
+      // Recent appointments
+      const recentAppointments = appointments
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .slice(0, 10);
+
+      // Daily stats (last 7 days or by period)
+      const dailyStatsMap = new Map<string, { appointments: number; revenue: number }>();
+      appointments.forEach(apt => {
+        const existing = dailyStatsMap.get(apt.date) || { appointments: 0, revenue: 0 };
+        dailyStatsMap.set(apt.date, {
+          appointments: existing.appointments + 1,
+          revenue: existing.revenue + (apt.status === APPOINTMENT_STATUSES.COMPLETED && apt.service ? apt.service.price : 0),
+        });
+      });
+      const dailyStats = Array.from(dailyStatsMap.entries())
+        .map(([date, stats]) => ({ date, ...stats }))
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        .slice(-7);
+
+      // Service breakdown for pie chart
+      const serviceBreakdown = Array.from(serviceCounts.entries())
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 5);
+
+      // Status breakdown for pie chart
+      const COLORS = {
+        completed: '#10b981',
+        confirmed: '#3b82f6',
+        pending: '#f59e0b',
+        cancelled: '#ef4444',
+      };
+      const statusBreakdown = [
+        { name: 'Completadas', value: completed, color: COLORS.completed },
+        { name: 'Confirmadas', value: confirmed, color: COLORS.confirmed },
+        { name: 'Pendientes', value: pending, color: COLORS.pending },
+        { name: 'Canceladas', value: cancelled, color: COLORS.cancelled },
+      ].filter(s => s.value > 0);
+
+      // Calculate growth (compare with previous period)
+      let growthAppointments = 0;
+      let growthRevenue = 0;
+
+      if (period !== 'all' && startDate) {
+        const periodLength = now.getTime() - startDate.getTime();
+        const previousStartDate = new Date(startDate.getTime() - periodLength);
+
+        const { data: previousAppointments } = await supabase
+          .from("appointments")
+          .select(`*, service:services(*)`)
+          .eq("user_id", userId)
+          .gte("date", previousStartDate.toISOString().split('T')[0])
+          .lt("date", startDate.toISOString().split('T')[0]);
+
+        if (previousAppointments) {
+          const previousTotal = previousAppointments.length;
+          const previousRevenue = previousAppointments
+            .filter(a => a.status === APPOINTMENT_STATUSES.COMPLETED && a.service)
+            .reduce((sum, a) => sum + (a.service?.price || 0), 0);
+
+          growthAppointments = previousTotal > 0 ? ((total - previousTotal) / previousTotal) * 100 : 0;
+          growthRevenue = previousRevenue > 0 ? ((revenue - previousRevenue) / previousRevenue) * 100 : 0;
+        }
+      }
+
       setStats({
         totalAppointments: total,
         confirmedAppointments: confirmed,
@@ -220,6 +336,14 @@ export default function ReportsPage() {
         topService,
         peakHour,
         peakDay,
+        recentAppointments,
+        dailyStats,
+        serviceBreakdown,
+        statusBreakdown,
+        growth: {
+          appointments: growthAppointments,
+          revenue: growthRevenue,
+        },
       });
     } catch (error: any) {
       console.error("Fetch stats error:", error);
@@ -358,7 +482,10 @@ export default function ReportsPage() {
                 <TrendingUp className="w-5 h-5" style={{ color: brandColor.primary }} />
               </div>
               <p className="text-sm text-slate-600 font-medium mb-1">Total Citas</p>
-              <p className="text-3xl font-bold text-slate-900">{stats?.totalAppointments || 0}</p>
+              <div className="flex items-end justify-between">
+                <p className="text-3xl font-bold text-slate-900">{stats?.totalAppointments || 0}</p>
+                {period !== 'all' && <GrowthIndicator value={stats?.growth.appointments || 0} />}
+              </div>
             </CardContent>
           </Card>
         </motion.div>
@@ -377,7 +504,10 @@ export default function ReportsPage() {
                 <TrendingUp className="w-5 h-5 text-primary" />
               </div>
               <p className="text-sm text-slate-600 font-medium mb-1">Ingresos Totales</p>
-              <p className="text-3xl font-bold text-primary">{formatCurrency(stats?.totalRevenue || 0)}</p>
+              <div className="flex items-end justify-between">
+                <p className="text-3xl font-bold text-primary">{formatCurrency(stats?.totalRevenue || 0)}</p>
+                {period !== 'all' && <GrowthIndicator value={stats?.growth.revenue || 0} />}
+              </div>
             </CardContent>
           </Card>
         </motion.div>
@@ -608,6 +738,240 @@ export default function ReportsPage() {
           </Card>
         </motion.div>
       </div>
+
+      {/* Charts Section */}
+      {stats && stats.dailyStats.length > 0 && (
+        <>
+          {/* Daily Stats Chart */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.1 }}
+            className="mt-8"
+          >
+            <Card className="border-slate-200/70 bg-white/70 backdrop-blur">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                  Tendencia de Citas e Ingresos
+                </CardTitle>
+                <CardDescription>
+                  Últimos 7 días de actividad
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={stats.dailyStats}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis
+                      dataKey="date"
+                      tickFormatter={(date) => new Date(date).toLocaleDateString('es-CL', { day: '2-digit', month: 'short' })}
+                      stroke="#64748b"
+                    />
+                    <YAxis yAxisId="left" stroke="#64748b" />
+                    <YAxis yAxisId="right" orientation="right" stroke="#64748b" />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px' }}
+                      labelFormatter={(date) => new Date(date).toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long' })}
+                      formatter={(value: any, name: string) => {
+                        if (name === 'revenue') {
+                          return [formatCurrency(value), 'Ingresos'];
+                        }
+                        return [value, 'Citas'];
+                      }}
+                    />
+                    <Legend
+                      formatter={(value) => value === 'appointments' ? 'Citas' : 'Ingresos'}
+                    />
+                    <Line
+                      yAxisId="left"
+                      type="monotone"
+                      dataKey="appointments"
+                      stroke={brandColor.primary}
+                      strokeWidth={2}
+                      dot={{ fill: brandColor.primary, r: 4 }}
+                    />
+                    <Line
+                      yAxisId="right"
+                      type="monotone"
+                      dataKey="revenue"
+                      stroke={brandColor.accent}
+                      strokeWidth={2}
+                      dot={{ fill: brandColor.accent, r: 4 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Pie Charts */}
+          <div className="grid lg:grid-cols-2 gap-6 mt-8">
+            {/* Service Breakdown */}
+            {stats.serviceBreakdown.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 1.2 }}
+              >
+                <Card className="border-slate-200/70 bg-white/70 backdrop-blur">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BarChart3 className="w-5 h-5 text-primary" />
+                      Distribución de Servicios
+                    </CardTitle>
+                    <CardDescription>
+                      Top 5 servicios más solicitados
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <PieChart>
+                        <Pie
+                          data={stats.serviceBreakdown}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                          outerRadius={100}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {stats.serviceBreakdown.map((entry, index) => {
+                            const colors = [brandColor.primary, brandColor.accent, '#10b981', '#f59e0b', '#ef4444'];
+                            return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                          })}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+
+            {/* Status Breakdown */}
+            {stats.statusBreakdown.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 1.3 }}
+              >
+                <Card className="border-slate-200/70 bg-white/70 backdrop-blur">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5 text-primary" />
+                      Estado de Citas
+                    </CardTitle>
+                    <CardDescription>
+                      Distribución por estado
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <PieChart>
+                        <Pie
+                          data={stats.statusBreakdown}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                          outerRadius={100}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {stats.statusBreakdown.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+          </div>
+
+          {/* Recent Appointments Table */}
+          {stats.recentAppointments.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.4 }}
+              className="mt-8"
+            >
+              <Card className="border-slate-200/70 bg-white/70 backdrop-blur">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-primary" />
+                    Últimas Citas
+                  </CardTitle>
+                  <CardDescription>
+                    Historial reciente de citas
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-slate-200">
+                          <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">Fecha</th>
+                          <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">Hora</th>
+                          <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">Cliente</th>
+                          <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">Servicio</th>
+                          <th className="text-left py-3 px-4 text-sm font-semibold text-slate-700">Estado</th>
+                          <th className="text-right py-3 px-4 text-sm font-semibold text-slate-700">Monto</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {stats.recentAppointments.map((apt) => {
+                          const statusColors = {
+                            completed: 'bg-green-100 text-green-700',
+                            confirmed: 'bg-blue-100 text-blue-700',
+                            pending: 'bg-amber-100 text-amber-700',
+                            cancelled: 'bg-red-100 text-red-700',
+                          };
+                          const statusLabels = {
+                            completed: 'Completada',
+                            confirmed: 'Confirmada',
+                            pending: 'Pendiente',
+                            cancelled: 'Cancelada',
+                          };
+                          return (
+                            <tr key={apt.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                              <td className="py-3 px-4 text-sm text-slate-900">
+                                {new Date(apt.date).toLocaleDateString('es-CL', { day: '2-digit', month: 'short' })}
+                              </td>
+                              <td className="py-3 px-4 text-sm text-slate-900">
+                                {formatTime(apt.time)}
+                              </td>
+                              <td className="py-3 px-4 text-sm text-slate-900">
+                                {apt.client_name}
+                              </td>
+                              <td className="py-3 px-4 text-sm text-slate-700">
+                                {apt.service?.name || 'N/A'}
+                              </td>
+                              <td className="py-3 px-4">
+                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusColors[apt.status as keyof typeof statusColors] || 'bg-slate-100 text-slate-700'}`}>
+                                  {statusLabels[apt.status as keyof typeof statusLabels] || apt.status}
+                                </span>
+                              </td>
+                              <td className="py-3 px-4 text-sm text-right font-medium text-slate-900">
+                                {apt.service ? formatCurrency(apt.service.price) : '-'}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </>
+      )}
     </div>
   );
 }

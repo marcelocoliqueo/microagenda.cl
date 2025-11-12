@@ -17,6 +17,7 @@ interface InlineDatePickerProps {
   selectedTime?: string;
   onTimeSelect?: (time: string) => void;
   serviceDuration?: number; // Duración del servicio en minutos
+  bufferTimeMinutes?: number; // Tiempo de buffer entre citas (default: 0)
 }
 
 export function InlineDatePicker({
@@ -29,6 +30,7 @@ export function InlineDatePicker({
   selectedTime,
   onTimeSelect,
   serviceDuration,
+  bufferTimeMinutes = 0,
 }: InlineDatePickerProps) {
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(() => {
@@ -67,8 +69,8 @@ export function InlineDatePicker({
     }
     
     // Usar los bloques exactos configurados con la duración del servicio
-    const availableSlots = generateAvailableSlots(dayAvailability, 30, serviceDuration);
-    
+    const availableSlots = generateAvailableSlots(dayAvailability, 30, serviceDuration, bufferTimeMinutes);
+
     if (isDetailedLog || value === dateStr) {
       console.log(`✅ [InlineDatePicker] Slots generados para ${dayName}:`, availableSlots);
       console.log(`🚫 [InlineDatePicker] Slots ocupados:`, bookedSlots);

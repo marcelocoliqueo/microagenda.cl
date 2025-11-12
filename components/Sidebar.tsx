@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   Calendar,
+  CalendarDays,
   Users,
   BarChart3,
   Settings,
@@ -29,10 +30,11 @@ import { cn } from "@/lib/utils";
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, badge: null },
   { name: "Citas", href: "/dashboard/appointments", icon: Calendar, badge: null },
+  { name: "Calendario", href: "/dashboard/calendar", icon: CalendarDays, badge: "Nuevo" },
   { name: "Servicios", href: "/dashboard/services", icon: Package, badge: null },
   { name: "Horarios", href: "/dashboard/schedule", icon: Clock, badge: null },
   { name: "Post de Agenda", href: "/dashboard/post-agenda", icon: Image, badge: null },
-  { name: "Clientes", href: "/dashboard/clients", icon: Users, badge: "Nuevo" },
+  { name: "Clientes", href: "/dashboard/clients", icon: Users, badge: null },
   { name: "Informes", href: "/dashboard/reports", icon: BarChart3, badge: "Pro" },
   { name: "Configuración", href: "/dashboard/settings", icon: Settings, badge: null },
 ];

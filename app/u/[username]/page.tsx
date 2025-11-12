@@ -25,6 +25,8 @@ export default function PublicAgendaPage() {
   const [services, setServices] = useState<Service[]>([]);
   const [availability, setAvailability] = useState<Record<string, Array<{ start: string; end: string }>>>({});
   const [bookedSlots, setBookedSlots] = useState<string[]>([]);
+  const [bufferTimeMinutes, setBufferTimeMinutes] = useState<number>(0);
+  const [blockedDates, setBlockedDates] = useState<Array<{ start_date: string; end_date: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   
@@ -103,29 +105,58 @@ export default function PublicAgendaPage() {
       console.log('⚠️ No hay fecha seleccionada');
       return [];
     }
-    
+
     const dayName = getDayName(formData.date);
     console.log('📅 Obteniendo horarios para:', formData.date, '→', dayName);
-    
+
     const dayAvailability = availability[dayName];
     console.log('🕒 Disponibilidad del día:', dayAvailability);
-    
+
     if (!dayAvailability || dayAvailability.length === 0) {
       console.log('❌ No hay disponibilidad configurada para', dayName);
       return [];
     }
-    
+
     // NUEVO: Cada bloque configurado = 1 slot (solo hora de inicio)
     // NO generar intervalos cada 30 min
     const availableSlots = dayAvailability.map(block => block.start);
     console.log('✅ Slots (bloques completos):', availableSlots);
-    
+
     const bookedForDay = bookedSlots;
     console.log('🚫 Slots ocupados:', bookedForDay);
-    
-    const finalSlots = availableSlots.filter(slot => !bookedForDay.includes(slot));
-    console.log('🎯 Slots finales disponibles:', finalSlots);
-    
+
+    // Filtrar slots considerando buffer time
+    // Un slot está ocupado si hay una cita que termina dentro del buffer time antes del slot
+    const finalSlots = availableSlots.filter(slot => {
+      // Check if the slot itself is booked
+      if (bookedForDay.includes(slot)) {
+        return false;
+      }
+
+      // If there's a buffer time, check if any booked slot conflicts
+      if (bufferTimeMinutes > 0 && selectedService) {
+        const slotMinutes = parseInt(slot.split(':')[0]) * 60 + parseInt(slot.split(':')[1]);
+
+        // Check each booked slot to see if it conflicts with this slot
+        for (const bookedSlot of bookedForDay) {
+          const bookedMinutes = parseInt(bookedSlot.split(':')[0]) * 60 + parseInt(bookedSlot.split(':')[1]);
+
+          // Calculate when the booked appointment would end (assuming same service duration)
+          // In a real scenario, we'd fetch the actual appointment duration
+          const bookedEndMinutes = bookedMinutes + (selectedService.duration || 60) + bufferTimeMinutes;
+
+          // Check if our slot starts before the booked appointment ends (including buffer)
+          if (slotMinutes < bookedEndMinutes && slotMinutes >= bookedMinutes) {
+            console.log(`🚫 Slot ${slot} conflicts with booked slot ${bookedSlot} (ends at ${Math.floor(bookedEndMinutes/60)}:${(bookedEndMinutes%60).toString().padStart(2,'0')} with buffer)`);
+            return false;
+          }
+        }
+      }
+
+      return true;
+    });
+    console.log('🎯 Slots finales disponibles (con buffer):', finalSlots);
+
     return finalSlots;
   };
 
@@ -188,6 +219,10 @@ export default function PublicAgendaPage() {
         return;
       }
       setProfile(profile);
+
+      // Get buffer time from profile
+      setBufferTimeMinutes(profile.buffer_time_minutes || 0);
+
       const { data: servicesData } = await supabase
         .from("services")
         .select("*")
@@ -210,6 +245,19 @@ export default function PublicAgendaPage() {
       console.log('📅 Disponibilidad cargada desde BD:', Object.keys(availMap));
       console.log('🗓️ Detalles completos:', availMap);
       setAvailability(availMap);
+
+      // Fetch blocked dates
+      const { data: blockedData } = await supabase
+        .from("blocked_dates")
+        .select("start_date, end_date")
+        .eq("user_id", profile.id)
+        .gte("end_date", new Date().toISOString().split('T')[0]); // Only future/current blocks
+
+      if (blockedData) {
+        setBlockedDates(blockedData);
+        console.log('🚫 Fechas bloqueadas cargadas:', blockedData);
+      }
+
       setLoading(false);
     } catch (error: any) {
       console.error("Fetch error:", error);
@@ -500,7 +548,13 @@ export default function PublicAgendaPage() {
                         date.setDate(today.getDate() + startOffset + i);
                         const dateStr = date.toISOString().split("T")[0];
                         const dayOfWeek = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][date.getDay()];
-                        const hasAvailability = availability[dayOfWeek] && availability[dayOfWeek].length > 0;
+
+                        // Check if date is blocked
+                        const isBlocked = blockedDates.some(block => {
+                          return dateStr >= block.start_date && dateStr <= block.end_date;
+                        });
+
+                        const hasAvailability = !isBlocked && availability[dayOfWeek] && availability[dayOfWeek].length > 0;
                         const dayName = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"][date.getDay()];
                         const isSelected = formData.date === dateStr;
                         const isToday = startOffset + i === 0;

@@ -20,6 +20,7 @@ interface SimpleDatePickerProps {
   onTimeSelect?: (time: string) => void; // Callback para seleccionar hora
   selectedTime?: string; // Hora seleccionada
   serviceDuration?: number; // Duración del servicio en minutos
+  bufferTimeMinutes?: number; // Tiempo de buffer entre citas (default: 0)
 }
 
 export function SimpleDatePicker({
@@ -34,6 +35,7 @@ export function SimpleDatePicker({
   onTimeSelect,
   selectedTime,
   serviceDuration,
+  bufferTimeMinutes = 0,
 }: SimpleDatePickerProps) {
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(() => {
@@ -91,8 +93,8 @@ export function SimpleDatePicker({
       return [];
     }
     
-    const availableSlots = generateAvailableSlots(dayAvailability, 30, serviceDuration);
-    
+    const availableSlots = generateAvailableSlots(dayAvailability, 30, serviceDuration, bufferTimeMinutes);
+
     // Filtrar horarios ya reservados
     return availableSlots.filter(slot => !bookedSlots.includes(slot));
   };

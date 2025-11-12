@@ -14,7 +14,10 @@ import {
   Download,
   UserPlus,
   X,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
+import { ClientDetailPanel } from "@/components/ClientDetailPanel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -50,6 +53,7 @@ export default function ClientsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState<"appointments" | "revenue" | "name" | "lastDate">("appointments");
   const [revenueFilter, setRevenueFilter] = useState<"all" | "high" | "medium" | "low">("all");
+  const [expandedClient, setExpandedClient] = useState<string | null>(null);
 
   useEffect(() => {
     checkAuth();
@@ -464,60 +468,99 @@ export default function ClientsPage() {
               </div>
             ) : (
               <div className="space-y-3">
-                {filteredClients.map((client, index) => (
-                  <motion.div
-                    key={`${client.client_name}-${client.client_phone}`}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="p-4 border-2 border-slate-200 rounded-xl hover:shadow-md transition-all"
-                    style={{
-                      transition: "border-color 0.3s ease, box-shadow 0.3s ease"
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.5)`;
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = "rgb(226, 232, 240)"; // slate-200
-                    }}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4 flex-1">
-                        <div 
-                          className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg"
-                          style={{
-                            background: `linear-gradient(to bottom right, var(--color-primary), var(--color-accent))`
-                          }}
-                        >
-                          {client.client_name.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-slate-900">{client.client_name}</h4>
-                          <div className="flex items-center gap-4 mt-1 text-sm text-slate-600">
-                            <span className="flex items-center gap-1">
-                              <Phone className="w-3 h-3" />
-                              {client.client_phone}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Calendar className="w-3 h-3" />
-                              {client.totalAppointments} citas
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <TrendingUp className="w-3 h-3" />
-                              {formatCurrency(client.totalSpent)}
-                            </span>
+                {filteredClients.map((client, index) => {
+                  const clientKey = `${client.client_name}-${client.client_phone}`;
+                  const isExpanded = expandedClient === clientKey;
+
+                  return (
+                    <motion.div
+                      key={clientKey}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className="border-2 border-slate-200 rounded-xl hover:shadow-md transition-all overflow-hidden"
+                      style={{
+                        transition: "border-color 0.3s ease, box-shadow 0.3s ease"
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.5)`;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = "rgb(226, 232, 240)"; // slate-200
+                      }}
+                    >
+                      <div
+                        className="p-4 cursor-pointer"
+                        onClick={() => setExpandedClient(isExpanded ? null : clientKey)}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4 flex-1">
+                            <div
+                              className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg"
+                              style={{
+                                background: `linear-gradient(to bottom right, var(--color-primary), var(--color-accent))`
+                              }}
+                            >
+                              {client.client_name.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-slate-900">{client.client_name}</h4>
+                              <div className="flex items-center gap-4 mt-1 text-sm text-slate-600">
+                                <span className="flex items-center gap-1">
+                                  <Phone className="w-3 h-3" />
+                                  {client.client_phone}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="w-3 h-3" />
+                                  {client.totalAppointments} citas
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <TrendingUp className="w-3 h-3" />
+                                  {formatCurrency(client.totalSpent)}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <div className="text-right">
+                              <p className="text-xs text-slate-500 mb-1">Última cita</p>
+                              <p className="text-sm font-medium text-slate-900">
+                                {formatDate(client.lastAppointment)}
+                              </p>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-primary hover:bg-primary/10"
+                            >
+                              {isExpanded ? (
+                                <ChevronUp className="w-5 h-5" />
+                              ) : (
+                                <ChevronDown className="w-5 h-5" />
+                              )}
+                            </Button>
                           </div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-xs text-slate-500 mb-1">Última cita</p>
-                        <p className="text-sm font-medium text-slate-900">
-                          {formatDate(client.lastAppointment)}
-                        </p>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
+
+                      {/* Expanded Details */}
+                      {isExpanded && user && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <ClientDetailPanel
+                            userId={user.id}
+                            clientName={client.client_name}
+                            clientPhone={client.client_phone}
+                          />
+                        </motion.div>
+                      )}
+                    </motion.div>
+                  );
+                })}
               </div>
             )}
           </CardContent>
