@@ -6,7 +6,7 @@
     },
     {
       "path": "/api/cron/auto-update-appointments",
-      "schedule": "0 * * * *"
+      "schedule": "0 0 * * *"
     }
   ]
 }
