@@ -43,6 +43,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase, type Profile, type Service } from "@/lib/supabaseClient";
 import { useAppointments } from "@/hooks/useAppointments";
 import { useRealtime } from "@/hooks/useRealtime";
+import { useAutoUpdateAppointments } from "@/hooks/useAutoUpdateAppointments";
 import {
   APP_NAME,
   STATUS_LABELS,
@@ -104,6 +105,24 @@ export default function DashboardPage() {
 
   // Real-time updates - solo cuando user.id está disponible y es estable
   useRealtime("appointments", userId, refresh);
+
+  // Auto-actualización periódica de estados de citas
+  // Se ejecuta cada 10 minutos y cuando el usuario vuelve a la pestaña
+  useAutoUpdateAppointments(10, !!user);
+
+  // Escuchar evento de actualización para refrescar la lista
+  useEffect(() => {
+    const handleAppointmentsUpdated = () => {
+      console.log("🔄 Actualizando lista de citas después de auto-update...");
+      refresh();
+    };
+
+    window.addEventListener("appointmentsUpdated", handleAppointmentsUpdated);
+
+    return () => {
+      window.removeEventListener("appointmentsUpdated", handleAppointmentsUpdated);
+    };
+  }, [refresh]);
 
   // Helper para convertir hex a rgba
   const hexToRgba = (hex: string, alpha: number) => {
