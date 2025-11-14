@@ -1038,9 +1038,10 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2 bg-white/70 backdrop-blur border border-slate-200/70 rounded-xl p-1.5 w-fit shadow-sm">
             <button
               onClick={() => setStatsPeriod("day")}
+              style={statsPeriod === "day" ? { backgroundColor: brandColor.primary } : {}}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                 statsPeriod === "day"
-                  ? "bg-primary text-white shadow-sm"
+                  ? "text-white shadow-sm"
                   : "text-slate-600 hover:bg-slate-100"
               }`}
             >
@@ -1048,9 +1049,10 @@ export default function DashboardPage() {
             </button>
             <button
               onClick={() => setStatsPeriod("week")}
+              style={statsPeriod === "week" ? { backgroundColor: brandColor.primary } : {}}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                 statsPeriod === "week"
-                  ? "bg-primary text-white shadow-sm"
+                  ? "text-white shadow-sm"
                   : "text-slate-600 hover:bg-slate-100"
               }`}
             >
@@ -1058,9 +1060,10 @@ export default function DashboardPage() {
             </button>
             <button
               onClick={() => setStatsPeriod("month")}
+              style={statsPeriod === "month" ? { backgroundColor: brandColor.primary } : {}}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                 statsPeriod === "month"
-                  ? "bg-primary text-white shadow-sm"
+                  ? "text-white shadow-sm"
                   : "text-slate-600 hover:bg-slate-100"
               }`}
             >

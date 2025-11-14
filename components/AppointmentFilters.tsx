@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { Calendar, Clock, CheckCircle, ListFilter } from "lucide-react";
 import { Appointment } from "@/lib/supabaseClient";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export type AppointmentFilter = "today" | "upcoming" | "completed" | "all";
 
@@ -17,6 +18,8 @@ export function AppointmentFilters({
   activeFilter,
   onFilterChange,
 }: AppointmentFiltersProps) {
+  const { brandColor } = useTheme();
+
   // Calcular contadores para cada filtro
   const counts = useMemo(() => {
     const now = new Date();
@@ -104,22 +107,37 @@ export function AppointmentFilters({
           <button
             key={filter.id}
             onClick={() => onFilterChange(filter.id)}
+            style={
+              isActive
+                ? {
+                    background: `linear-gradient(to right, ${brandColor.primary}, ${brandColor.accent})`,
+                  }
+                : {}
+            }
             className={`
               flex-1 relative overflow-hidden rounded-xl px-4 py-3 transition-all duration-200
               ${
                 isActive
-                  ? "bg-gradient-to-r from-primary to-accent text-white shadow-lg scale-[1.02]"
-                  : "bg-white/70 backdrop-blur-sm border-2 border-slate-200 hover:border-primary/40 hover:bg-slate-50"
+                  ? "text-white shadow-lg scale-[1.02]"
+                  : "bg-white/70 backdrop-blur-sm border-2 border-slate-200 hover:bg-slate-50"
               }
             `}
+            onMouseEnter={(e) => {
+              if (!isActive) {
+                e.currentTarget.style.borderColor = `${brandColor.primary}66`;
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isActive) {
+                e.currentTarget.style.borderColor = "";
+              }
+            }}
           >
             <div className="relative z-10 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 flex-1 min-w-0">
-                <Icon
-                  className={`w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 ${
-                    isActive ? "text-white" : "text-primary"
-                  }`}
-                />
+                <span style={{ color: isActive ? "white" : brandColor.primary }}>
+                  <Icon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                </span>
                 <div className="text-left flex-1 min-w-0">
                   <div
                     className={`font-semibold text-sm sm:text-base truncate ${
@@ -138,14 +156,15 @@ export function AppointmentFilters({
                 </div>
               </div>
               <div
-                className={`
-                  flex items-center justify-center min-w-[24px] sm:min-w-[28px] h-6 sm:h-7 px-2 rounded-full text-xs sm:text-sm font-bold tabular-nums
-                  ${
-                    isActive
-                      ? "bg-white/20 text-white"
-                      : "bg-primary/10 text-primary"
-                  }
-                `}
+                className="flex items-center justify-center min-w-[24px] sm:min-w-[28px] h-6 sm:h-7 px-2 rounded-full text-xs sm:text-sm font-bold tabular-nums"
+                style={
+                  isActive
+                    ? { backgroundColor: "rgba(255, 255, 255, 0.2)", color: "white" }
+                    : {
+                        backgroundColor: `${brandColor.primary}1A`,
+                        color: brandColor.primary,
+                      }
+                }
               >
                 {filter.count}
               </div>
