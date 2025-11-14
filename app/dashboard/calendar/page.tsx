@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import {
   ChevronLeft,
   ChevronRight,
-  Calendar as CalendarIcon,
+  CalendarDays,
   Clock,
   User,
   Phone,
@@ -18,6 +18,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 import { formatTime, STATUS_LABELS } from "@/lib/constants";
+import { useTheme } from "@/contexts/ThemeContext";
 
 type Appointment = {
   id: string;
@@ -36,6 +37,7 @@ type Appointment = {
 export default function CalendarPage() {
   const { toast } = useToast();
   const router = useRouter();
+  const { brandColor } = useTheme();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -200,7 +202,9 @@ export default function CalendarPage() {
           className="mb-8"
         >
           <div className="flex items-center gap-3 mb-2">
-            <CalendarIcon className="w-8 h-8 text-primary" />
+            <span style={{ color: brandColor.primary }}>
+              <CalendarDays className="w-8 h-8" />
+            </span>
             <h1 className="text-3xl md:text-4xl font-bold text-slate-900">
               Calendario de Citas
             </h1>
@@ -224,7 +228,17 @@ export default function CalendarPage() {
                 variant="outline"
                 size="sm"
                 onClick={goToToday}
-                className="font-medium"
+                className="font-medium hover:bg-opacity-10"
+                style={{
+                  borderColor: brandColor.primary,
+                  color: brandColor.primary
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = `${brandColor.primary}15`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
               >
                 Hoy
               </Button>
@@ -232,6 +246,16 @@ export default function CalendarPage() {
                 variant="outline"
                 size="icon"
                 onClick={goToPreviousMonth}
+                style={{
+                  borderColor: brandColor.primary,
+                  color: brandColor.primary
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = `${brandColor.primary}15`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
               >
                 <ChevronLeft className="w-4 h-4" />
               </Button>
@@ -239,6 +263,16 @@ export default function CalendarPage() {
                 variant="outline"
                 size="icon"
                 onClick={goToNextMonth}
+                style={{
+                  borderColor: brandColor.primary,
+                  color: brandColor.primary
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = `${brandColor.primary}15`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
               >
                 <ChevronRight className="w-4 h-4" />
               </Button>
@@ -291,10 +325,14 @@ export default function CalendarPage() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => handleDateClick(date)}
+                    style={{
+                      borderColor: isToday ? brandColor.primary : undefined,
+                      backgroundColor: isToday ? `${brandColor.primary}10` : isSelected ? `${brandColor.primary}20` : undefined,
+                      boxShadow: isSelected ? `0 0 0 2px ${brandColor.primary}` : undefined,
+                    }}
                     className={`
                       aspect-square rounded-lg border-2 p-1 md:p-2 transition-all
-                      ${isToday ? "border-primary bg-primary/5" : "border-slate-200"}
-                      ${isSelected ? "ring-2 ring-primary bg-primary/10" : ""}
+                      ${!isToday ? "border-slate-200" : ""}
                       ${dayAppointments.length > 0 ? "hover:shadow-md" : "hover:bg-slate-50"}
                     `}
                   >
@@ -342,13 +380,19 @@ export default function CalendarPage() {
 
             {loading ? (
               <div className="text-center py-8">
-                <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
+                <div
+                  className="w-8 h-8 border-4 rounded-full animate-spin mx-auto"
+                  style={{
+                    borderColor: `${brandColor.primary}20`,
+                    borderTopColor: brandColor.primary
+                  }}
+                ></div>
                 <p className="text-sm text-slate-500 mt-2">Cargando...</p>
               </div>
             ) : selectedDate ? (
               selectedDateAppointments.length === 0 ? (
                 <div className="text-center py-8">
-                  <CalendarIcon className="w-12 h-12 text-slate-300 mx-auto mb-2" />
+                  <CalendarDays className="w-12 h-12 text-slate-300 mx-auto mb-2" />
                   <p className="text-sm text-slate-500">No hay citas este día</p>
                 </div>
               ) : (
@@ -396,7 +440,7 @@ export default function CalendarPage() {
               )
             ) : (
               <div className="text-center py-8">
-                <CalendarIcon className="w-12 h-12 text-slate-300 mx-auto mb-2" />
+                <CalendarDays className="w-12 h-12 text-slate-300 mx-auto mb-2" />
                 <p className="text-sm text-slate-500">
                   Haz clic en una fecha para ver sus citas
                 </p>
