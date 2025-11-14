@@ -124,7 +124,20 @@ export async function autoCompleteConfirmedAppointments(): Promise<{
     // Filtrar las que ya pasaron
     const appointmentsToComplete = confirmedAppointments.filter((apt) => {
       const endTime = getAppointmentEndTime(apt);
-      return endTime < now;
+      const shouldComplete = endTime < now;
+
+      // Debug logging
+      console.log(`Cita ${apt.id}:`, {
+        date: apt.date,
+        time: apt.time,
+        endTime: endTime.toISOString(),
+        now: now.toISOString(),
+        shouldComplete,
+        hasService: !!apt.service,
+        serviceDuration: apt.service?.duration || 'sin servicio'
+      });
+
+      return shouldComplete;
     });
 
     if (appointmentsToComplete.length === 0) {
