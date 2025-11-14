@@ -79,6 +79,7 @@ export default function DashboardPage() {
   const [businessLogoPreview, setBusinessLogoPreview] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [activeFilter, setActiveFilter] = useState<AppointmentFilter>("upcoming");
+  const [statsPeriod, setStatsPeriod] = useState<"day" | "week" | "month">("month");
   
   // Función para normalizar el username (reemplazar espacios con guiones y limpiar)
   const normalizeUsername = (input: string): string => {
@@ -708,10 +709,42 @@ export default function DashboardPage() {
   // Calculate stats - memoizar para evitar re-renderizados innecesarios
   // IMPORTANTE: Hooks deben estar ANTES de cualquier early return
   const stats = useMemo(() => {
-    const total = appointments.length;
-    const confirmed = appointments.filter(a => a.status === APPOINTMENT_STATUSES.CONFIRMED).length;
-    const pending = appointments.filter(a => a.status === APPOINTMENT_STATUSES.PENDING).length;
-    const revenue = appointments
+    // Filtrar citas por período
+    const now = new Date();
+    const filteredByPeriod = appointments.filter(apt => {
+      const aptDate = new Date(apt.date);
+
+      switch (statsPeriod) {
+        case "day":
+          // Filtrar por hoy
+          return (
+            aptDate.getDate() === now.getDate() &&
+            aptDate.getMonth() === now.getMonth() &&
+            aptDate.getFullYear() === now.getFullYear()
+          );
+
+        case "week":
+          // Filtrar por últimos 7 días
+          const weekAgo = new Date(now);
+          weekAgo.setDate(now.getDate() - 7);
+          return aptDate >= weekAgo && aptDate <= now;
+
+        case "month":
+          // Filtrar por este mes
+          return (
+            aptDate.getMonth() === now.getMonth() &&
+            aptDate.getFullYear() === now.getFullYear()
+          );
+
+        default:
+          return true;
+      }
+    });
+
+    const total = filteredByPeriod.length;
+    const confirmed = filteredByPeriod.filter(a => a.status === APPOINTMENT_STATUSES.CONFIRMED).length;
+    const pending = filteredByPeriod.filter(a => a.status === APPOINTMENT_STATUSES.PENDING).length;
+    const revenue = filteredByPeriod
       .filter(a => a.status === APPOINTMENT_STATUSES.COMPLETED)
       .reduce((sum, a) => sum + (a.service?.price || 0), 0);
 
@@ -722,7 +755,7 @@ export default function DashboardPage() {
       totalRevenue: revenue,
       confirmationRate: total > 0 ? Math.round((confirmed / total) * 100) : 0,
     };
-  }, [appointments]);
+  }, [appointments, statsPeriod]);
 
   const { totalAppointments, confirmedAppointments, pendingAppointments, totalRevenue, confirmationRate } = stats;
 
@@ -995,6 +1028,47 @@ export default function DashboardPage() {
           </motion.div>
         )}
 
+        {/* Period Filter */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.3 }}
+          className="mb-6"
+        >
+          <div className="flex items-center gap-2 bg-white/70 backdrop-blur border border-slate-200/70 rounded-xl p-1.5 w-fit shadow-sm">
+            <button
+              onClick={() => setStatsPeriod("day")}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                statsPeriod === "day"
+                  ? "bg-primary text-white shadow-sm"
+                  : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              Hoy
+            </button>
+            <button
+              onClick={() => setStatsPeriod("week")}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                statsPeriod === "week"
+                  ? "bg-primary text-white shadow-sm"
+                  : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              Semana
+            </button>
+            <button
+              onClick={() => setStatsPeriod("month")}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                statsPeriod === "month"
+                  ? "bg-primary text-white shadow-sm"
+                  : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              Mes
+            </button>
+          </div>
+        </motion.div>
+
         {/* Premium Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <motion.div
@@ -1014,7 +1088,9 @@ export default function DashboardPage() {
                 </div>
                 <p className="text-sm text-slate-600 font-medium mb-1">Total Citas</p>
                 <p className="text-3xl font-bold text-slate-900 tabular-nums">{totalAppointments}</p>
-                <p className="text-xs text-slate-500 mt-2">Este mes</p>
+                <p className="text-xs text-slate-500 mt-2">
+                  {statsPeriod === "day" ? "Hoy" : statsPeriod === "week" ? "Últimos 7 días" : "Este mes"}
+                </p>
               </CardContent>
             </Card>
           </motion.div>
