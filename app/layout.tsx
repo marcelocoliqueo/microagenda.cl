@@ -88,14 +88,14 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/favicon.ico', sizes: '32x32', type: 'image/x-icon' },
+      // Next.js usa automáticamente app/icon.ico y app/favicon.ico
+      // Estas referencias son para compatibilidad y como fallback
       { url: '/logo.png', type: 'image/png', sizes: '512x512' },
       { url: '/logo.svg', type: 'image/svg+xml' },
     ],
     apple: [
       { url: '/logo.png', type: 'image/png', sizes: '512x512' },
     ],
-    shortcut: '/favicon.ico',
   },
   manifest: '/manifest.json',
   robots: {
