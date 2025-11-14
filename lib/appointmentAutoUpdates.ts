@@ -1,4 +1,17 @@
-import { supabase, type Appointment } from "./supabaseClient";
+import { supabase as supabaseClient, type Appointment } from "./supabaseClient";
+import { createClient } from "@supabase/supabase-js";
+
+// Cliente de Supabase con credenciales de servicio para operaciones administrativas
+// Este cliente bypasea las políticas RLS y puede acceder a todos los datos
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+
+const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
+  }
+});
 
 /**
  * Sistema de auto-actualización de estados de citas
