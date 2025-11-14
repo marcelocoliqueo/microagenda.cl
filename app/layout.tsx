@@ -87,12 +87,9 @@ export const metadata: Metadata = {
     images: ['/logo.png'],
   },
   icons: {
-    icon: [
-      // Next.js usa automáticamente app/icon.ico y app/favicon.ico
-      // Estas referencias son para compatibilidad y como fallback
-      { url: '/logo.png', type: 'image/png', sizes: '512x512' },
-      { url: '/logo.svg', type: 'image/svg+xml' },
-    ],
+    // Next.js 13+ usa automáticamente app/icon.ico, app/icon.png, app/favicon.ico
+    // No especificamos icon explícitamente para evitar conflictos
+    // Solo agregamos apple-touch-icon y otros iconos grandes
     apple: [
       { url: '/logo.png', type: 'image/png', sizes: '512x512' },
     ],
