@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
         total: result.confirmed + result.completed + result.archived,
       },
       errors: result.errors,
+      debug: result.debug, // Logs de debug para investigación
     });
   } catch (error: any) {
     console.error("❌ Error en auto-actualización:", error);

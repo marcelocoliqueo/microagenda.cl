@@ -97,8 +97,10 @@ export async function autoConfirmPendingAppointments(
 export async function autoCompleteConfirmedAppointments(): Promise<{
   updated: number;
   errors: string[];
+  debug?: any[];
 }> {
   const errors: string[] = [];
+  const debugLogs: any[] = [];
 
   try {
     const now = new Date();
@@ -118,7 +120,7 @@ export async function autoCompleteConfirmedAppointments(): Promise<{
     }
 
     if (!confirmedAppointments || confirmedAppointments.length === 0) {
-      return { updated: 0, errors };
+      return { updated: 0, errors, debug: [] };
     }
 
     // Filtrar las que ya pasaron
@@ -127,7 +129,8 @@ export async function autoCompleteConfirmedAppointments(): Promise<{
       const shouldComplete = endTime < now;
 
       // Debug logging
-      console.log(`Cita ${apt.id}:`, {
+      const debugInfo = {
+        id: apt.id,
         date: apt.date,
         time: apt.time,
         endTime: endTime.toISOString(),
@@ -135,13 +138,16 @@ export async function autoCompleteConfirmedAppointments(): Promise<{
         shouldComplete,
         hasService: !!apt.service,
         serviceDuration: apt.service?.duration || 'sin servicio'
-      });
+      };
+
+      console.log(`Cita ${apt.id}:`, debugInfo);
+      debugLogs.push(debugInfo);
 
       return shouldComplete;
     });
 
     if (appointmentsToComplete.length === 0) {
-      return { updated: 0, errors };
+      return { updated: 0, errors, debug: debugLogs };
     }
 
     // Actualizar cada una
@@ -164,10 +170,11 @@ export async function autoCompleteConfirmedAppointments(): Promise<{
     return {
       updated: appointmentsToComplete.length - failedUpdates.length,
       errors,
+      debug: debugLogs,
     };
   } catch (error: any) {
     errors.push(`Unexpected error in autoCompleteConfirmedAppointments: ${error.message}`);
-    return { updated: 0, errors };
+    return { updated: 0, errors, debug: debugLogs };
   }
 }
 
@@ -232,6 +239,7 @@ export async function runAllAutoUpdates(
   completed: number;
   archived: number;
   errors: string[];
+  debug?: any;
 }> {
   const allErrors: string[] = [];
 
@@ -251,5 +259,6 @@ export async function runAllAutoUpdates(
       ...completedResult.errors,
       ...archivedResult.errors,
     ],
+    debug: completedResult.debug, // Pasar logs de debug de citas completadas
   };
 }
