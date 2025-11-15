@@ -145,8 +145,8 @@ function DemoInteractivo() {
 
         <div className="max-w-3xl mx-auto">
           {/* Stepper */}
-          <div className="flex items-center justify-center mb-6 sm:mb-8 px-2 sm:px-4 pt-2 sm:pt-0">
-            <div className="flex items-center gap-1.5 sm:gap-4 w-full justify-center overflow-x-auto py-2 sm:py-0 scrollbar-hide">
+          <div className="flex items-center justify-center mb-8 sm:mb-10 px-2 sm:px-4 pt-3 sm:pt-2 pb-3 sm:pb-2">
+            <div className="flex items-center gap-1.5 sm:gap-4 w-full justify-center overflow-x-auto scrollbar-hide">
               {steps.map((s, i) => (
                 <div key={s.number} className="flex items-center flex-shrink-0">
                   <div className="flex flex-col items-center gap-1 sm:gap-2">
@@ -218,7 +218,7 @@ function DemoInteractivo() {
                       <h5 className="text-sm sm:text-base font-semibold text-slate-700 mb-1">🎨 Elige tu color de marca</h5>
                       <p className="text-xs text-slate-500">Tu agenda se adaptará a este color</p>
                     </div>
-                    <div className="grid grid-cols-4 sm:flex sm:items-center sm:justify-center gap-2.5 sm:gap-2 sm:flex-nowrap">
+                    <div className="grid grid-cols-4 sm:flex sm:items-center sm:justify-center gap-3 sm:gap-3 sm:flex-nowrap">
                       {brandColors.map((color) => (
                         <button
                           key={color.value}
@@ -229,7 +229,7 @@ function DemoInteractivo() {
                           title={color.name}
                         >
                           <div
-                            className={`w-11 h-11 sm:w-10 sm:h-10 rounded-full ${color.bg} shadow-md transition-all ${
+                            className={`w-11 h-11 sm:w-11 sm:h-11 rounded-full ${color.bg} shadow-md transition-all ${
                               brandColor === color.value
                                 ? `ring-3 sm:ring-4 ${color.ring} shadow-lg`
                                 : 'hover:shadow-lg'
