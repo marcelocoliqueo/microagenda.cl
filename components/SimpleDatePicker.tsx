@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight, Calendar, Clock, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { generateAvailableSlots, getDayName } from "@/lib/utils";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface SimpleDatePickerProps {
   value: string;
@@ -37,6 +38,7 @@ export function SimpleDatePicker({
   serviceDuration,
   bufferTimeMinutes = 0,
 }: SimpleDatePickerProps) {
+  const { brandColor } = useTheme();
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(() => {
     if (value) {
@@ -212,7 +214,7 @@ export function SimpleDatePicker({
             initial={{ opacity: 0, y: -10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
-            className="fixed z-[101] bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden"
+            className="fixed z-[101] bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-200/50 overflow-hidden"
             style={{
               top: `${calendarPosition.top}px`,
               left: `${Math.max(8, calendarPosition.left)}px`,
@@ -231,21 +233,27 @@ export function SimpleDatePicker({
                     variant="ghost"
                     size="sm"
                     onClick={prevMonth}
-                    className="h-8 w-8 p-0"
+                    className="h-8 w-8 p-0 hover:bg-slate-100 transition-colors"
+                    style={{
+                      color: brandColor.primary
+                    }}
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
-                  
+
                   <h3 className="font-semibold text-slate-900 text-base">
                     {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
                   </h3>
-                  
+
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
                     onClick={nextMonth}
-                    className="h-8 w-8 p-0"
+                    className="h-8 w-8 p-0 hover:bg-slate-100 transition-colors"
+                    style={{
+                      color: brandColor.primary
+                    }}
                   >
                     <ChevronRight className="h-4 w-4" />
                   </Button>
@@ -277,14 +285,35 @@ export function SimpleDatePicker({
                         type="button"
                         onClick={() => handleDateSelect(date)}
                         disabled={!isSelectable}
+                        style={{
+                          backgroundColor: isSelected
+                            ? brandColor.primary
+                            : isToday && !isSelected
+                            ? `${brandColor.primary}15`
+                            : undefined,
+                          color: isSelected ? 'white' : isToday ? brandColor.primary : undefined,
+                          borderColor: isToday && !isSelected ? brandColor.primary : undefined,
+                        }}
                         className={cn(
-                          "h-10 w-10 rounded-lg text-sm font-medium transition-colors relative",
+                          "h-10 w-10 rounded-lg text-sm font-medium transition-all relative",
                           !isCurrentMonth && "text-slate-300",
                           isCurrentMonth && !isSelectable && "text-slate-400 cursor-not-allowed bg-slate-100/50",
-                          isCurrentMonth && isSelectable && !isSelected && !isToday && "text-slate-700 hover:bg-slate-100",
-                          isToday && !isSelected && "bg-primary/10 text-primary font-semibold",
-                          isSelected && "bg-primary text-white font-semibold",
+                          isCurrentMonth && isSelectable && !isSelected && !isToday && "text-slate-700 hover:bg-slate-100 hover:scale-105",
+                          isToday && !isSelected && "border-2 font-semibold",
+                          isSelected && "font-semibold shadow-lg scale-105",
                         )}
+                        onMouseEnter={(e) => {
+                          if (isSelectable && !isSelected) {
+                            e.currentTarget.style.backgroundColor = `${brandColor.primary}10`;
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (isSelectable && !isSelected && !isToday) {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                          } else if (isToday && !isSelected) {
+                            e.currentTarget.style.backgroundColor = `${brandColor.primary}15`;
+                          }
+                        }}
                         title={
                           !isSelectable
                             ? isCurrentMonth
@@ -297,7 +326,10 @@ export function SimpleDatePicker({
                       >
                         {date.getDate()}
                         {isSelectable && slotsCount > 0 && (
-                          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary/60"></div>
+                          <div
+                            className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
+                            style={{ backgroundColor: isSelected ? 'white' : brandColor.primary }}
+                          ></div>
                         )}
                       </button>
                     );
@@ -305,13 +337,19 @@ export function SimpleDatePicker({
                 </div>
 
                 {/* Leyenda */}
-                <div className="mt-4 pt-4 border-t border-slate-200 flex items-center justify-center gap-4 text-xs text-slate-500">
+                <div className="mt-4 pt-4 border-t border-slate-200/70 flex items-center justify-center gap-4 text-xs text-slate-500">
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded bg-primary"></div>
+                    <div
+                      className="w-3 h-3 rounded shadow-sm"
+                      style={{ backgroundColor: brandColor.primary }}
+                    ></div>
                     <span>Seleccionado</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded bg-primary/10"></div>
+                    <div
+                      className="w-3 h-3 rounded border-2"
+                      style={{ borderColor: brandColor.primary, backgroundColor: `${brandColor.primary}15` }}
+                    ></div>
                     <span>Hoy</span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -327,12 +365,12 @@ export function SimpleDatePicker({
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="border-l border-slate-200 p-5 bg-slate-50/50 flex-1 overflow-y-auto"
+                  className="border-l border-slate-200/70 p-5 bg-gradient-to-br from-slate-50/50 to-white/80 flex-1 overflow-y-auto"
                   style={{ maxHeight: 'calc(100vh - 16px)' }}
                 >
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
-                      <Clock className="w-5 h-5 text-primary" />
+                      <Clock className="w-5 h-5" style={{ color: brandColor.primary }} />
                       <h3 className="font-semibold text-slate-900">Horarios Disponibles</h3>
                     </div>
                     <Button
@@ -345,7 +383,7 @@ export function SimpleDatePicker({
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
-                  
+
                   <div className="grid grid-cols-3 gap-2">
                     {availableTimeSlots.map((slot) => {
                       const isSelected = selectedTime === slot;
@@ -354,20 +392,35 @@ export function SimpleDatePicker({
                           key={slot}
                           type="button"
                           onClick={() => handleTimeSelect(slot)}
+                          style={{
+                            backgroundColor: isSelected ? brandColor.primary : undefined,
+                            borderColor: isSelected ? brandColor.primary : undefined,
+                          }}
                           className={cn(
                             "px-4 py-3 rounded-lg text-sm font-medium transition-all",
-                            "hover:bg-primary/10 hover:border-primary/50",
                             isSelected
-                              ? "bg-primary text-white border-2 border-primary shadow-md"
-                              : "bg-white border border-slate-200 text-slate-700 hover:shadow-sm"
+                              ? "text-white border-2 shadow-lg font-semibold scale-105"
+                              : "bg-white/80 border border-slate-200 text-slate-700 hover:shadow-md hover:scale-105"
                           )}
+                          onMouseEnter={(e) => {
+                            if (!isSelected) {
+                              e.currentTarget.style.backgroundColor = `${brandColor.primary}10`;
+                              e.currentTarget.style.borderColor = `${brandColor.primary}50`;
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!isSelected) {
+                              e.currentTarget.style.backgroundColor = '';
+                              e.currentTarget.style.borderColor = '';
+                            }
+                          }}
                         >
                           {slot}
                         </button>
                       );
                     })}
                   </div>
-                  
+
                   <p className="text-xs text-slate-500 mt-4 text-center">
                     {availableTimeSlots.length} horario{availableTimeSlots.length !== 1 ? "s" : ""} disponible{availableTimeSlots.length !== 1 ? "s" : ""}
                   </p>
@@ -394,14 +447,34 @@ export function SimpleDatePicker({
             setShowTimeSlots(false);
           }}
           min={minDate}
-          className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-all"
+          style={{
+            // @ts-ignore
+            '--tw-ring-color': brandColor.primary,
+          }}
+          onFocus={(e) => {
+            e.currentTarget.style.borderColor = brandColor.primary;
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.borderColor = '';
+          }}
         />
         <Button
           type="button"
           variant="outline"
           size="icon"
           onClick={() => setShowCalendar(!showCalendar)}
-          className="shrink-0"
+          className="shrink-0 rounded-lg hover:bg-slate-100 transition-colors"
+          style={{
+            borderColor: brandColor.primary,
+            color: brandColor.primary
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = `${brandColor.primary}10`;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }}
         >
           <Calendar className="h-4 w-4" />
         </Button>

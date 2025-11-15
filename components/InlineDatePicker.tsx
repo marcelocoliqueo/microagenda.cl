@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, Calendar, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { generateAvailableSlots, getDayName } from "@/lib/utils";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface InlineDatePickerProps {
   value: string;
@@ -32,6 +33,7 @@ export function InlineDatePicker({
   serviceDuration,
   bufferTimeMinutes = 0,
 }: InlineDatePickerProps) {
+  const { brandColor } = useTheme();
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(() => {
     if (value) {
@@ -168,7 +170,7 @@ export function InlineDatePicker({
     <div className={cn("flex flex-col sm:flex-row gap-4", className)}>
       {/* Calendario */}
       <div className="flex-shrink-0 w-full sm:w-auto">
-        <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-3 sm:p-4">
+        <div className="bg-white/80 backdrop-blur-xl rounded-2xl border border-slate-200/50 shadow-lg p-3 sm:p-4">
           {/* Header del calendario */}
           <div className="flex items-center justify-between mb-3">
             <Button
@@ -176,21 +178,27 @@ export function InlineDatePicker({
               variant="ghost"
               size="sm"
               onClick={prevMonth}
-              className="h-7 w-7 p-0"
+              className="h-7 w-7 p-0 hover:bg-slate-100 transition-colors"
+              style={{
+                color: brandColor.primary
+              }}
             >
               <ChevronLeft className="h-3.5 w-3.5" />
             </Button>
-            
+
             <h3 className="font-semibold text-slate-900 text-sm sm:text-base">
               {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
             </h3>
-            
+
             <Button
               type="button"
               variant="ghost"
               size="sm"
               onClick={nextMonth}
-              className="h-7 w-7 p-0"
+              className="h-7 w-7 p-0 hover:bg-slate-100 transition-colors"
+              style={{
+                color: brandColor.primary
+              }}
             >
               <ChevronRight className="h-3.5 w-3.5" />
             </Button>
@@ -231,14 +239,35 @@ export function InlineDatePicker({
                   type="button"
                   onClick={() => handleDateSelect(date)}
                   disabled={!isSelectable}
+                  style={{
+                    backgroundColor: isSelected
+                      ? brandColor.primary
+                      : isToday && !isSelected
+                      ? `${brandColor.primary}15`
+                      : undefined,
+                    color: isSelected ? 'white' : isToday ? brandColor.primary : undefined,
+                    borderColor: isToday && !isSelected ? brandColor.primary : undefined,
+                  }}
                   className={cn(
-                    "h-8 w-8 sm:h-9 sm:w-9 rounded-md text-xs sm:text-sm font-medium transition-all relative",
+                    "h-8 w-8 sm:h-9 sm:w-9 rounded-lg text-xs sm:text-sm font-medium transition-all relative",
                     !isCurrentMonth && "text-slate-300",
                     isCurrentMonth && !isSelectable && "text-slate-400 cursor-not-allowed bg-slate-100/50",
-                    isCurrentMonth && isSelectable && !isSelected && !isToday && "text-slate-700 hover:bg-slate-100",
-                    isToday && !isSelected && "bg-primary/10 text-primary font-semibold",
-                    isSelected && "bg-primary text-white font-semibold shadow-md",
+                    isCurrentMonth && isSelectable && !isSelected && !isToday && "text-slate-700 hover:bg-slate-100 hover:scale-105",
+                    isToday && !isSelected && "border-2 font-semibold",
+                    isSelected && "font-semibold shadow-lg scale-105",
                   )}
+                  onMouseEnter={(e) => {
+                    if (isSelectable && !isSelected) {
+                      e.currentTarget.style.backgroundColor = `${brandColor.primary}10`;
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (isSelectable && !isSelected && !isToday) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    } else if (isToday && !isSelected) {
+                      e.currentTarget.style.backgroundColor = `${brandColor.primary}15`;
+                    }
+                  }}
                   title={
                     !isSelectable
                       ? isCurrentMonth
@@ -251,7 +280,10 @@ export function InlineDatePicker({
                 >
                   {date.getDate()}
                   {isSelectable && slotsCount > 0 && (
-                    <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary/60"></div>
+                    <div
+                      className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
+                      style={{ backgroundColor: isSelected ? 'white' : brandColor.primary }}
+                    ></div>
                   )}
                 </button>
               );
@@ -259,13 +291,19 @@ export function InlineDatePicker({
           </div>
 
           {/* Leyenda compacta */}
-          <div className="mt-3 pt-3 border-t border-slate-200 flex items-center justify-center gap-3 text-[10px] sm:text-xs text-slate-500">
+          <div className="mt-3 pt-3 border-t border-slate-200/70 flex items-center justify-center gap-3 text-[10px] sm:text-xs text-slate-500">
             <div className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded bg-primary"></div>
+              <div
+                className="w-2 h-2 rounded shadow-sm"
+                style={{ backgroundColor: brandColor.primary }}
+              ></div>
               <span>Seleccionado</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded bg-primary/10"></div>
+              <div
+                className="w-2 h-2 rounded border-2"
+                style={{ borderColor: brandColor.primary, backgroundColor: `${brandColor.primary}15` }}
+              ></div>
               <span>Hoy</span>
             </div>
             <div className="flex items-center gap-1">
@@ -279,7 +317,7 @@ export function InlineDatePicker({
       {/* Panel de Horarios */}
       <motion.div
         initial={false}
-        animate={{ 
+        animate={{
           width: value && availableTimeSlots.length > 0 ? 'auto' : '0',
           opacity: value && availableTimeSlots.length > 0 ? 1 : 0,
         }}
@@ -290,12 +328,12 @@ export function InlineDatePicker({
         )}
       >
         {value && availableTimeSlots.length > 0 && (
-          <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-3 sm:p-4 h-full">
+          <div className="bg-white/80 backdrop-blur-xl rounded-2xl border border-slate-200/50 shadow-lg p-3 sm:p-4 h-full">
             <div className="flex items-center gap-2 mb-3">
-              <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+              <Clock className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: brandColor.primary }} />
               <h3 className="font-semibold text-slate-900 text-sm sm:text-base">Horarios Disponibles</h3>
             </div>
-            
+
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 sm:gap-2 max-h-[300px] sm:max-h-[400px] overflow-y-auto pr-1">
               {availableTimeSlots.map((slot) => {
                 const isSelected = selectedTime === slot;
@@ -304,20 +342,35 @@ export function InlineDatePicker({
                     key={slot}
                     type="button"
                     onClick={() => onTimeSelect?.(slot)}
+                    style={{
+                      backgroundColor: isSelected ? brandColor.primary : undefined,
+                      borderColor: isSelected ? brandColor.primary : undefined,
+                    }}
                     className={cn(
                       "px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all text-center",
-                      "hover:bg-primary/10 hover:border-primary/50",
                       isSelected
-                        ? "bg-primary text-white border-2 border-primary shadow-md font-semibold"
-                        : "bg-slate-50 border border-slate-200 text-slate-700 hover:shadow-sm"
+                        ? "text-white border-2 shadow-lg font-semibold scale-105"
+                        : "bg-slate-50/80 border border-slate-200 text-slate-700 hover:shadow-md hover:scale-105"
                     )}
+                    onMouseEnter={(e) => {
+                      if (!isSelected) {
+                        e.currentTarget.style.backgroundColor = `${brandColor.primary}10`;
+                        e.currentTarget.style.borderColor = `${brandColor.primary}50`;
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isSelected) {
+                        e.currentTarget.style.backgroundColor = '';
+                        e.currentTarget.style.borderColor = '';
+                      }
+                    }}
                   >
                     {slot}
                   </button>
                 );
               })}
             </div>
-            
+
             <p className="text-[10px] sm:text-xs text-slate-500 mt-3 sm:mt-4 text-center">
               {availableTimeSlots.length} horario{availableTimeSlots.length !== 1 ? "s" : ""} disponible{availableTimeSlots.length !== 1 ? "s" : ""}
             </p>
