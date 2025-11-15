@@ -145,42 +145,44 @@ function DemoInteractivo() {
 
         <div className="max-w-3xl mx-auto">
           {/* Stepper */}
-          <div className="flex items-center justify-center mb-8 sm:mb-10 px-2 sm:px-4 overflow-visible">
-            <div className="flex items-center gap-1.5 sm:gap-4 w-full justify-center overflow-x-auto overflow-y-visible scrollbar-hide py-5 sm:py-4">
-              {steps.map((s, i) => (
-                <div key={s.number} className="flex items-center flex-shrink-0">
-                  <div className="flex flex-col items-center gap-1 sm:gap-2">
-                    <div
-                      className={`w-8 h-8 sm:w-14 sm:h-14 rounded-full flex items-center justify-center font-bold text-xs sm:text-lg transition-all duration-300 relative z-10 ${
-                        step === s.number
-                          ? `bg-gradient-to-r ${currentColor.gradient} text-white shadow-lg scale-110`
-                          : step > s.number
-                          ? `${currentColor.light} ${currentColor.text} ring-2 ${currentColor.ring}`
-                          : 'bg-slate-100 text-slate-400'
-                      }`}
-                      style={{
-                        boxShadow: step === s.number 
-                          ? '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)' 
-                          : undefined
-                      }}
-                    >
-                      {step > s.number ? <Check className="w-4 h-4 sm:w-6 sm:h-6" /> : s.number}
+          <div className="mb-8 sm:mb-10 px-2 sm:px-4">
+            <div className="relative py-6 sm:py-5">
+              <div className="flex items-center gap-1.5 sm:gap-4 w-full justify-center overflow-x-auto scrollbar-hide">
+                {steps.map((s, i) => (
+                  <div key={s.number} className="flex items-center flex-shrink-0">
+                    <div className="flex flex-col items-center gap-1 sm:gap-2">
+                      <div
+                        className={`w-8 h-8 sm:w-14 sm:h-14 rounded-full flex items-center justify-center font-bold text-xs sm:text-lg transition-all duration-300 relative z-10 ${
+                          step === s.number
+                            ? `bg-gradient-to-r ${currentColor.gradient} text-white shadow-lg scale-110`
+                            : step > s.number
+                            ? `${currentColor.light} ${currentColor.text} ring-2 ${currentColor.ring}`
+                            : 'bg-slate-100 text-slate-400'
+                        }`}
+                        style={{
+                          boxShadow: step === s.number 
+                            ? '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)' 
+                            : undefined
+                        }}
+                      >
+                        {step > s.number ? <Check className="w-4 h-4 sm:w-6 sm:h-6" /> : s.number}
+                      </div>
+                      <span className={`text-[10px] sm:text-sm font-medium transition-colors text-center w-[80px] leading-tight hidden sm:block ${
+                        step === s.number ? 'text-slate-900' : 'text-slate-500'
+                      }`}>
+                        {s.title}
+                      </span>
                     </div>
-                    <span className={`text-[10px] sm:text-sm font-medium transition-colors text-center w-[80px] leading-tight hidden sm:block ${
-                      step === s.number ? 'text-slate-900' : 'text-slate-500'
-                    }`}>
-                      {s.title}
-                    </span>
+                    {i < steps.length - 1 && (
+                      <div
+                        className={`h-0.5 sm:h-1 w-4 sm:w-12 mx-1 sm:mx-3 rounded transition-all duration-300 flex-shrink-0 ${
+                          step > s.number ? currentColor.bg.replace('500', '300') : 'bg-slate-200'
+                        }`}
+                      />
+                    )}
                   </div>
-                  {i < steps.length - 1 && (
-                    <div
-                      className={`h-0.5 sm:h-1 w-4 sm:w-12 mx-1 sm:mx-3 rounded transition-all duration-300 flex-shrink-0 ${
-                        step > s.number ? currentColor.bg.replace('500', '300') : 'bg-slate-200'
-                      }`}
-                    />
-                  )}
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
 
