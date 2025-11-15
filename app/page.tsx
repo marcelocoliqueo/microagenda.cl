@@ -203,18 +203,18 @@ function DemoInteractivo() {
             </div>
 
             {/* Content */}
-            <div className="p-6 min-h-[320px] flex flex-col">
+            <div className="p-6 min-h-[500px] flex flex-col">
               {/* Step 1: Color de marca */}
               {step === 1 && (
-                <div className="flex-1 flex flex-col items-center justify-center">
-                  <div className="text-center mb-6">
+                <div className="flex-1 space-y-5">
+                  <div className="text-center">
                     <h4 className="text-xl font-bold text-slate-900 mb-1">Personaliza tu agenda</h4>
                     <p className="text-sm text-slate-600">Elige el color que represente tu marca</p>
                   </div>
 
                   {/* Color Selector */}
-                  <div className="w-full max-w-md p-6 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200">
-                    <div className="text-center mb-4">
+                  <div className="w-full p-6 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200">
+                    <div className="text-center mb-5">
                       <h5 className="text-base font-semibold text-slate-700 mb-1">🎨 Elige tu color de marca</h5>
                       <p className="text-xs text-slate-500">Tu agenda se adaptará a este color</p>
                     </div>
@@ -242,7 +242,42 @@ function DemoInteractivo() {
                       ))}
                     </div>
                   </div>
-                  <p className="text-xs text-slate-500 text-center mt-4">
+
+                  {/* Preview del color seleccionado */}
+                  <div className="space-y-3">
+                    <h6 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                      Vista previa
+                    </h6>
+                    <div className={`rounded-lg ${currentColor.light} border ${currentColor.border} p-4`}>
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-8 h-8 rounded-lg ${currentColor.bg} flex items-center justify-center`}>
+                            <Sparkles className="w-4 h-4 text-white" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-slate-900 text-sm">Ejemplo de servicio</p>
+                            <p className="text-xs text-slate-600">30 min · ${(15000).toLocaleString('es-CL')}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <div className={`flex-1 py-2 px-3 rounded-lg bg-white border ${currentColor.border} text-center`}>
+                          <p className="text-xs text-slate-600">Lun 28</p>
+                          <p className="text-sm font-semibold text-slate-900">10:00</p>
+                        </div>
+                        <div className={`flex-1 py-2 px-3 rounded-lg bg-white border ${currentColor.border} text-center`}>
+                          <p className="text-xs text-slate-600">Lun 28</p>
+                          <p className="text-sm font-semibold text-slate-900">11:00</p>
+                        </div>
+                        <div className={`flex-1 py-2 px-3 rounded-lg bg-white border ${currentColor.border} text-center`}>
+                          <p className="text-xs text-slate-600">Lun 28</p>
+                          <p className="text-sm font-semibold text-slate-900">14:00</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-slate-500 text-center">
                     👆 Selecciona un color para continuar
                   </p>
                 </div>
@@ -250,19 +285,22 @@ function DemoInteractivo() {
 
               {/* Step 2: Servicios */}
               {step === 2 && (
-                <div className="flex-1">
-                  <div className="text-center mb-6">
+                <div className="flex-1 space-y-5">
+                  <div className="text-center">
                     <h4 className="text-xl font-bold text-slate-900 mb-1">Natasha Romanoff</h4>
                     <p className="text-sm text-slate-600">Salón de Belleza</p>
                   </div>
 
-                  <h5 className="font-semibold text-slate-900 mb-3">Elige tu servicio</h5>
                   <div className="space-y-3">
+                    <h6 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                      <Sparkles className={`w-4 h-4 ${currentColor.text}`} />
+                      Elige tu servicio
+                    </h6>
                     {services.map((service) => (
                       <button
                         key={service.id}
                         onClick={() => handleServiceSelect(service)}
-                        className={`w-full rounded-lg border-2 border-slate-200 bg-white p-3 hover:${currentColor.border} hover:shadow-md transition-all cursor-pointer`}
+                        className={`w-full rounded-lg border-2 border-slate-200 bg-white p-4 hover:${currentColor.border} hover:shadow-md transition-all cursor-pointer`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="text-left">
@@ -280,7 +318,24 @@ function DemoInteractivo() {
                       </button>
                     ))}
                   </div>
-                  <p className="text-xs text-slate-500 text-center mt-4">
+
+                  {/* Información adicional */}
+                  <div className={`rounded-lg ${currentColor.light} border ${currentColor.border} p-4 space-y-2`}>
+                    <div className="flex items-center gap-2">
+                      <Check className={`w-4 h-4 ${currentColor.text}`} />
+                      <span className="text-xs text-slate-700">Reserva instantánea</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Check className={`w-4 h-4 ${currentColor.text}`} />
+                      <span className="text-xs text-slate-700">Confirmación automática</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Check className={`w-4 h-4 ${currentColor.text}`} />
+                      <span className="text-xs text-slate-700">Recordatorio por email</span>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-slate-500 text-center">
                     👆 Haz clic en un servicio para continuar
                   </p>
                 </div>
@@ -471,61 +526,104 @@ function DemoInteractivo() {
 
               {/* Step 4: Completar datos */}
               {step === 4 && (
-                <div className="flex-1">
-                  <h5 className="font-semibold text-slate-900 mb-4">Completa tus datos</h5>
-                  <div className="space-y-3">
-                    {/* Resumen mini */}
-                    {selectedService && selectedDate && selectedTime && (
-                      <div className={`rounded-lg ${currentColor.light} border ${currentColor.border} p-2 text-xs space-y-1`}>
-                        <div className="flex justify-between">
-                          <span className="font-medium">{selectedService.name}</span>
-                          <span>${selectedService.price.toLocaleString('es-CL')}</span>
-                      </div>
-                        <div className="text-slate-600">
-                          {new Date(selectedDate).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' })} · {selectedTime}
-                    </div>
-                      </div>
-                    )}
+                <div className="flex-1 space-y-5">
+                  <div>
+                    <h5 className="font-semibold text-slate-900 mb-1">Completa tus datos</h5>
+                    <p className="text-xs text-slate-600">Solo necesitamos información básica</p>
+                  </div>
 
-                      <div>
-                      <label className="text-xs font-medium text-slate-700 block mb-1">Nombre</label>
-                        <div className="px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-700">
+                  {/* Resumen mini */}
+                  {selectedService && selectedDate && selectedTime && (
+                    <div className={`rounded-lg ${currentColor.light} border ${currentColor.border} p-3`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <Sparkles className={`w-4 h-4 ${currentColor.text}`} />
+                          <span className="font-medium text-sm text-slate-900">{selectedService.name}</span>
+                        </div>
+                        <span className={`font-bold ${currentColor.text}`}>${selectedService.price.toLocaleString('es-CL')}</span>
+                      </div>
+                      <div className="text-xs text-slate-600 flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {new Date(selectedDate).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' })} · {selectedTime}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-xs font-medium text-slate-700 block mb-2">Nombre completo</label>
+                      <div className="px-4 py-3 rounded-lg border border-slate-300 bg-white text-sm text-slate-700">
                         Peter Parker
-                        </div>
                       </div>
-                      <div>
-                      <label className="text-xs font-medium text-slate-700 block mb-1">Email</label>
-                        <div className="px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-700">
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-slate-700 block mb-2">Email</label>
+                      <div className="px-4 py-3 rounded-lg border border-slate-300 bg-white text-sm text-slate-700">
                         peter@example.com
-                        </div>
                       </div>
-                      <div>
-                      <label className="text-xs font-medium text-slate-700 block mb-1">Teléfono</label>
-                        <div className="px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-700">
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-slate-700 block mb-2">Teléfono</label>
+                      <div className="px-4 py-3 rounded-lg border border-slate-300 bg-white text-sm text-slate-700">
                         +56 9 1234 5678
                       </div>
                     </div>
+                  </div>
+
+                  <div className={`rounded-lg ${currentColor.light} border ${currentColor.border} p-3`}>
+                    <p className="text-xs text-slate-700">
+                      🔒 Tus datos están protegidos. Solo se usarán para confirmar tu reserva.
+                    </p>
                   </div>
                 </div>
               )}
 
               {/* Step 5: Confirmación */}
               {step === 5 && selectedService && (
-                <div className="flex-1 flex flex-col items-center justify-center text-center">
-                  <div className={`w-16 h-16 rounded-full ${currentColor.light} flex items-center justify-center mb-4`}>
-                    <Check className={`w-8 h-8 ${currentColor.text}`} />
+                <div className="flex-1 space-y-5 flex flex-col justify-center">
+                  <div className="text-center">
+                    <div className={`w-16 h-16 rounded-full ${currentColor.light} flex items-center justify-center mb-4 mx-auto`}>
+                      <Check className={`w-8 h-8 ${currentColor.text}`} />
+                    </div>
+                    <h5 className="text-xl font-bold text-slate-900 mb-2">¡Reserva confirmada!</h5>
+                    <p className="text-sm text-slate-600">
+                      Peter recibirá confirmación por email
+                    </p>
                   </div>
-                  <h5 className="text-xl font-bold text-slate-900 mb-2">¡Reserva confirmada!</h5>
-                  <p className="text-sm text-slate-600 mb-4">
-                    Peter recibirá confirmación por email
-                  </p>
-                  <div className="w-full bg-slate-50 rounded-lg p-4 text-left">
-                    <div className="text-xs text-slate-600 space-y-1">
-                      <div><span className="font-medium">Servicio:</span> {selectedService.name}</div>
-                      <div><span className="font-medium">Duración:</span> {selectedService.duration} min</div>
-                      <div><span className="font-medium">Fecha:</span> {selectedDate ? new Date(selectedDate).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' }) : '28 Oct'}, {selectedTime || '10:00'}</div>
-                      <div><span className="font-medium">Cliente:</span> Peter Parker</div>
-                      <div><span className="font-medium">Total:</span> ${selectedService.price.toLocaleString('es-CL')}</div>
+
+                  <div className={`rounded-lg ${currentColor.light} border ${currentColor.border} p-4 space-y-3`}>
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                      <span className="text-xs font-medium text-slate-700">Servicio</span>
+                      <span className="text-sm font-semibold text-slate-900">{selectedService.name}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-slate-700">Duración</span>
+                      <span className="text-sm text-slate-900">{selectedService.duration} min</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-slate-700">Fecha</span>
+                      <span className="text-sm text-slate-900">
+                        {selectedDate ? new Date(selectedDate).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' }) : '28 Oct'}, {selectedTime || '10:00'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-slate-700">Cliente</span>
+                      <span className="text-sm text-slate-900">Peter Parker</span>
+                    </div>
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-200">
+                      <span className="text-sm font-bold text-slate-900">Total</span>
+                      <span className={`text-lg font-bold ${currentColor.text}`}>${selectedService.price.toLocaleString('es-CL')}</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-xs text-slate-600">
+                      <Check className={`w-4 h-4 ${currentColor.text}`} />
+                      <span>Confirmación enviada a peter@example.com</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-slate-600">
+                      <Check className={`w-4 h-4 ${currentColor.text}`} />
+                      <span>Recordatorio programado 24h antes</span>
                     </div>
                   </div>
                 </div>
