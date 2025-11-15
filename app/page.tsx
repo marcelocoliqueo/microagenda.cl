@@ -604,89 +604,149 @@ function HeroPremium() {
                     {/* Content */}
                     <div className="px-5 pb-4">
                       {/* Header */}
-                      <div className="mb-5">
+                      <div className="mb-4">
                         <h1 className="text-2xl font-bold text-slate-900 mb-0.5">Dashboard</h1>
                         <p className="text-xs text-slate-500 font-medium">Hoy, 28 Octubre 2025</p>
                       </div>
 
+                      {/* Period Filter Pills */}
+                      <div className="mb-4 flex gap-1.5 bg-white/70 backdrop-blur border border-slate-200/70 rounded-xl p-1 w-fit shadow-sm">
+                        <div className="px-2.5 py-1 rounded-lg text-[10px] font-medium bg-emerald-500 text-white shadow-sm">
+                          Hoy
+                        </div>
+                        <div className="px-2.5 py-1 rounded-lg text-[10px] font-medium text-slate-600">
+                          Semana
+                        </div>
+                        <div className="px-2.5 py-1 rounded-lg text-[10px] font-medium text-slate-600">
+                          Mes
+                        </div>
+                      </div>
+
                       {/* Stats cards - Modern glassmorphism */}
-                      <div className="grid grid-cols-2 gap-2.5 mb-5">
-                        <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-3.5 border border-slate-200/50 shadow-lg shadow-slate-200/50">
-                          <div className="text-[10px] text-slate-500 mb-1 font-semibold uppercase tracking-wide">Total</div>
-                          <div className="text-3xl font-bold text-slate-900">24</div>
-                          <div className="text-[9px] text-emerald-600 font-medium mt-0.5">↑ +12%</div>
+                      <div className="grid grid-cols-2 gap-2.5 mb-4">
+                        <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-3 border border-slate-200/50 shadow-lg">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center">
+                              <svg className="w-3.5 h-3.5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+                                <line x1="16" x2="16" y1="2" y2="6"></line>
+                                <line x1="8" x2="8" y1="2" y2="6"></line>
+                                <line x1="3" x2="21" y1="10" y2="10"></line>
+                              </svg>
+                            </div>
+                          </div>
+                          <div className="text-[9px] text-slate-500 mb-0.5 font-medium">Total Citas</div>
+                          <div className="text-2xl font-bold text-slate-900">24</div>
+                          <div className="text-[8px] text-slate-400 mt-0.5">Hoy</div>
                         </div>
-                        <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-3.5 shadow-lg shadow-emerald-200/50">
-                          <div className="text-[10px] text-emerald-100 mb-1 font-semibold uppercase tracking-wide">Confirmadas</div>
-                          <div className="text-3xl font-bold text-white">18</div>
-                          <div className="text-[9px] text-emerald-100 font-medium mt-0.5">75% tasa</div>
+                        <div className="bg-gradient-to-br from-green-50/50 to-white rounded-2xl p-3 border border-green-200/70 shadow-lg">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="w-7 h-7 rounded-lg bg-green-100/80 flex items-center justify-center">
+                              <svg className="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                              </svg>
+                            </div>
+                            <span className="text-[7px] font-semibold px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full">75%</span>
+                          </div>
+                          <div className="text-[9px] text-slate-600 mb-0.5 font-medium">Confirmadas</div>
+                          <div className="text-2xl font-bold text-green-600">18</div>
+                          <div className="text-[8px] text-slate-400 mt-0.5">Tasa de confirmación</div>
                         </div>
-                        <div className="bg-gradient-to-br from-amber-400 to-amber-500 rounded-2xl p-3.5 shadow-lg shadow-amber-200/50">
-                          <div className="text-[10px] text-amber-50 mb-1 font-semibold uppercase tracking-wide">Pendientes</div>
-                          <div className="text-3xl font-bold text-white">3</div>
-                          <div className="text-[9px] text-amber-50 font-medium mt-0.5">Por confirmar</div>
+                        <div className="bg-gradient-to-br from-amber-50/50 to-white rounded-2xl p-3 border border-amber-200/70 shadow-lg">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center">
+                              <svg className="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" x2="12" y1="8" y2="12"></line>
+                                <line x1="12" x2="12.01" y1="16" y2="16"></line>
+                              </svg>
+                            </div>
+                            <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>
+                          </div>
+                          <div className="text-[9px] text-slate-600 mb-0.5 font-medium">Pendientes</div>
+                          <div className="text-2xl font-bold text-amber-600">3</div>
+                          <div className="text-[8px] text-slate-400 mt-0.5">Requieren confirmación</div>
                         </div>
-                        <div className="bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl p-3.5 shadow-lg shadow-slate-300/30">
-                          <div className="text-[10px] text-slate-300 mb-1 font-semibold uppercase tracking-wide">Ingresos</div>
-                          <div className="text-2xl font-bold text-white">$245k</div>
-                          <div className="text-[9px] text-emerald-400 font-medium mt-0.5">↑ Este mes</div>
+                        <div className="bg-gradient-to-br from-emerald-50/30 to-white rounded-2xl p-3 border border-emerald-200/40 shadow-lg">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-7 h-7 rounded-lg bg-emerald-100/50 flex items-center justify-center">
+                              <svg className="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <line x1="12" x2="12" y1="2" y2="22"></line>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                              </svg>
+                            </div>
+                          </div>
+                          <div className="text-[9px] text-slate-600 mb-0.5 font-medium">Ingresos</div>
+                          <div className="text-xl font-bold text-emerald-600">$245k</div>
+                          <div className="text-[8px] text-slate-400 mt-0.5">Citas completadas</div>
+                        </div>
+                      </div>
+
+                      {/* Filter tabs */}
+                      <div className="mb-3 flex gap-1.5 overflow-x-auto pb-1">
+                        <div className="px-3 py-1.5 rounded-lg text-[10px] font-medium bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-sm whitespace-nowrap flex items-center gap-1.5">
+                          <span>Próximas</span>
+                          <span className="bg-white/20 px-1.5 py-0.5 rounded">3</span>
+                        </div>
+                        <div className="px-3 py-1.5 rounded-lg text-[10px] font-medium text-slate-600 border border-slate-200 bg-white/50 whitespace-nowrap">
+                          Hoy
+                        </div>
+                        <div className="px-3 py-1.5 rounded-lg text-[10px] font-medium text-slate-600 border border-slate-200 bg-white/50 whitespace-nowrap">
+                          Completadas
                         </div>
                       </div>
 
                       {/* Appointments - Modern cards */}
-                      <div className="space-y-2.5">
-                        <div className="flex items-center justify-between">
-                          <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wide">Próximas citas</h3>
-                          <span className="text-[10px] text-slate-400 font-medium">Ver todas →</span>
-                        </div>
-                        
-                        <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-3.5 border border-emerald-200/50 shadow-md">
-                          <div className="flex items-center gap-3 mb-2.5">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                      <div className="space-y-2">
+                        <div className="bg-white/90 backdrop-blur-sm rounded-xl p-3 border border-slate-200/70 shadow-sm">
+                          <div className="flex items-start gap-2.5 mb-2">
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-100 to-emerald-200 flex items-center justify-center text-emerald-700 font-bold text-[11px] shadow-sm">
                               MG
                             </div>
-                            <div className="flex-1">
-                              <div className="text-sm font-bold text-slate-900">María González</div>
-                              <div className="text-[11px] text-slate-500 font-medium">Corte de cabello</div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-[11px] font-bold text-slate-900 mb-0.5">María González</div>
+                              <div className="text-[9px] text-slate-500">Corte de cabello · 45 min</div>
                             </div>
-                            <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                            <span className="text-[7px] px-1.5 py-0.5 bg-green-100 text-green-800 rounded font-semibold whitespace-nowrap">Confirmada</span>
                           </div>
-                          <div className="flex items-center justify-between text-[11px]">
-                            <div className="text-slate-600 font-semibold">Hoy · 10:00</div>
-                            <div className="px-2 py-1 bg-emerald-50 text-emerald-700 rounded-lg font-bold">$15.000</div>
+                          <div className="flex items-center justify-between text-[10px] pt-2 border-t border-slate-100">
+                            <div className="text-slate-600 font-medium">Hoy · 10:00</div>
+                            <div className="text-emerald-600 font-bold">$15.000</div>
                           </div>
                         </div>
 
-                        <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-3.5 border border-amber-200/50 shadow-md">
-                          <div className="flex items-center gap-3 mb-2.5">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                        <div className="bg-white/90 backdrop-blur-sm rounded-xl p-3 border border-slate-200/70 shadow-sm">
+                          <div className="flex items-start gap-2.5 mb-2">
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center text-amber-700 font-bold text-[11px] shadow-sm">
                               JP
                             </div>
-                            <div className="flex-1">
-                              <div className="text-sm font-bold text-slate-900">Juan Pérez</div>
-                              <div className="text-[11px] text-slate-500 font-medium">Manicure</div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-[11px] font-bold text-slate-900 mb-0.5">Juan Pérez</div>
+                              <div className="text-[9px] text-slate-500">Manicure · 60 min</div>
                             </div>
-                            <div className="w-2 h-2 rounded-full bg-amber-500" />
+                            <span className="text-[7px] px-1.5 py-0.5 bg-yellow-100 text-yellow-800 rounded font-semibold whitespace-nowrap">Pendiente</span>
                           </div>
-                          <div className="flex items-center justify-between text-[11px]">
-                            <div className="text-slate-600 font-semibold">Hoy · 14:30</div>
-                            <div className="px-2 py-1 bg-amber-50 text-amber-700 rounded-lg font-bold">$12.000</div>
+                          <div className="flex items-center justify-between text-[10px] pt-2 border-t border-slate-100">
+                            <div className="text-slate-600 font-medium">Hoy · 14:30</div>
+                            <div className="text-emerald-600 font-bold">$12.000</div>
                           </div>
                         </div>
 
-                        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-3.5 border border-slate-200/50 shadow-sm opacity-60">
-                          <div className="flex items-center gap-3 mb-2.5">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center text-white font-bold text-sm">
+                        <div className="bg-white/70 backdrop-blur-sm rounded-xl p-3 border border-slate-200/50 shadow-sm opacity-70">
+                          <div className="flex items-start gap-2.5 mb-2">
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-600 font-bold text-[11px]">
                               CS
                             </div>
-                            <div className="flex-1">
-                              <div className="text-sm font-bold text-slate-900">Carolina Silva</div>
-                              <div className="text-[11px] text-slate-500 font-medium">Masaje</div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-[11px] font-bold text-slate-900 mb-0.5">Carolina Silva</div>
+                              <div className="text-[9px] text-slate-500">Masaje · 90 min</div>
                             </div>
+                            <span className="text-[7px] px-1.5 py-0.5 bg-green-100 text-green-800 rounded font-semibold whitespace-nowrap">Confirmada</span>
                           </div>
-                          <div className="flex items-center justify-between text-[11px]">
-                            <div className="text-slate-500 font-semibold">Mañana · 09:00</div>
-                            <div className="px-2 py-1 bg-slate-100 text-slate-600 rounded-lg font-bold">$18.000</div>
+                          <div className="flex items-center justify-between text-[10px] pt-2 border-t border-slate-100">
+                            <div className="text-slate-500 font-medium">Mañana · 09:00</div>
+                            <div className="text-slate-600 font-bold">$18.000</div>
                           </div>
                         </div>
                       </div>
@@ -715,58 +775,127 @@ function HeroPremium() {
                   </div>
                   {/* content real data */}
                   <div className="p-4">
+                    {/* Period filter */}
+                    <div className="mb-3 flex gap-1 bg-white/70 backdrop-blur border border-slate-200/70 rounded-lg p-0.5 w-fit">
+                      <div className="px-2 py-1 rounded text-[8px] font-medium bg-emerald-500 text-white">Hoy</div>
+                      <div className="px-2 py-1 rounded text-[8px] font-medium text-slate-600">Semana</div>
+                      <div className="px-2 py-1 rounded text-[8px] font-medium text-slate-600">Mes</div>
+                    </div>
+
                     {/* 4 stats cards */}
                     <div className="grid grid-cols-4 gap-2 mb-3">
-                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
-                        <div className="text-[9px] text-slate-500 mb-0.5">Total</div>
+                      <div className="bg-white/80 backdrop-blur rounded-lg p-2 border border-slate-200/50">
+                        <div className="flex items-center gap-1 mb-1">
+                          <div className="w-5 h-5 rounded bg-slate-100 flex items-center justify-center">
+                            <svg className="w-2.5 h-2.5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+                              <line x1="16" x2="16" y1="2" y2="6"></line>
+                              <line x1="8" x2="8" y1="2" y2="6"></line>
+                              <line x1="3" x2="21" y1="10" y2="10"></line>
+                            </svg>
+                          </div>
+                        </div>
+                        <div className="text-[8px] text-slate-500 mb-0.5">Total Citas</div>
                         <div className="text-base font-bold text-slate-900">24</div>
-                    </div>
-                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
-                        <div className="text-[9px] text-slate-500 mb-0.5">Confirm.</div>
-                        <div className="text-base font-bold text-emerald-600">18</div>
-                    </div>
-                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
-                        <div className="text-[9px] text-slate-500 mb-0.5">Pend.</div>
-                        <div className="text-base font-bold text-yellow-600">3</div>
+                        <div className="text-[7px] text-slate-400">Hoy</div>
                       </div>
-                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
-                        <div className="text-[9px] text-slate-500 mb-0.5">Ingresos</div>
-                        <div className="text-base font-bold text-slate-900">$245k</div>
+                      <div className="bg-gradient-to-br from-green-50/50 to-white rounded-lg p-2 border border-green-200/70">
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="w-5 h-5 rounded bg-green-100/80 flex items-center justify-center">
+                            <svg className="w-2.5 h-2.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                          </div>
+                          <span className="text-[6px] font-semibold px-1 py-0.5 bg-green-100 text-green-700 rounded">75%</span>
+                        </div>
+                        <div className="text-[8px] text-slate-600 mb-0.5">Confirmadas</div>
+                        <div className="text-base font-bold text-green-600">18</div>
+                        <div className="text-[7px] text-slate-400">Tasa de confirmación</div>
+                      </div>
+                      <div className="bg-gradient-to-br from-amber-50/50 to-white rounded-lg p-2 border border-amber-200/70">
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="w-5 h-5 rounded bg-amber-100 flex items-center justify-center">
+                            <svg className="w-2.5 h-2.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <circle cx="12" cy="12" r="10"></circle>
+                              <line x1="12" x2="12" y1="8" y2="12"></line>
+                              <line x1="12" x2="12.01" y1="16" y2="16"></line>
+                            </svg>
+                          </div>
+                          <span className="w-1 h-1 bg-amber-500 rounded-full animate-pulse"></span>
+                        </div>
+                        <div className="text-[8px] text-slate-600 mb-0.5">Pendientes</div>
+                        <div className="text-base font-bold text-amber-600">3</div>
+                        <div className="text-[7px] text-slate-400">Requieren confirmación</div>
+                      </div>
+                      <div className="bg-gradient-to-br from-emerald-50/30 to-white rounded-lg p-2 border border-emerald-200/40">
+                        <div className="flex items-center gap-1 mb-1">
+                          <div className="w-5 h-5 rounded bg-emerald-100/50 flex items-center justify-center">
+                            <svg className="w-2.5 h-2.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <line x1="12" x2="12" y1="2" y2="22"></line>
+                              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                            </svg>
+                          </div>
+                        </div>
+                        <div className="text-[8px] text-slate-600 mb-0.5">Ingresos</div>
+                        <div className="text-sm font-bold text-emerald-600">$245k</div>
+                        <div className="text-[7px] text-slate-400">Citas completadas</div>
                       </div>
                     </div>
+
+                    {/* Filter tabs */}
+                    <div className="mb-2 flex gap-1">
+                      <div className="px-2 py-1 rounded text-[8px] font-medium bg-gradient-to-r from-emerald-500 to-emerald-600 text-white flex items-center gap-1">
+                        <span>Próximas</span>
+                        <span className="bg-white/20 px-1 py-0.5 rounded text-[7px]">3</span>
+                      </div>
+                      <div className="px-2 py-1 rounded text-[8px] font-medium text-slate-600 border border-slate-200 bg-white/50">Hoy</div>
+                      <div className="px-2 py-1 rounded text-[8px] font-medium text-slate-600 border border-slate-200 bg-white/50">Completadas</div>
+                    </div>
+
                     {/* appointments list */}
                     <div className="space-y-1.5">
-                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
-                        <div className="flex items-center gap-1.5 mb-0.5">
-                          <span className="text-[10px] font-medium text-slate-900">María González</span>
-                          <span className="text-[8px] px-1.5 py-0.5 bg-green-100 text-green-800 rounded whitespace-nowrap">Confirmada</span>
+                      <div className="bg-white/90 rounded-lg p-2 border border-slate-200/70">
+                        <div className="flex items-start gap-1.5 mb-1">
+                          <div className="w-5 h-5 rounded bg-gradient-to-br from-emerald-100 to-emerald-200 flex items-center justify-center text-emerald-700 font-bold text-[8px]">MG</div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[9px] font-bold text-slate-900">María González</div>
+                            <div className="text-[7px] text-slate-500">Corte de cabello · 45 min</div>
+                          </div>
+                          <span className="text-[6px] px-1 py-0.5 bg-green-100 text-green-800 rounded font-semibold whitespace-nowrap">Confirmada</span>
                         </div>
-                        <div className="text-[9px] text-slate-600">Corte de cabello</div>
-                        <div className="text-[8px] text-slate-500">28 Oct · 10:00</div>
+                        <div className="flex items-center justify-between text-[8px] pt-1 border-t border-slate-100">
+                          <span className="text-slate-600">Hoy · 10:00</span>
+                          <span className="text-emerald-600 font-bold">$15.000</span>
+                        </div>
                       </div>
-                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
-                        <div className="flex items-center gap-1.5 mb-0.5">
-                          <span className="text-[10px] font-medium text-slate-900">Juan Pérez</span>
-                          <span className="text-[8px] px-1.5 py-0.5 bg-yellow-100 text-yellow-800 rounded whitespace-nowrap">Pendiente</span>
+                      <div className="bg-white/90 rounded-lg p-2 border border-slate-200/70">
+                        <div className="flex items-start gap-1.5 mb-1">
+                          <div className="w-5 h-5 rounded bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center text-amber-700 font-bold text-[8px]">JP</div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[9px] font-bold text-slate-900">Juan Pérez</div>
+                            <div className="text-[7px] text-slate-500">Manicure · 60 min</div>
+                          </div>
+                          <span className="text-[6px] px-1 py-0.5 bg-yellow-100 text-yellow-800 rounded font-semibold whitespace-nowrap">Pendiente</span>
                         </div>
-                        <div className="text-[9px] text-slate-600">Manicure</div>
-                        <div className="text-[8px] text-slate-500">28 Oct · 14:30</div>
-                      </div>
-                      <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50">
-                        <div className="flex items-center gap-1.5 mb-0.5">
-                          <span className="text-[10px] font-medium text-slate-900">Carolina Silva</span>
-                          <span className="text-[8px] px-1.5 py-0.5 bg-green-100 text-green-800 rounded whitespace-nowrap">Confirmada</span>
+                        <div className="flex items-center justify-between text-[8px] pt-1 border-t border-slate-100">
+                          <span className="text-slate-600">Hoy · 14:30</span>
+                          <span className="text-emerald-600 font-bold">$12.000</span>
                         </div>
-                        <div className="text-[9px] text-slate-600">Masaje relajante</div>
-                        <div className="text-[8px] text-slate-500">29 Oct · 09:00</div>
                       </div>
                       <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50 opacity-70">
-                        <div className="flex items-center gap-1.5 mb-0.5">
-                          <span className="text-[10px] font-medium text-slate-900">Roberto Muñoz</span>
-                          <span className="text-[8px] px-1.5 py-0.5 bg-green-100 text-green-800 rounded whitespace-nowrap">Confirmada</span>
+                        <div className="flex items-start gap-1.5 mb-1">
+                          <div className="w-5 h-5 rounded bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-600 font-bold text-[8px]">CS</div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[9px] font-bold text-slate-900">Carolina Silva</div>
+                            <div className="text-[7px] text-slate-500">Masaje · 90 min</div>
+                          </div>
+                          <span className="text-[6px] px-1 py-0.5 bg-green-100 text-green-800 rounded font-semibold whitespace-nowrap">Confirmada</span>
                         </div>
-                        <div className="text-[9px] text-slate-600">Barba y afeitado</div>
-                        <div className="text-[8px] text-slate-500">29 Oct · 11:30</div>
+                        <div className="flex items-center justify-between text-[8px] pt-1 border-t border-slate-100">
+                          <span className="text-slate-500">Mañana · 09:00</span>
+                          <span className="text-slate-600 font-bold">$18.000</span>
+                        </div>
                       </div>
                     </div>
                   </div>
