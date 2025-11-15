@@ -166,7 +166,7 @@ function DemoInteractivo() {
                     >
                       {step > s.number ? <Check className="w-4 h-4 sm:w-6 sm:h-6" /> : s.number}
                     </div>
-                    <span className={`text-[10px] sm:text-sm font-medium transition-colors text-center max-w-[55px] sm:max-w-[80px] leading-tight hidden sm:block ${
+                    <span className={`text-[10px] sm:text-sm font-medium transition-colors text-center w-[80px] leading-tight hidden sm:block ${
                       step === s.number ? 'text-slate-900' : 'text-slate-500'
                     }`}>
                       {s.title}
