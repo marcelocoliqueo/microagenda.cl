@@ -1086,12 +1086,12 @@ export default function HomePage() {
             </Link>
             <div className="flex items-center gap-2 sm:gap-3">
               <Link href="/login">
-                <Button variant="outline" className="hidden sm:inline-flex border-2 border-[rgb(var(--brand-mid))]/40 hover:border-[rgb(var(--brand-mid))] text-slate-800 px-4 sm:px-6 font-medium rounded-[14px]">
+                <Button variant="outline" className="inline-flex border-2 border-[rgb(var(--brand-mid))]/40 hover:border-[rgb(var(--brand-mid))] text-slate-800 text-xs sm:text-sm px-3 sm:px-6 font-medium rounded-[14px]">
                   Iniciar Sesión
                 </Button>
               </Link>
               <Link href="/register">
-                <Button className="bg-gradient-to-r from-primary to-accent hover:brightness-110 text-white shadow-md text-sm sm:text-base px-4 sm:px-4 font-semibold">
+                <Button className="bg-gradient-to-r from-primary to-accent hover:brightness-110 text-white shadow-md text-xs sm:text-base px-3 sm:px-4 font-semibold">
                   Comenzar
                 </Button>
               </Link>
