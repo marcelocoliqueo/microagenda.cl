@@ -88,9 +88,15 @@ export const metadata: Metadata = {
   },
   icons: {
     // Next.js 13+ sirve automáticamente app/icon.png como /icon.png y /favicon.ico
-    // Agregamos referencia explícita para asegurar que se sirva correctamente
+    // Google busca /favicon.ico y prefiere tamaños de 48x48 o más grandes
+    // Incluimos múltiples tamaños para mejor compatibilidad con Google y navegadores
     icon: [
-      { url: '/icon.png', type: 'image/png', sizes: '32x32' },
+      { url: '/icon.png', type: 'image/png', sizes: '48x48' },
+      { url: '/logo.png', type: 'image/png', sizes: '192x192' },
+      { url: '/logo.png', type: 'image/png', sizes: '512x512' },
+    ],
+    shortcut: [
+      { url: '/icon.png', type: 'image/png' },
     ],
     apple: [
       { url: '/logo.png', type: 'image/png', sizes: '512x512' },
