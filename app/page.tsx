@@ -136,8 +136,8 @@ function DemoInteractivo() {
   };
 
   return (
-    <section id="demo" className="relative py-14 md:py-20 scroll-mt-24 md:scroll-mt-32">
-      <div className="container mx-auto px-4">
+    <section id="demo" className="relative py-14 md:py-20 scroll-mt-24 md:scroll-mt-32 overflow-visible">
+      <div className="container mx-auto px-4 overflow-visible">
         <div className="max-w-3xl mx-auto text-center mb-8">
           <h3 className="text-2xl md:text-3xl font-semibold text-slate-900 mb-2">Así de simple reservan</h3>
           <p className="text-slate-600">4 pasos y listo. Sin complicaciones.</p>
