@@ -347,23 +347,19 @@ function DemoInteractivo() {
                               }}
                               className={`relative p-2 rounded-lg text-center transition-all duration-200 ${
                                 isSelected
-                                  ? `text-white shadow-lg ring-2 ${currentColor.ring}`
+                                  ? `bg-gradient-to-br ${currentColor.gradient} text-white shadow-lg ring-2 ${currentColor.ring}`
                                   : 'bg-white border border-slate-200 hover:shadow-md text-slate-700'
                               } ${isToday && !isSelected ? `ring-2 ${currentColor.ring}` : ''}`}
-                              style={isSelected ? {
-                                background: `linear-gradient(to bottom right, ${currentColor.bg.replace('bg-', '#')}, ${currentColor.bg.replace('bg-emerald', '#10B981').replace('bg-blue', '#3B82F6').replace('bg-purple', '#8B5CF6').replace('bg-rose', '#F43F5E').replace('bg-pink', '#EC4899').replace('bg-orange', '#F97316').replace('bg-cyan', '#06B6D4').replace('bg-amber', '#F59E0B')})`
-                              } : {}}
                             >
-                              <div className={`text-[10px] font-medium mb-0.5 ${isSelected ? 'text-white/80' : 'text-slate-500'}`}>
+                              <div className={`text-[10px] font-medium mb-0.5 ${isSelected ? 'text-white/90' : 'text-slate-500'}`}>
                                 {dayName}
                               </div>
-                              <div className={`text-sm font-bold ${isSelected ? 'text-white' : ''}`}>
+                              <div className={`text-sm font-bold ${isSelected ? 'text-white' : 'text-slate-900'}`}>
                                 {date.getDate()}
                               </div>
                               {!isSelected && (
                                 <div
-                                  className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
-                                  style={{ backgroundColor: currentColor.bg.replace('bg-', '#') }}
+                                  className={`absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full ${currentColor.bg}`}
                                 ></div>
                               )}
                             </button>
@@ -409,12 +405,9 @@ function DemoInteractivo() {
                               onClick={() => setSelectedTime(time)}
                               className={`relative py-2.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
                                 selectedTime === time
-                                  ? `text-white shadow-lg ring-2 ${currentColor.ring}`
+                                  ? `bg-gradient-to-br ${currentColor.gradient} text-white shadow-lg ring-2 ${currentColor.ring}`
                                   : 'bg-white border-2 border-slate-200 text-slate-700 hover:shadow-md'
                               }`}
-                              style={selectedTime === time ? {
-                                background: `linear-gradient(to bottom right, ${currentColor.bg.replace('bg-', '#')}, ${currentColor.bg.replace('bg-emerald', '#10B981').replace('bg-blue', '#3B82F6').replace('bg-purple', '#8B5CF6').replace('bg-rose', '#F43F5E').replace('bg-pink', '#EC4899').replace('bg-orange', '#F97316').replace('bg-cyan', '#06B6D4').replace('bg-amber', '#F59E0B')})`
-                              } : {}}
                             >
                               {time}
                               {selectedTime === time && (
@@ -443,12 +436,9 @@ function DemoInteractivo() {
                               onClick={() => setSelectedTime(time)}
                               className={`relative py-2.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
                                 selectedTime === time
-                                  ? `text-white shadow-lg ring-2 ${currentColor.ring}`
+                                  ? `bg-gradient-to-br ${currentColor.gradient} text-white shadow-lg ring-2 ${currentColor.ring}`
                                   : 'bg-white border-2 border-slate-200 text-slate-700 hover:shadow-md'
                               }`}
-                              style={selectedTime === time ? {
-                                background: `linear-gradient(to bottom right, ${currentColor.bg.replace('bg-', '#')}, ${currentColor.bg.replace('bg-emerald', '#10B981').replace('bg-blue', '#3B82F6').replace('bg-purple', '#8B5CF6').replace('bg-rose', '#F43F5E').replace('bg-pink', '#EC4899').replace('bg-orange', '#F97316').replace('bg-cyan', '#06B6D4').replace('bg-amber', '#F59E0B')})`
-                              } : {}}
                             >
                               {time}
                               {selectedTime === time && (
