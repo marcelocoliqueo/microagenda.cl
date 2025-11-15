@@ -206,7 +206,7 @@ function DemoInteractivo() {
               {step === 1 && (
                 <div className="flex-1">
                   <div className="text-center mb-6">
-                    <h4 className="text-xl font-bold text-slate-900 mb-1">María González</h4>
+                    <h4 className="text-xl font-bold text-slate-900 mb-1">Natasha Romanoff</h4>
                     <p className="text-sm text-slate-600">Salón de Belleza</p>
                   </div>
 
@@ -355,7 +355,7 @@ function DemoInteractivo() {
                       <div>
                       <label className="text-xs font-medium text-slate-700 block mb-1">Nombre</label>
                         <div className="px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-700">
-                        Juan Pérez
+                        Peter Parker
                         </div>
                       </div>
                       <div>
@@ -376,14 +376,14 @@ function DemoInteractivo() {
                   </div>
                   <h5 className="text-xl font-bold text-slate-900 mb-2">¡Reserva confirmada!</h5>
                   <p className="text-sm text-slate-600 mb-4">
-                    Juan recibirá confirmación por email
+                    Peter recibirá confirmación por email
                   </p>
                   <div className="w-full bg-slate-50 rounded-lg p-4 text-left">
                     <div className="text-xs text-slate-600 space-y-1">
                       <div><span className="font-medium">Servicio:</span> {selectedService.name}</div>
                       <div><span className="font-medium">Duración:</span> {selectedService.duration} min</div>
                       <div><span className="font-medium">Fecha:</span> {selectedDate ? new Date(selectedDate).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' }) : '28 Oct'}, {selectedTime || '10:00'}</div>
-                      <div><span className="font-medium">Cliente:</span> Juan Pérez</div>
+                      <div><span className="font-medium">Cliente:</span> Peter Parker</div>
                       <div><span className="font-medium">Total:</span> ${selectedService.price.toLocaleString('es-CL')}</div>
                     </div>
                   </div>
@@ -678,7 +678,7 @@ function HeroPremium() {
                             </div>
                           </div>
                           <div className="text-[9px] text-slate-600 mb-0.5 font-medium">Ingresos</div>
-                          <div className="text-xl font-bold text-emerald-600">$245k</div>
+                          <div className="text-xl font-bold text-emerald-600">$80.000</div>
                           <div className="text-[8px] text-slate-400 mt-0.5">Citas completadas</div>
                         </div>
                       </div>
@@ -702,10 +702,10 @@ function HeroPremium() {
                         <div className="bg-white/90 backdrop-blur-sm rounded-xl p-3 border border-slate-200/70 shadow-sm">
                           <div className="flex items-start gap-2.5 mb-2">
                             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-100 to-emerald-200 flex items-center justify-center text-emerald-700 font-bold text-[11px] shadow-sm">
-                              MG
+                              TS
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="text-[11px] font-bold text-slate-900 mb-0.5">María González</div>
+                              <div className="text-[11px] font-bold text-slate-900 mb-0.5">Tony Stark</div>
                               <div className="text-[9px] text-slate-500">Corte de cabello · 45 min</div>
                             </div>
                             <span className="text-[7px] px-1.5 py-0.5 bg-green-100 text-green-800 rounded font-semibold whitespace-nowrap">Confirmada</span>
@@ -719,10 +719,10 @@ function HeroPremium() {
                         <div className="bg-white/90 backdrop-blur-sm rounded-xl p-3 border border-slate-200/70 shadow-sm">
                           <div className="flex items-start gap-2.5 mb-2">
                             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center text-amber-700 font-bold text-[11px] shadow-sm">
-                              JP
+                              PP
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="text-[11px] font-bold text-slate-900 mb-0.5">Juan Pérez</div>
+                              <div className="text-[11px] font-bold text-slate-900 mb-0.5">Peter Parker</div>
                               <div className="text-[9px] text-slate-500">Manicure · 60 min</div>
                             </div>
                             <span className="text-[7px] px-1.5 py-0.5 bg-yellow-100 text-yellow-800 rounded font-semibold whitespace-nowrap">Pendiente</span>
@@ -736,10 +736,10 @@ function HeroPremium() {
                         <div className="bg-white/70 backdrop-blur-sm rounded-xl p-3 border border-slate-200/50 shadow-sm opacity-70">
                           <div className="flex items-start gap-2.5 mb-2">
                             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-600 font-bold text-[11px]">
-                              CS
+                              NR
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="text-[11px] font-bold text-slate-900 mb-0.5">Carolina Silva</div>
+                              <div className="text-[11px] font-bold text-slate-900 mb-0.5">Natasha Romanoff</div>
                               <div className="text-[9px] text-slate-500">Masaje · 90 min</div>
                             </div>
                             <span className="text-[7px] px-1.5 py-0.5 bg-green-100 text-green-800 rounded font-semibold whitespace-nowrap">Confirmada</span>
@@ -838,7 +838,7 @@ function HeroPremium() {
                           </div>
                         </div>
                         <div className="text-[8px] text-slate-600 mb-0.5">Ingresos</div>
-                        <div className="text-sm font-bold text-emerald-600">$245k</div>
+                        <div className="text-sm font-bold text-emerald-600">$80.000</div>
                         <div className="text-[7px] text-slate-400">Citas completadas</div>
                       </div>
                     </div>
@@ -857,9 +857,9 @@ function HeroPremium() {
                     <div className="space-y-1.5">
                       <div className="bg-white/90 rounded-lg p-2 border border-slate-200/70">
                         <div className="flex items-start gap-1.5 mb-1">
-                          <div className="w-5 h-5 rounded bg-gradient-to-br from-emerald-100 to-emerald-200 flex items-center justify-center text-emerald-700 font-bold text-[8px]">MG</div>
+                          <div className="w-5 h-5 rounded bg-gradient-to-br from-emerald-100 to-emerald-200 flex items-center justify-center text-emerald-700 font-bold text-[8px]">TS</div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-[9px] font-bold text-slate-900">María González</div>
+                            <div className="text-[9px] font-bold text-slate-900">Tony Stark</div>
                             <div className="text-[7px] text-slate-500">Corte de cabello · 45 min</div>
                           </div>
                           <span className="text-[6px] px-1 py-0.5 bg-green-100 text-green-800 rounded font-semibold whitespace-nowrap">Confirmada</span>
@@ -871,9 +871,9 @@ function HeroPremium() {
                       </div>
                       <div className="bg-white/90 rounded-lg p-2 border border-slate-200/70">
                         <div className="flex items-start gap-1.5 mb-1">
-                          <div className="w-5 h-5 rounded bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center text-amber-700 font-bold text-[8px]">JP</div>
+                          <div className="w-5 h-5 rounded bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center text-amber-700 font-bold text-[8px]">PP</div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-[9px] font-bold text-slate-900">Juan Pérez</div>
+                            <div className="text-[9px] font-bold text-slate-900">Peter Parker</div>
                             <div className="text-[7px] text-slate-500">Manicure · 60 min</div>
                           </div>
                           <span className="text-[6px] px-1 py-0.5 bg-yellow-100 text-yellow-800 rounded font-semibold whitespace-nowrap">Pendiente</span>
@@ -885,9 +885,9 @@ function HeroPremium() {
                       </div>
                       <div className="bg-white/70 rounded-lg p-2 border border-slate-200/50 opacity-70">
                         <div className="flex items-start gap-1.5 mb-1">
-                          <div className="w-5 h-5 rounded bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-600 font-bold text-[8px]">CS</div>
+                          <div className="w-5 h-5 rounded bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-600 font-bold text-[8px]">NR</div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-[9px] font-bold text-slate-900">Carolina Silva</div>
+                            <div className="text-[9px] font-bold text-slate-900">Natasha Romanoff</div>
                             <div className="text-[7px] text-slate-500">Masaje · 90 min</div>
                           </div>
                           <span className="text-[6px] px-1 py-0.5 bg-green-100 text-green-800 rounded font-semibold whitespace-nowrap">Confirmada</span>
@@ -911,7 +911,7 @@ function HeroPremium() {
                   }}
                 >
                   <div className="text-xs text-slate-500 mb-1">Ingresos</div>
-                  <div className="text-xl font-semibold text-slate-900">{formatCurrency(245000)}</div>
+                  <div className="text-xl font-semibold text-slate-900">{formatCurrency(80000)}</div>
                   <div className="text-xs text-emerald-600 mt-1">+18% esta semana</div>
                 </div>
               </div>
