@@ -213,30 +213,30 @@ function DemoInteractivo() {
                   </div>
 
                   {/* Color Selector */}
-                  <div className="w-full max-w-md p-6 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200">
+                  <div className="w-full max-w-2xl p-6 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200">
                     <div className="text-center mb-4">
                       <h5 className="text-base font-semibold text-slate-700 mb-1">🎨 Elige tu color de marca</h5>
                       <p className="text-xs text-slate-500">Tu agenda se adaptará a este color</p>
                     </div>
-                    <div className="flex items-center justify-center gap-3 flex-wrap">
+                    <div className="flex items-center justify-center gap-2 flex-nowrap overflow-x-auto">
                       {brandColors.map((color) => (
                         <button
                           key={color.value}
                           onClick={() => setBrandColor(color.value)}
-                          className={`group relative flex flex-col items-center gap-2 transition-all ${
+                          className={`group relative flex flex-col items-center gap-2 transition-all flex-shrink-0 ${
                             brandColor === color.value ? 'scale-110' : 'hover:scale-105'
                           }`}
                           title={color.name}
                         >
                           <div
-                            className={`w-12 h-12 rounded-full ${color.bg} shadow-md transition-all ${
+                            className={`w-10 h-10 rounded-full ${color.bg} shadow-md transition-all ${
                               brandColor === color.value
                                 ? `ring-4 ${color.ring} shadow-lg`
                                 : 'hover:shadow-lg'
                             }`}
                           />
                           {brandColor === color.value && (
-                            <span className="text-xs font-medium text-slate-700">{color.name}</span>
+                            <span className="text-[10px] font-medium text-slate-700 whitespace-nowrap">{color.name}</span>
                           )}
                         </button>
                       ))}
