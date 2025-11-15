@@ -146,8 +146,9 @@ function DemoInteractivo() {
         <div className="max-w-3xl mx-auto">
           {/* Stepper */}
           <div className="mb-8 sm:mb-10 px-2 sm:px-4">
-            <div className="relative py-8 sm:py-7 overflow-visible">
-              <div className="flex items-center gap-1.5 sm:gap-4 w-full justify-center overflow-x-auto overflow-y-visible scrollbar-hide">
+            {/* Wrapper con padding negativo para compensar sombras */}
+            <div className="relative -my-4 sm:-my-5 py-4 sm:py-5">
+              <div className="flex items-center gap-1.5 sm:gap-4 w-full justify-center overflow-x-auto scrollbar-hide" style={{ overflowY: 'visible' }}>
                 {steps.map((s, i) => (
                   <div key={s.number} className="flex items-center flex-shrink-0">
                     <div className="flex flex-col items-center gap-1 sm:gap-2">
@@ -162,8 +163,7 @@ function DemoInteractivo() {
                         style={{
                           boxShadow: step === s.number 
                             ? '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)' 
-                            : undefined,
-                          filter: step === s.number ? 'drop-shadow(0 10px 15px rgba(0, 0, 0, 0.1))' : undefined
+                            : undefined
                         }}
                       >
                         {step > s.number ? <Check className="w-4 h-4 sm:w-6 sm:h-6" /> : s.number}
