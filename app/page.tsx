@@ -145,19 +145,24 @@ function DemoInteractivo() {
 
         <div className="max-w-3xl mx-auto">
           {/* Stepper */}
-          <div className="flex items-center justify-center mb-8 sm:mb-10 px-2 sm:px-4 pt-3 sm:pt-2 pb-3 sm:pb-2">
+          <div className="flex items-center justify-center mb-8 sm:mb-10 px-2 sm:px-4 py-4 sm:py-3 overflow-visible">
             <div className="flex items-center gap-1.5 sm:gap-4 w-full justify-center overflow-x-auto scrollbar-hide">
               {steps.map((s, i) => (
                 <div key={s.number} className="flex items-center flex-shrink-0">
                   <div className="flex flex-col items-center gap-1 sm:gap-2">
                     <div
-                      className={`w-8 h-8 sm:w-14 sm:h-14 rounded-full flex items-center justify-center font-bold text-xs sm:text-lg transition-all duration-300 ${
+                      className={`w-8 h-8 sm:w-14 sm:h-14 rounded-full flex items-center justify-center font-bold text-xs sm:text-lg transition-all duration-300 relative ${
                         step === s.number
                           ? `bg-gradient-to-r ${currentColor.gradient} text-white shadow-lg scale-110`
                           : step > s.number
                           ? `${currentColor.light} ${currentColor.text} ring-2 ${currentColor.ring}`
                           : 'bg-slate-100 text-slate-400'
                       }`}
+                      style={{
+                        boxShadow: step === s.number 
+                          ? '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)' 
+                          : undefined
+                      }}
                     >
                       {step > s.number ? <Check className="w-4 h-4 sm:w-6 sm:h-6" /> : s.number}
                     </div>
