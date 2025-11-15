@@ -967,48 +967,94 @@ export default function HomePage() {
             <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Tu agenda, tu negocio</h2>
           </div>
           
-          {/* Carrusel infinito seamless */}
-          <div className="relative overflow-hidden">
-            <div className="flex gap-6 animate-infinite-scroll">
-              {/* Duplicamos 4 veces para loop perfecto sin saltos */}
-              {[1, 2, 3, 4].map((iteration) => (
+          {/* Carrusel con drag */}
+          <div className="relative overflow-hidden cursor-grab active:cursor-grabbing">
+            <motion.div
+              drag="x"
+              dragConstraints={{ left: -2400, right: 0 }}
+              dragElastic={0.1}
+              dragTransition={{ bounceStiffness: 600, bounceDamping: 20 }}
+              className="flex gap-6"
+            >
+              {/* Duplicamos para efecto infinito visual */}
+              {[1, 2].map((iteration) => (
                 <div key={iteration} className="flex gap-6 min-w-max">
-                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap">
+                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap hover:shadow-md transition-shadow select-none">
                     <span className="text-3xl">💇‍♀️</span>
                     <span className="font-semibold text-slate-900">Peluquerías</span>
-                </div>
-                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap">
+                  </div>
+                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap hover:shadow-md transition-shadow select-none">
                     <span className="text-3xl">✂️</span>
                     <span className="font-semibold text-slate-900">Barberías</span>
-                </div>
-                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap">
+                  </div>
+                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap hover:shadow-md transition-shadow select-none">
                     <span className="text-3xl">💅</span>
                     <span className="font-semibold text-slate-900">Salones de Belleza</span>
-              </div>
-                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap">
+                  </div>
+                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap hover:shadow-md transition-shadow select-none">
                     <span className="text-3xl">🧠</span>
                     <span className="font-semibold text-slate-900">Psicólogos</span>
-            </div>
-                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap">
+                  </div>
+                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap hover:shadow-md transition-shadow select-none">
                     <span className="text-3xl">💆</span>
                     <span className="font-semibold text-slate-900">Kinesiólogos</span>
                   </div>
-                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap">
+                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap hover:shadow-md transition-shadow select-none">
                     <span className="text-3xl">🎨</span>
                     <span className="font-semibold text-slate-900">Tatuadores</span>
                   </div>
-                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap">
-                    <span className="text-3xl">💪</span>
-                    <span className="font-semibold text-slate-900">Entrenadores</span>
+                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap hover:shadow-md transition-shadow select-none">
+                    <span className="text-3xl">⚕️</span>
+                    <span className="font-semibold text-slate-900">Médicos</span>
                   </div>
-                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap">
+                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap hover:shadow-md transition-shadow select-none">
+                    <span className="text-3xl">🦷</span>
+                    <span className="font-semibold text-slate-900">Dentistas</span>
+                  </div>
+                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap hover:shadow-md transition-shadow select-none">
+                    <span className="text-3xl">🧘</span>
+                    <span className="font-semibold text-slate-900">Instructores de Yoga</span>
+                  </div>
+                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap hover:shadow-md transition-shadow select-none">
+                    <span className="text-3xl">🏋️</span>
+                    <span className="font-semibold text-slate-900">Entrenadores Personales</span>
+                  </div>
+                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap hover:shadow-md transition-shadow select-none">
+                    <span className="text-3xl">💼</span>
+                    <span className="font-semibold text-slate-900">Consultores</span>
+                  </div>
+                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap hover:shadow-md transition-shadow select-none">
+                    <span className="text-3xl">🎓</span>
+                    <span className="font-semibold text-slate-900">Profesores Particulares</span>
+                  </div>
+                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap hover:shadow-md transition-shadow select-none">
+                    <span className="text-3xl">📸</span>
+                    <span className="font-semibold text-slate-900">Fotógrafos</span>
+                  </div>
+                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap hover:shadow-md transition-shadow select-none">
+                    <span className="text-3xl">🎭</span>
+                    <span className="font-semibold text-slate-900">Coaches</span>
+                  </div>
+                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap hover:shadow-md transition-shadow select-none">
+                    <span className="text-3xl">🔧</span>
+                    <span className="font-semibold text-slate-900">Técnicos</span>
+                  </div>
+                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap hover:shadow-md transition-shadow select-none">
                     <span className="text-3xl">🎵</span>
-                    <span className="font-semibold text-slate-900">Profesores</span>
+                    <span className="font-semibold text-slate-900">Profesores de Música</span>
+                  </div>
+                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap hover:shadow-md transition-shadow select-none">
+                    <span className="text-3xl">🐾</span>
+                    <span className="font-semibold text-slate-900">Veterinarios</span>
+                  </div>
+                  <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-slate-200 shadow-sm whitespace-nowrap hover:shadow-md transition-shadow select-none">
+                    <span className="text-3xl">🌿</span>
+                    <span className="font-semibold text-slate-900">Terapeutas Alternativos</span>
                   </div>
                 </div>
               ))}
-            </div>
-            </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
