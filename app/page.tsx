@@ -126,7 +126,7 @@ function DemoInteractivo() {
     { number: 1, title: "Color de marca", desc: "Personaliza tu agenda con tu color" },
     { number: 2, title: "Ver servicios", desc: "Tu cliente ve tus servicios" },
     { number: 3, title: "Fecha y hora", desc: "Selecciona cuándo quiere reservar" },
-    { number: 4, title: "Completar datos", desc: "Nombre y teléfono" },
+    { number: 4, title: "Completar datos", desc: "Nombre, email y teléfono" },
     { number: 5, title: "¡Listo!", desc: "Reserva confirmada automáticamente" },
   ];
 
