@@ -967,13 +967,23 @@ export default function HomePage() {
             <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Tu agenda, tu negocio</h2>
           </div>
           
-          {/* Carrusel con drag */}
+          {/* Carrusel con drag y auto-scroll */}
           <div className="relative overflow-hidden cursor-grab active:cursor-grabbing">
             <motion.div
               drag="x"
               dragConstraints={{ left: -2400, right: 0 }}
               dragElastic={0.1}
               dragTransition={{ bounceStiffness: 600, bounceDamping: 20 }}
+              animate={{
+                x: [0, -1200, 0],
+              }}
+              transition={{
+                x: {
+                  duration: 60,
+                  repeat: Infinity,
+                  ease: "linear",
+                },
+              }}
               className="flex gap-6"
             >
               {/* Duplicamos para efecto infinito visual */}
