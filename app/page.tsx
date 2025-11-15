@@ -9,7 +9,8 @@ import {
   TrendingUp,
   Check,
   ChevronRight,
-  Info
+  Info,
+  Sparkles
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -273,94 +274,194 @@ function DemoInteractivo() {
 
               {/* Step 2: Seleccionar fecha y hora */}
               {step === 2 && selectedService && (
-                <div className="flex-1">
-                  <h5 className="font-semibold text-slate-900 mb-3">Selecciona fecha y hora</h5>
-                  <div className="space-y-4">
-                    {/* Servicio seleccionado mini */}
-                    <div className={`rounded-lg border ${currentColor.border} ${currentColor.light} p-2 text-xs`}>
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium text-slate-900">{selectedService.name}</span>
-                        <span className="text-slate-600">${selectedService.price.toLocaleString('es-CL')}</span>
-                      </div>
+                <div className="flex-1 space-y-5">
+                  {/* Resumen del servicio */}
+                  <div
+                    className="rounded-xl p-3 border"
+                    style={{
+                      background: `linear-gradient(to bottom right, ${currentColor.light.replace('bg-', 'rgba(')}80), ${currentColor.light.replace('bg-', 'rgba(')}40))`,
+                      borderColor: `${currentColor.border.replace('border-', 'rgba(')}50)`
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-10 h-10 rounded-lg bg-white/80 flex items-center justify-center`}>
+                          <Sparkles className={`w-5 h-5 ${currentColor.text}`} />
                         </div>
-                    
-                    {/* Fecha */}
-                    <div>
-                      <label className="text-xs font-medium text-slate-700 block mb-1.5">Fecha</label>
-                      <div className="relative">
-                        <input
-                          type="date"
-                          value={selectedDate}
-                          onChange={(e) => setSelectedDate(e.target.value)}
-                          min={new Date().toISOString().split("T")[0]}
-                          className="w-full px-3 py-2.5 rounded-lg border-2 border-slate-300 text-sm focus:outline-none focus:ring-2 transition-all bg-white/80 backdrop-blur-sm hover:border-slate-400 cursor-pointer"
-                          style={{
-                            borderColor: selectedDate ? currentColor.bg.replace('bg-', '#') : undefined,
-                            backgroundColor: selectedDate ? `${currentColor.light.replace('bg-', '')}20` : undefined,
-                          }}
-                          onFocus={(e) => {
-                            e.currentTarget.style.borderColor = currentColor.bg.replace('bg-', '#');
-                            e.currentTarget.style.boxShadow = `0 0 0 3px ${currentColor.bg.replace('bg-', '')}15`;
-                          }}
-                          onBlur={(e) => {
-                            if (!selectedDate) {
-                              e.currentTarget.style.borderColor = '';
-                            }
-                            e.currentTarget.style.boxShadow = '';
-                          }}
-                        />
+                        <div>
+                          <p className="font-semibold text-slate-900 text-sm">{selectedService.name}</p>
+                          <p className="text-xs text-slate-600 flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {selectedService.duration} min
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className={`text-lg font-bold ${currentColor.text}`}>${selectedService.price.toLocaleString('es-CL')}</p>
                       </div>
                     </div>
+                  </div>
 
-                    {/* Horarios disponibles */}
-                    {selectedDate && (
+                  {/* Calendario de 14 días */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h6 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                        <Calendar className={`w-4 h-4 ${currentColor.text}`} />
+                        Selecciona tu fecha
+                      </h6>
+                      {selectedDate && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedDate("");
+                            setSelectedTime("");
+                          }}
+                          className="text-xs text-slate-500 hover:underline"
+                        >
+                          Cambiar
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Grid de 14 días (2 semanas) */}
+                    <div className="grid grid-cols-7 gap-1.5">
+                      {(() => {
+                        const days = [];
+                        const today = new Date();
+
+                        for (let i = 0; i < 14; i++) {
+                          const date = new Date(today);
+                          date.setDate(today.getDate() + i);
+                          const dateStr = date.toISOString().split("T")[0];
+                          const dayName = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"][date.getDay()];
+                          const isSelected = selectedDate === dateStr;
+                          const isToday = i === 0;
+
+                          days.push(
+                            <button
+                              key={dateStr}
+                              type="button"
+                              onClick={() => {
+                                setSelectedDate(dateStr);
+                                setSelectedTime("");
+                              }}
+                              className={`relative p-2 rounded-lg text-center transition-all duration-200 ${
+                                isSelected
+                                  ? `text-white shadow-lg ring-2 ${currentColor.ring}`
+                                  : 'bg-white border border-slate-200 hover:shadow-md text-slate-700'
+                              } ${isToday && !isSelected ? `ring-2 ${currentColor.ring}` : ''}`}
+                              style={isSelected ? {
+                                background: `linear-gradient(to bottom right, ${currentColor.bg.replace('bg-', '#')}, ${currentColor.bg.replace('bg-emerald', '#10B981').replace('bg-blue', '#3B82F6').replace('bg-purple', '#8B5CF6').replace('bg-rose', '#F43F5E').replace('bg-pink', '#EC4899').replace('bg-orange', '#F97316').replace('bg-cyan', '#06B6D4').replace('bg-amber', '#F59E0B')})`
+                              } : {}}
+                            >
+                              <div className={`text-[10px] font-medium mb-0.5 ${isSelected ? 'text-white/80' : 'text-slate-500'}`}>
+                                {dayName}
+                              </div>
+                              <div className={`text-sm font-bold ${isSelected ? 'text-white' : ''}`}>
+                                {date.getDate()}
+                              </div>
+                              {!isSelected && (
+                                <div
+                                  className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
+                                  style={{ backgroundColor: currentColor.bg.replace('bg-', '#') }}
+                                ></div>
+                              )}
+                            </button>
+                          );
+                        }
+                        return days;
+                      })()}
+                    </div>
+                  </div>
+
+                  {/* Horarios disponibles agrupados */}
+                  {selectedDate && (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h6 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                          <Clock className={`w-4 h-4 ${currentColor.text}`} />
+                          Elige tu horario
+                        </h6>
+                        {selectedTime && (
+                          <button
+                            type="button"
+                            onClick={() => setSelectedTime("")}
+                            className="text-xs text-slate-500 hover:underline"
+                          >
+                            Cambiar
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Mañana */}
                       <div className="space-y-2">
-                        <label className="text-xs font-medium text-slate-700 block">Hora</label>
-                        <div className="grid grid-cols-3 gap-2">
-                          {["09:00", "09:30", "10:00", "10:30", "11:00", "14:00", "14:30", "15:00"].map((time) => (
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-md bg-amber-100 flex items-center justify-center">
+                            <span className="text-xs">🌅</span>
+                          </div>
+                          <span className="text-xs font-semibold text-slate-700">Mañana</span>
+                        </div>
+                        <div className="grid grid-cols-4 gap-2">
+                          {["09:00", "09:30", "10:00", "10:30"].map((time) => (
                             <button
                               key={time}
                               type="button"
                               onClick={() => setSelectedTime(time)}
-                              className={`px-3 py-2.5 rounded-lg text-xs font-semibold transition-all ${
+                              className={`relative py-2.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
                                 selectedTime === time
-                                  ? `${currentColor.bg} text-white shadow-lg scale-105 border-2`
-                                  : `border-2 border-slate-200 bg-white/80 hover:shadow-md hover:scale-105 text-slate-700`
+                                  ? `text-white shadow-lg ring-2 ${currentColor.ring}`
+                                  : 'bg-white border-2 border-slate-200 text-slate-700 hover:shadow-md'
                               }`}
-                              style={{
-                                borderColor: selectedTime === time ? currentColor.bg.replace('bg-', '#') : undefined,
-                              }}
-                              onMouseEnter={(e) => {
-                                if (selectedTime !== time) {
-                                  e.currentTarget.style.backgroundColor = `${currentColor.light.replace('bg-', '')}40`;
-                                  e.currentTarget.style.borderColor = currentColor.bg.replace('bg-', '#') + '80';
-                                }
-                              }}
-                              onMouseLeave={(e) => {
-                                if (selectedTime !== time) {
-                                  e.currentTarget.style.backgroundColor = '';
-                                  e.currentTarget.style.borderColor = '';
-                                }
-                              }}
+                              style={selectedTime === time ? {
+                                background: `linear-gradient(to bottom right, ${currentColor.bg.replace('bg-', '#')}, ${currentColor.bg.replace('bg-emerald', '#10B981').replace('bg-blue', '#3B82F6').replace('bg-purple', '#8B5CF6').replace('bg-rose', '#F43F5E').replace('bg-pink', '#EC4899').replace('bg-orange', '#F97316').replace('bg-cyan', '#06B6D4').replace('bg-amber', '#F59E0B')})`
+                              } : {}}
                             >
                               {time}
+                              {selectedTime === time && (
+                                <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white flex items-center justify-center">
+                                  <Check className={`w-3 h-3 ${currentColor.text}`} />
+                                </div>
+                              )}
                             </button>
                           ))}
+                        </div>
+                      </div>
+
+                      {/* Tarde */}
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-md bg-orange-100 flex items-center justify-center">
+                            <span className="text-xs">☀️</span>
+                          </div>
+                          <span className="text-xs font-semibold text-slate-700">Tarde</span>
+                        </div>
+                        <div className="grid grid-cols-4 gap-2">
+                          {["14:00", "14:30", "15:00", "15:30"].map((time) => (
+                            <button
+                              key={time}
+                              type="button"
+                              onClick={() => setSelectedTime(time)}
+                              className={`relative py-2.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                                selectedTime === time
+                                  ? `text-white shadow-lg ring-2 ${currentColor.ring}`
+                                  : 'bg-white border-2 border-slate-200 text-slate-700 hover:shadow-md'
+                              }`}
+                              style={selectedTime === time ? {
+                                background: `linear-gradient(to bottom right, ${currentColor.bg.replace('bg-', '#')}, ${currentColor.bg.replace('bg-emerald', '#10B981').replace('bg-blue', '#3B82F6').replace('bg-purple', '#8B5CF6').replace('bg-rose', '#F43F5E').replace('bg-pink', '#EC4899').replace('bg-orange', '#F97316').replace('bg-cyan', '#06B6D4').replace('bg-amber', '#F59E0B')})`
+                              } : {}}
+                            >
+                              {time}
+                              {selectedTime === time && (
+                                <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white flex items-center justify-center">
+                                  <Check className={`w-3 h-3 ${currentColor.text}`} />
+                                </div>
+                              )}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                    )}
-
-                    <button
-                      onClick={() => {
-                        setStep(1);
-                        setSelectedDate("");
-                        setSelectedTime("");
-                      }}
-                      className={`text-xs ${currentColor.text} hover:underline flex items-center gap-1 font-medium mt-2`}
-                    >
-                      ← Cambiar servicio
-                    </button>
-                  </div>
+                  )}
                 </div>
               )}
 
