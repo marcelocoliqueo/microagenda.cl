@@ -741,6 +741,43 @@ export default function DashboardPage() {
       }
     });
 
+    // Filtrar citas del período anterior para comparar
+    const previousPeriod = appointments.filter(apt => {
+      const aptDate = new Date(apt.date);
+
+      switch (statsPeriod) {
+        case "day":
+          // Ayer
+          const yesterday = new Date(now);
+          yesterday.setDate(now.getDate() - 1);
+          return (
+            aptDate.getDate() === yesterday.getDate() &&
+            aptDate.getMonth() === yesterday.getMonth() &&
+            aptDate.getFullYear() === yesterday.getFullYear()
+          );
+
+        case "week":
+          // Semana anterior (7-14 días atrás)
+          const twoWeeksAgo = new Date(now);
+          twoWeeksAgo.setDate(now.getDate() - 14);
+          const oneWeekAgo = new Date(now);
+          oneWeekAgo.setDate(now.getDate() - 7);
+          return aptDate >= twoWeeksAgo && aptDate < oneWeekAgo;
+
+        case "month":
+          // Mes anterior
+          const lastMonth = new Date(now);
+          lastMonth.setMonth(now.getMonth() - 1);
+          return (
+            aptDate.getMonth() === lastMonth.getMonth() &&
+            aptDate.getFullYear() === lastMonth.getFullYear()
+          );
+
+        default:
+          return false;
+      }
+    });
+
     const total = filteredByPeriod.length;
     const confirmed = filteredByPeriod.filter(a => a.status === APPOINTMENT_STATUSES.CONFIRMED).length;
     const pending = filteredByPeriod.filter(a => a.status === APPOINTMENT_STATUSES.PENDING).length;
@@ -748,16 +785,34 @@ export default function DashboardPage() {
       .filter(a => a.status === APPOINTMENT_STATUSES.COMPLETED)
       .reduce((sum, a) => sum + (a.service?.price || 0), 0);
 
+    // Calcular estadísticas del período anterior
+    const previousRevenue = previousPeriod
+      .filter(a => a.status === APPOINTMENT_STATUSES.COMPLETED)
+      .reduce((sum, a) => sum + (a.service?.price || 0), 0);
+
+    const previousTotal = previousPeriod.length;
+
+    // Calcular porcentajes de crecimiento
+    const revenueGrowth = previousRevenue > 0
+      ? Math.round(((revenue - previousRevenue) / previousRevenue) * 100)
+      : revenue > 0 ? 100 : 0;
+
+    const appointmentsGrowth = previousTotal > 0
+      ? Math.round(((total - previousTotal) / previousTotal) * 100)
+      : total > 0 ? 100 : 0;
+
     return {
       totalAppointments: total,
       confirmedAppointments: confirmed,
       pendingAppointments: pending,
       totalRevenue: revenue,
       confirmationRate: total > 0 ? Math.round((confirmed / total) * 100) : 0,
+      revenueGrowth,
+      appointmentsGrowth,
     };
   }, [appointments, statsPeriod]);
 
-  const { totalAppointments, confirmedAppointments, pendingAppointments, totalRevenue, confirmationRate } = stats;
+  const { totalAppointments, confirmedAppointments, pendingAppointments, totalRevenue, confirmationRate, revenueGrowth, appointmentsGrowth } = stats;
 
   // Filtrar citas según el filtro activo
   const filteredAppointments = useMemo(() => {
@@ -1091,9 +1146,16 @@ export default function DashboardPage() {
                 </div>
                 <p className="text-sm text-slate-600 font-medium mb-1">Total Citas</p>
                 <p className="text-3xl font-bold text-slate-900 tabular-nums">{totalAppointments}</p>
-                <p className="text-xs text-slate-500 mt-2">
-                  {statsPeriod === "day" ? "Hoy" : statsPeriod === "week" ? "Últimos 7 días" : "Este mes"}
-                </p>
+                <div className="flex items-center gap-2 mt-2">
+                  <p className="text-xs text-slate-500">
+                    {statsPeriod === "day" ? "Hoy" : statsPeriod === "week" ? "Últimos 7 días" : "Este mes"}
+                  </p>
+                  {appointmentsGrowth !== 0 && (
+                    <span className={`text-xs font-semibold ${appointmentsGrowth > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                      {appointmentsGrowth > 0 ? '↑' : '↓'} {Math.abs(appointmentsGrowth)}%
+                    </span>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </motion.div>
@@ -1163,7 +1225,14 @@ export default function DashboardPage() {
                 </div>
                 <p className="text-sm text-slate-600 font-medium mb-1">Ingresos</p>
                 <p className="text-3xl font-bold text-primary tabular-nums">{formatCurrency(totalRevenue)}</p>
-                <p className="text-xs text-slate-500 mt-2">Citas completadas</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <p className="text-xs text-slate-500">Citas completadas</p>
+                  {revenueGrowth !== 0 && (
+                    <span className={`text-xs font-semibold ${revenueGrowth > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                      {revenueGrowth > 0 ? '↑' : '↓'} {Math.abs(revenueGrowth)}%
+                    </span>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </motion.div>
