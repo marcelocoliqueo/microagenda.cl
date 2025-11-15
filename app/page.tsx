@@ -145,23 +145,23 @@ function DemoInteractivo() {
 
         <div className="max-w-3xl mx-auto">
           {/* Stepper */}
-          <div className="flex items-center justify-center mb-6 sm:mb-8 px-2 sm:px-4">
-            <div className="flex items-center gap-1.5 sm:gap-4 overflow-x-auto w-full justify-center pb-2 sm:pb-0">
+          <div className="flex items-center justify-center mb-6 sm:mb-8 px-1 sm:px-4">
+            <div className="flex items-center gap-1 sm:gap-4 w-full max-w-full overflow-x-auto justify-start sm:justify-center pb-2 sm:pb-0 scrollbar-hide">
               {steps.map((s, i) => (
                 <div key={s.number} className="flex items-center flex-shrink-0">
-                  <div className="flex flex-col items-center gap-1 sm:gap-2">
+                  <div className="flex flex-col items-center gap-0.5 sm:gap-2">
                     <div
-                      className={`w-8 h-8 sm:w-14 sm:h-14 rounded-full flex items-center justify-center font-bold text-xs sm:text-lg transition-all duration-300 ${
+                      className={`w-7 h-7 sm:w-14 sm:h-14 rounded-full flex items-center justify-center font-bold text-[10px] sm:text-lg transition-all duration-300 ${
                         step === s.number
                           ? `bg-gradient-to-r ${currentColor.gradient} text-white shadow-lg scale-110`
                           : step > s.number
-                          ? `${currentColor.light} ${currentColor.text} ring-2 ${currentColor.ring}`
+                          ? `${currentColor.light} ${currentColor.text} ring-1 sm:ring-2 ${currentColor.ring}`
                           : 'bg-slate-100 text-slate-400'
                       }`}
                     >
-                      {step > s.number ? <Check className="w-4 h-4 sm:w-6 sm:h-6" /> : s.number}
+                      {step > s.number ? <Check className="w-3 h-3 sm:w-6 sm:h-6" /> : s.number}
                     </div>
-                    <span className={`text-[10px] sm:text-sm font-medium transition-colors text-center max-w-[60px] sm:max-w-[80px] leading-tight ${
+                    <span className={`text-[9px] sm:text-sm font-medium transition-colors text-center max-w-[50px] sm:max-w-[80px] leading-tight hidden sm:block ${
                       step === s.number ? 'text-slate-900' : 'text-slate-500'
                     }`}>
                       {s.title}
@@ -169,7 +169,7 @@ function DemoInteractivo() {
                   </div>
                   {i < steps.length - 1 && (
                     <div
-                      className={`h-1 w-4 sm:w-12 mx-1 sm:mx-3 rounded transition-all duration-300 flex-shrink-0 ${
+                      className={`h-0.5 sm:h-1 w-3 sm:w-12 mx-0.5 sm:mx-3 rounded transition-all duration-300 flex-shrink-0 ${
                         step > s.number ? currentColor.bg.replace('500', '300') : 'bg-slate-200'
                       }`}
                     />
@@ -218,25 +218,25 @@ function DemoInteractivo() {
                       <h5 className="text-sm sm:text-base font-semibold text-slate-700 mb-1">🎨 Elige tu color de marca</h5>
                       <p className="text-xs text-slate-500">Tu agenda se adaptará a este color</p>
                     </div>
-                    <div className="grid grid-cols-4 sm:flex sm:items-center sm:justify-center gap-2 sm:gap-2 sm:flex-nowrap">
+                    <div className="grid grid-cols-4 sm:flex sm:items-center sm:justify-center gap-3 sm:gap-2 sm:flex-nowrap">
                       {brandColors.map((color) => (
                         <button
                           key={color.value}
                           onClick={() => setBrandColor(color.value)}
-                          className={`group relative flex flex-col items-center gap-1 sm:gap-2 transition-all flex-shrink-0 ${
+                          className={`group relative flex flex-col items-center gap-1.5 sm:gap-2 transition-all flex-shrink-0 ${
                             brandColor === color.value ? 'scale-110' : 'hover:scale-105'
                           }`}
                           title={color.name}
                         >
                           <div
-                            className={`w-10 h-10 sm:w-10 sm:h-10 rounded-full ${color.bg} shadow-md transition-all ${
+                            className={`w-12 h-12 sm:w-10 sm:h-10 rounded-full ${color.bg} shadow-md transition-all ${
                               brandColor === color.value
-                                ? `ring-2 sm:ring-4 ${color.ring} shadow-lg`
+                                ? `ring-3 sm:ring-4 ${color.ring} shadow-lg`
                                 : 'hover:shadow-lg'
                             }`}
                           />
                           {brandColor === color.value && (
-                            <span className="text-[9px] sm:text-[10px] font-medium text-slate-700 whitespace-nowrap">{color.name}</span>
+                            <span className="text-[10px] sm:text-[10px] font-medium text-slate-700 whitespace-nowrap">{color.name}</span>
                           )}
                         </button>
                       ))}
