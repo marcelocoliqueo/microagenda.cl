@@ -524,7 +524,15 @@ function DemoInteractivo() {
                   size="sm"
                   onClick={() => setStep(Math.max(1, step - 1))}
                   disabled={step === 1}
-                  className="text-sm"
+                  className={`text-sm ${currentColor.text} ${currentColor.border}`}
+                  onMouseEnter={(e) => {
+                    if (step > 1) {
+                      e.currentTarget.style.backgroundColor = currentColor.light.replace('bg-', '');
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
                 >
                   Anterior
                 </Button>
@@ -533,7 +541,7 @@ function DemoInteractivo() {
                     size="sm"
                     onClick={() => setStep(Math.min(totalSteps, step + 1))}
                     disabled={(step === 1 && !selectedService) || (step === 2 && (!selectedDate || !selectedTime))}
-                    className={`bg-gradient-to-r ${currentColor.gradient} text-white text-sm disabled:opacity-50`}
+                    className={`bg-gradient-to-br ${currentColor.gradient} text-white text-sm disabled:opacity-50 transition-all hover:shadow-lg`}
                   >
                     Siguiente
                     <ChevronRight className="w-4 h-4 ml-1" />
@@ -548,7 +556,13 @@ function DemoInteractivo() {
                       setSelectedTime("");
                     }}
                     variant="outline"
-                    className="text-sm"
+                    className={`text-sm ${currentColor.text} ${currentColor.border}`}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = currentColor.light.replace('bg-', '');
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }}
                   >
                     Ver de nuevo
                   </Button>
