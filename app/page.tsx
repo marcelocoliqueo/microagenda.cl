@@ -480,6 +480,12 @@ function DemoInteractivo() {
                         </div>
                       </div>
                       <div>
+                      <label className="text-xs font-medium text-slate-700 block mb-1">Email</label>
+                        <div className="px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-700">
+                        peter@example.com
+                        </div>
+                      </div>
+                      <div>
                       <label className="text-xs font-medium text-slate-700 block mb-1">Teléfono</label>
                         <div className="px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-700">
                         +56 9 1234 5678
