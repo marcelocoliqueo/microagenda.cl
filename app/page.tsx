@@ -145,13 +145,13 @@ function DemoInteractivo() {
 
         <div className="max-w-3xl mx-auto">
           {/* Stepper */}
-          <div className="flex items-center justify-center mb-8 px-4">
-            <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center justify-center mb-6 sm:mb-8 px-2 sm:px-4">
+            <div className="flex items-center gap-1.5 sm:gap-4 overflow-x-auto w-full justify-center pb-2 sm:pb-0">
               {steps.map((s, i) => (
-                <div key={s.number} className="flex items-center">
-                  <div className="flex flex-col items-center gap-2">
+                <div key={s.number} className="flex items-center flex-shrink-0">
+                  <div className="flex flex-col items-center gap-1 sm:gap-2">
                     <div
-                      className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center font-bold text-base sm:text-lg transition-all duration-300 ${
+                      className={`w-8 h-8 sm:w-14 sm:h-14 rounded-full flex items-center justify-center font-bold text-xs sm:text-lg transition-all duration-300 ${
                         step === s.number
                           ? `bg-gradient-to-r ${currentColor.gradient} text-white shadow-lg scale-110`
                           : step > s.number
@@ -159,9 +159,9 @@ function DemoInteractivo() {
                           : 'bg-slate-100 text-slate-400'
                       }`}
                     >
-                      {step > s.number ? <Check className="w-6 h-6" /> : s.number}
+                      {step > s.number ? <Check className="w-4 h-4 sm:w-6 sm:h-6" /> : s.number}
                     </div>
-                    <span className={`text-xs sm:text-sm font-medium transition-colors text-center max-w-[80px] ${
+                    <span className={`text-[10px] sm:text-sm font-medium transition-colors text-center max-w-[60px] sm:max-w-[80px] leading-tight ${
                       step === s.number ? 'text-slate-900' : 'text-slate-500'
                     }`}>
                       {s.title}
@@ -169,7 +169,7 @@ function DemoInteractivo() {
                   </div>
                   {i < steps.length - 1 && (
                     <div
-                      className={`h-1 w-8 sm:w-12 mx-2 sm:mx-3 rounded transition-all duration-300 ${
+                      className={`h-1 w-4 sm:w-12 mx-1 sm:mx-3 rounded transition-all duration-300 flex-shrink-0 ${
                         step > s.number ? currentColor.bg.replace('500', '300') : 'bg-slate-200'
                       }`}
                     />
@@ -218,7 +218,7 @@ function DemoInteractivo() {
                       <h5 className="text-sm sm:text-base font-semibold text-slate-700 mb-1">🎨 Elige tu color de marca</h5>
                       <p className="text-xs text-slate-500">Tu agenda se adaptará a este color</p>
                     </div>
-                    <div className="flex items-center justify-center gap-1.5 sm:gap-2 flex-nowrap">
+                    <div className="grid grid-cols-4 sm:flex sm:items-center sm:justify-center gap-2 sm:gap-2 sm:flex-nowrap">
                       {brandColors.map((color) => (
                         <button
                           key={color.value}
@@ -229,7 +229,7 @@ function DemoInteractivo() {
                           title={color.name}
                         >
                           <div
-                            className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full ${color.bg} shadow-md transition-all ${
+                            className={`w-10 h-10 sm:w-10 sm:h-10 rounded-full ${color.bg} shadow-md transition-all ${
                               brandColor === color.value
                                 ? `ring-2 sm:ring-4 ${color.ring} shadow-lg`
                                 : 'hover:shadow-lg'
