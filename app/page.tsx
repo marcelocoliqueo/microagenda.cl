@@ -287,31 +287,61 @@ function DemoInteractivo() {
                     {/* Fecha */}
                     <div>
                       <label className="text-xs font-medium text-slate-700 block mb-1.5">Fecha</label>
-                      <input
-                        type="date"
-                        value={selectedDate}
-                        onChange={(e) => setSelectedDate(e.target.value)}
-                        min={new Date().toISOString().split("T")[0]}
-                        className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:border-current focus:ring-2 focus:ring-current/10 transition-all"
-                        style={{ borderColor: selectedDate ? currentColor.border.replace('border-', '') : undefined }}
-                      />
-                        </div>
+                      <div className="relative">
+                        <input
+                          type="date"
+                          value={selectedDate}
+                          onChange={(e) => setSelectedDate(e.target.value)}
+                          min={new Date().toISOString().split("T")[0]}
+                          className="w-full px-3 py-2.5 rounded-lg border-2 border-slate-300 text-sm focus:outline-none focus:ring-2 transition-all bg-white/80 backdrop-blur-sm hover:border-slate-400 cursor-pointer"
+                          style={{
+                            borderColor: selectedDate ? currentColor.bg.replace('bg-', '#') : undefined,
+                            backgroundColor: selectedDate ? `${currentColor.light.replace('bg-', '')}20` : undefined,
+                          }}
+                          onFocus={(e) => {
+                            e.currentTarget.style.borderColor = currentColor.bg.replace('bg-', '#');
+                            e.currentTarget.style.boxShadow = `0 0 0 3px ${currentColor.bg.replace('bg-', '')}15`;
+                          }}
+                          onBlur={(e) => {
+                            if (!selectedDate) {
+                              e.currentTarget.style.borderColor = '';
+                            }
+                            e.currentTarget.style.boxShadow = '';
+                          }}
+                        />
+                      </div>
+                    </div>
 
                     {/* Horarios disponibles */}
                     {selectedDate && (
                       <div className="space-y-2">
                         <label className="text-xs font-medium text-slate-700 block">Hora</label>
-                        <div className="grid grid-cols-3 gap-1.5">
+                        <div className="grid grid-cols-3 gap-2">
                           {["09:00", "09:30", "10:00", "10:30", "11:00", "14:00", "14:30", "15:00"].map((time) => (
                             <button
                               key={time}
                               type="button"
                               onClick={() => setSelectedTime(time)}
-                              className={`px-2 py-2 rounded-lg text-xs font-medium transition-all ${
+                              className={`px-3 py-2.5 rounded-lg text-xs font-semibold transition-all ${
                                 selectedTime === time
-                                  ? `${currentColor.bg} text-white shadow-md`
-                                  : `border ${currentColor.border} hover:${currentColor.light} text-slate-700`
+                                  ? `${currentColor.bg} text-white shadow-lg scale-105 border-2`
+                                  : `border-2 border-slate-200 bg-white/80 hover:shadow-md hover:scale-105 text-slate-700`
                               }`}
+                              style={{
+                                borderColor: selectedTime === time ? currentColor.bg.replace('bg-', '#') : undefined,
+                              }}
+                              onMouseEnter={(e) => {
+                                if (selectedTime !== time) {
+                                  e.currentTarget.style.backgroundColor = `${currentColor.light.replace('bg-', '')}40`;
+                                  e.currentTarget.style.borderColor = currentColor.bg.replace('bg-', '#') + '80';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (selectedTime !== time) {
+                                  e.currentTarget.style.backgroundColor = '';
+                                  e.currentTarget.style.borderColor = '';
+                                }
+                              }}
                             >
                               {time}
                             </button>
