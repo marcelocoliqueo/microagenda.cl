@@ -145,13 +145,13 @@ function DemoInteractivo() {
 
         <div className="max-w-3xl mx-auto">
           {/* Stepper */}
-          <div className="flex items-center justify-center mb-8 sm:mb-10 px-2 sm:px-4 py-4 sm:py-3 overflow-visible">
-            <div className="flex items-center gap-1.5 sm:gap-4 w-full justify-center overflow-x-auto scrollbar-hide">
+          <div className="flex items-center justify-center mb-8 sm:mb-10 px-2 sm:px-4 overflow-visible">
+            <div className="flex items-center gap-1.5 sm:gap-4 w-full justify-center overflow-x-auto overflow-y-visible scrollbar-hide py-5 sm:py-4">
               {steps.map((s, i) => (
                 <div key={s.number} className="flex items-center flex-shrink-0">
                   <div className="flex flex-col items-center gap-1 sm:gap-2">
                     <div
-                      className={`w-8 h-8 sm:w-14 sm:h-14 rounded-full flex items-center justify-center font-bold text-xs sm:text-lg transition-all duration-300 relative ${
+                      className={`w-8 h-8 sm:w-14 sm:h-14 rounded-full flex items-center justify-center font-bold text-xs sm:text-lg transition-all duration-300 relative z-10 ${
                         step === s.number
                           ? `bg-gradient-to-r ${currentColor.gradient} text-white shadow-lg scale-110`
                           : step > s.number
