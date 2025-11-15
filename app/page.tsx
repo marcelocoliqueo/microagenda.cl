@@ -102,7 +102,7 @@ function DemoInteractivo() {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [brandColor, setBrandColor] = useState("green");
-  const totalSteps = 4;
+  const totalSteps = 5;
 
   const brandColors = [
     { name: "Verde", value: "green", bg: "bg-emerald-500", text: "text-emerald-600", light: "bg-emerald-50", border: "border-emerald-200", ring: "ring-emerald-200", gradient: "from-emerald-500 to-emerald-600", primary: "#10B981", accent: "#84CC16" },
@@ -123,15 +123,16 @@ function DemoInteractivo() {
   ];
 
   const steps = [
-    { number: 1, title: "Ver servicios", desc: "Tu cliente ve tus servicios" },
-    { number: 2, title: "Fecha y hora", desc: "Selecciona cuándo quiere reservar" },
-    { number: 3, title: "Completar datos", desc: "Nombre y teléfono" },
-    { number: 4, title: "¡Listo!", desc: "Reserva confirmada automáticamente" },
+    { number: 1, title: "Color de marca", desc: "Personaliza tu agenda con tu color" },
+    { number: 2, title: "Ver servicios", desc: "Tu cliente ve tus servicios" },
+    { number: 3, title: "Fecha y hora", desc: "Selecciona cuándo quiere reservar" },
+    { number: 4, title: "Completar datos", desc: "Nombre y teléfono" },
+    { number: 5, title: "¡Listo!", desc: "Reserva confirmada automáticamente" },
   ];
 
   const handleServiceSelect = (service: typeof services[0]) => {
     setSelectedService(service);
-    setStep(2);
+    setStep(3);
   };
 
   return (
@@ -139,7 +140,7 @@ function DemoInteractivo() {
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto text-center mb-8">
           <h3 className="text-2xl md:text-3xl font-semibold text-slate-900 mb-2">Así de simple reservan</h3>
-          <p className="text-slate-600">3 pasos y listo. Sin complicaciones.</p>
+          <p className="text-slate-600">4 pasos y listo. Sin complicaciones.</p>
         </div>
 
         <div className="max-w-3xl mx-auto">
@@ -203,43 +204,56 @@ function DemoInteractivo() {
 
             {/* Content */}
             <div className="p-6 min-h-[320px] flex flex-col">
-              {/* Step 1: Servicios */}
+              {/* Step 1: Color de marca */}
               {step === 1 && (
-                <div className="flex-1">
+                <div className="flex-1 flex flex-col items-center justify-center">
                   <div className="text-center mb-6">
-                    <h4 className="text-xl font-bold text-slate-900 mb-1">Natasha Romanoff</h4>
-                    <p className="text-sm text-slate-600">Salón de Belleza</p>
+                    <h4 className="text-xl font-bold text-slate-900 mb-1">Personaliza tu agenda</h4>
+                    <p className="text-sm text-slate-600">Elige el color que represente tu marca</p>
                   </div>
 
                   {/* Color Selector */}
-                  <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200">
-                    <div className="text-center mb-3">
-                      <h5 className="text-sm font-semibold text-slate-700 mb-1">🎨 Elige tu color de marca</h5>
+                  <div className="w-full max-w-md p-6 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200">
+                    <div className="text-center mb-4">
+                      <h5 className="text-base font-semibold text-slate-700 mb-1">🎨 Elige tu color de marca</h5>
                       <p className="text-xs text-slate-500">Tu agenda se adaptará a este color</p>
                     </div>
-                    <div className="flex items-center justify-center gap-2 flex-wrap">
+                    <div className="flex items-center justify-center gap-3 flex-wrap">
                       {brandColors.map((color) => (
                         <button
                           key={color.value}
                           onClick={() => setBrandColor(color.value)}
-                          className={`group relative flex flex-col items-center gap-1 transition-all ${
+                          className={`group relative flex flex-col items-center gap-2 transition-all ${
                             brandColor === color.value ? 'scale-110' : 'hover:scale-105'
                           }`}
                           title={color.name}
                         >
                           <div
-                            className={`w-10 h-10 rounded-full ${color.bg} shadow-md transition-all ${
+                            className={`w-12 h-12 rounded-full ${color.bg} shadow-md transition-all ${
                               brandColor === color.value
                                 ? `ring-4 ${color.ring} shadow-lg`
                                 : 'hover:shadow-lg'
                             }`}
                           />
                           {brandColor === color.value && (
-                            <span className="text-[10px] font-medium text-slate-700">{color.name}</span>
+                            <span className="text-xs font-medium text-slate-700">{color.name}</span>
                           )}
                         </button>
                       ))}
                     </div>
+                  </div>
+                  <p className="text-xs text-slate-500 text-center mt-4">
+                    👆 Selecciona un color para continuar
+                  </p>
+                </div>
+              )}
+
+              {/* Step 2: Servicios */}
+              {step === 2 && (
+                <div className="flex-1">
+                  <div className="text-center mb-6">
+                    <h4 className="text-xl font-bold text-slate-900 mb-1">Natasha Romanoff</h4>
+                    <p className="text-sm text-slate-600">Salón de Belleza</p>
                   </div>
 
                   <h5 className="font-semibold text-slate-900 mb-3">Elige tu servicio</h5>
@@ -272,8 +286,8 @@ function DemoInteractivo() {
                 </div>
               )}
 
-              {/* Step 2: Seleccionar fecha y hora */}
-              {step === 2 && selectedService && (
+              {/* Step 3: Seleccionar fecha y hora */}
+              {step === 3 && selectedService && (
                 <div className="flex-1 space-y-5">
                   {/* Resumen del servicio */}
                   <div
@@ -455,8 +469,8 @@ function DemoInteractivo() {
                 </div>
               )}
 
-              {/* Step 3: Completar datos */}
-              {step === 3 && (
+              {/* Step 4: Completar datos */}
+              {step === 4 && (
                 <div className="flex-1">
                   <h5 className="font-semibold text-slate-900 mb-4">Completa tus datos</h5>
                   <div className="space-y-3">
@@ -495,8 +509,8 @@ function DemoInteractivo() {
                 </div>
               )}
 
-              {/* Step 4: Confirmación */}
-              {step === 4 && selectedService && (
+              {/* Step 5: Confirmación */}
+              {step === 5 && selectedService && (
                 <div className="flex-1 flex flex-col items-center justify-center text-center">
                   <div className={`w-16 h-16 rounded-full ${currentColor.light} flex items-center justify-center mb-4`}>
                     <Check className={`w-8 h-8 ${currentColor.text}`} />
@@ -540,7 +554,7 @@ function DemoInteractivo() {
                   <Button
                     size="sm"
                     onClick={() => setStep(Math.min(totalSteps, step + 1))}
-                    disabled={(step === 1 && !selectedService) || (step === 2 && (!selectedDate || !selectedTime))}
+                    disabled={(step === 1 && !brandColor) || (step === 2 && !selectedService) || (step === 3 && (!selectedDate || !selectedTime))}
                     className="text-white text-sm disabled:opacity-50 transition-all hover:shadow-lg"
                     style={{
                       background: `linear-gradient(to bottom right, ${currentColor.primary}, ${currentColor.accent})`,
@@ -554,6 +568,7 @@ function DemoInteractivo() {
                     size="sm"
                     onClick={() => {
                       setStep(1);
+                      setBrandColor("green");
                       setSelectedService(null);
                       setSelectedDate("");
                       setSelectedTime("");
