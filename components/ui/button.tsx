@@ -125,15 +125,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     
     // Combinar estilos - asegurar que el background siempre esté presente
     const finalStyle: React.CSSProperties & Record<string, any> = {
-      // Primero aplicar dynamicStyles para que tenga prioridad
+      // Primero aplicar dynamicStyles
       ...dynamicStyles,
       '--ring-color': 'var(--color-primary)',
-      // Luego aplicar props.style (pero dynamicStyles ya tiene los valores importantes)
-      ...(props.style || {}),
     };
     
     // FORZAR que el background siempre esté presente para variant default/secondary
-    if (actualVariant === "default" || actualVariant === "secondary" || !actualVariant) {
+    // PERO solo si no hay un style personalizado en props
+    if ((actualVariant === "default" || actualVariant === "secondary" || !actualVariant) && !props.style?.background) {
       const primaryColor = colors.primary || '#10B981';
       const accentColor = colors.accent || '#84CC16';
       const gradient = actualVariant === "secondary"
@@ -144,6 +143,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       finalStyle.background = gradient;
       finalStyle.backgroundImage = gradient;
       finalStyle.backgroundColor = 'transparent';
+    }
+    
+    // Finalmente aplicar props.style para que tenga máxima prioridad
+    if (props.style) {
+      Object.assign(finalStyle, props.style);
     }
     
     return (

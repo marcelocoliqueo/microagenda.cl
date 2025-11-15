@@ -105,14 +105,14 @@ function DemoInteractivo() {
   const totalSteps = 4;
 
   const brandColors = [
-    { name: "Verde", value: "green", bg: "bg-emerald-500", text: "text-emerald-600", light: "bg-emerald-50", border: "border-emerald-200", ring: "ring-emerald-200", gradient: "from-emerald-500 to-emerald-600" },
-    { name: "Azul", value: "blue", bg: "bg-blue-500", text: "text-blue-600", light: "bg-blue-50", border: "border-blue-200", ring: "ring-blue-200", gradient: "from-blue-500 to-blue-600" },
-    { name: "Rojo", value: "red", bg: "bg-rose-500", text: "text-rose-600", light: "bg-rose-50", border: "border-rose-200", ring: "ring-rose-200", gradient: "from-rose-500 to-rose-600" },
-    { name: "Morado", value: "purple", bg: "bg-purple-500", text: "text-purple-600", light: "bg-purple-50", border: "border-purple-200", ring: "ring-purple-200", gradient: "from-purple-500 to-purple-600" },
-    { name: "Naranja", value: "orange", bg: "bg-orange-500", text: "text-orange-600", light: "bg-orange-50", border: "border-orange-200", ring: "ring-orange-200", gradient: "from-orange-500 to-orange-600" },
-    { name: "Rosado", value: "pink", bg: "bg-pink-500", text: "text-pink-600", light: "bg-pink-50", border: "border-pink-200", ring: "ring-pink-200", gradient: "from-pink-500 to-pink-600" },
-    { name: "Celeste", value: "cyan", bg: "bg-cyan-500", text: "text-cyan-600", light: "bg-cyan-50", border: "border-cyan-200", ring: "ring-cyan-200", gradient: "from-cyan-500 to-cyan-600" },
-    { name: "Amarillo", value: "yellow", bg: "bg-amber-500", text: "text-amber-600", light: "bg-amber-50", border: "border-amber-200", ring: "ring-amber-200", gradient: "from-amber-500 to-amber-600" },
+    { name: "Verde", value: "green", bg: "bg-emerald-500", text: "text-emerald-600", light: "bg-emerald-50", border: "border-emerald-200", ring: "ring-emerald-200", gradient: "from-emerald-500 to-emerald-600", primary: "#10B981", accent: "#84CC16" },
+    { name: "Azul", value: "blue", bg: "bg-blue-500", text: "text-blue-600", light: "bg-blue-50", border: "border-blue-200", ring: "ring-blue-200", gradient: "from-blue-500 to-blue-600", primary: "#3B82F6", accent: "#60A5FA" },
+    { name: "Rojo", value: "red", bg: "bg-rose-500", text: "text-rose-600", light: "bg-rose-50", border: "border-rose-200", ring: "ring-rose-200", gradient: "from-rose-500 to-rose-600", primary: "#F43F5E", accent: "#FB7185" },
+    { name: "Morado", value: "purple", bg: "bg-purple-500", text: "text-purple-600", light: "bg-purple-50", border: "border-purple-200", ring: "ring-purple-200", gradient: "from-purple-500 to-purple-600", primary: "#8B5CF6", accent: "#A78BFA" },
+    { name: "Naranja", value: "orange", bg: "bg-orange-500", text: "text-orange-600", light: "bg-orange-50", border: "border-orange-200", ring: "ring-orange-200", gradient: "from-orange-500 to-orange-600", primary: "#F97316", accent: "#FB923C" },
+    { name: "Rosado", value: "pink", bg: "bg-pink-500", text: "text-pink-600", light: "bg-pink-50", border: "border-pink-200", ring: "ring-pink-200", gradient: "from-pink-500 to-pink-600", primary: "#EC4899", accent: "#F472B6" },
+    { name: "Celeste", value: "cyan", bg: "bg-cyan-500", text: "text-cyan-600", light: "bg-cyan-50", border: "border-cyan-200", ring: "ring-cyan-200", gradient: "from-cyan-500 to-cyan-600", primary: "#06B6D4", accent: "#22D3EE" },
+    { name: "Amarillo", value: "yellow", bg: "bg-amber-500", text: "text-amber-600", light: "bg-amber-50", border: "border-amber-200", ring: "ring-amber-200", gradient: "from-amber-500 to-amber-600", primary: "#F59E0B", accent: "#FCD34D" },
   ];
 
   const currentColor = brandColors.find(c => c.value === brandColor) || brandColors[0];
@@ -541,7 +541,10 @@ function DemoInteractivo() {
                     size="sm"
                     onClick={() => setStep(Math.min(totalSteps, step + 1))}
                     disabled={(step === 1 && !selectedService) || (step === 2 && (!selectedDate || !selectedTime))}
-                    className={`bg-gradient-to-br ${currentColor.gradient} text-white text-sm disabled:opacity-50 transition-all hover:shadow-lg`}
+                    className="text-white text-sm disabled:opacity-50 transition-all hover:shadow-lg"
+                    style={{
+                      background: `linear-gradient(to bottom right, ${currentColor.primary}, ${currentColor.accent})`,
+                    }}
                   >
                     Siguiente
                     <ChevronRight className="w-4 h-4 ml-1" />
