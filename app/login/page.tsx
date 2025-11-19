@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -14,12 +14,26 @@ import { APP_NAME } from "@/lib/constants";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
+  // Mostrar mensaje si la contraseña fue cambiada
+  useEffect(() => {
+    const passwordChanged = searchParams.get("passwordChanged");
+    if (passwordChanged) {
+      toast({
+        title: "¡Contraseña actualizada!",
+        description: "Tu contraseña ha sido actualizada exitosamente. Ya puedes iniciar sesión.",
+      });
+      // Limpiar el parámetro de la URL
+      router.replace("/login");
+    }
+  }, [searchParams, toast, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
