@@ -177,6 +177,10 @@ export default function AppointmentsPage() {
   }, [filteredAppointments]);
 
   async function handleStatusChange(appointmentId: string, newStatus: string) {
+    // Obtener el estado anterior para detectar cambios
+    const appointment = appointments.find(a => a.id === appointmentId);
+    const previousStatus = appointment?.status;
+
     const result = await updateAppointment(appointmentId, { status: newStatus });
 
     if (result.success) {
@@ -184,6 +188,46 @@ export default function AppointmentsPage() {
         title: "Estado actualizado",
         description: `Cita marcada como ${STATUS_LABELS[newStatus]}`,
       });
+
+      // Enviar emails según el cambio de estado
+      try {
+        // Si la cita fue confirmada manualmente (de pending a confirmed)
+        if (previousStatus === "pending" && newStatus === "confirmed") {
+          await fetch("/api/send-appointment-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              type: "manual-confirmation",
+              appointmentId,
+            }),
+          });
+        }
+
+        // Si la cita fue cancelada
+        if (newStatus === "cancelled") {
+          // Email al cliente
+          await fetch("/api/send-appointment-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              type: "cancellation-client",
+              appointmentId,
+            }),
+          });
+          // Email al profesional
+          await fetch("/api/send-appointment-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              type: "cancellation-professional",
+              appointmentId,
+            }),
+          });
+        }
+      } catch (emailError) {
+        console.error("Error enviando emails:", emailError);
+        // No mostrar error al usuario, los emails son opcionales
+      }
     } else {
       toast({
         title: "Error",

@@ -37,6 +37,7 @@ export default function PublicAgendaPage() {
   const [formData, setFormData] = useState({
     client_name: "",
     client_phone: "",
+    client_email: "",
     service_id: "",
     date: "",
     time: "",
@@ -300,16 +301,49 @@ export default function PublicAgendaPage() {
     if (!profile || !selectedService) return;
     try {
       setSubmitting(true);
-      const { error } = await supabase.from("appointments").insert([{
+      const { data: appointmentData, error } = await supabase.from("appointments").insert([{
           user_id: profile.id,
         service_id: formData.service_id,
           client_name: formData.client_name,
           client_phone: sanitizePhone(formData.client_phone),
+          client_email: formData.client_email || null,
           date: formData.date,
         time: formData.time + ":00",
           status: profile.auto_confirm ? "confirmed" : "pending",
-      }]);
+      }]).select().single();
+      
       if (error) throw error;
+      
+      // Enviar emails después de crear la reserva
+      if (appointmentData) {
+        try {
+          // Email al cliente si tiene email
+          if (formData.client_email) {
+            await fetch("/api/send-new-reservation-emails", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                appointmentId: appointmentData.id,
+                type: "client",
+              }),
+            });
+          }
+          
+          // Email al profesional
+          await fetch("/api/send-new-reservation-emails", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              appointmentId: appointmentData.id,
+              type: "professional",
+            }),
+          });
+        } catch (emailError) {
+          console.error("Error enviando emails:", emailError);
+          // No fallar el flujo si los emails fallan
+        }
+      }
+      
       toast({ title: "¡Reserva exitosa!", description: "Tu cita ha sido registrada" });
       setStep(4);
     } catch (error: any) {
@@ -881,6 +915,7 @@ export default function PublicAgendaPage() {
                 <form onSubmit={handleSubmit} className="space-y-3">
                   {formData.date && formData.time && (<div className="rounded-lg bg-primary/5 border border-primary/20 p-2 text-xs space-y-1"><div className="flex justify-between"><span className="font-medium">{selectedService.name}</span><span>{formatCurrency(selectedService.price)}</span></div><div className="text-slate-600">{formatDateFriendly(formData.date)} · {formData.time}</div></div>)}
                   <div><label htmlFor="client_name" className="text-xs font-medium text-slate-700 block mb-1">Nombre</label><Input id="client_name" name="client_name" placeholder="Tu nombre completo" value={formData.client_name} onChange={(e) => setFormData({ ...formData, client_name: e.target.value })} required className="h-10" /></div>
+                  <div><label htmlFor="client_email" className="text-xs font-medium text-slate-700 block mb-1">Email <span className="text-slate-400 font-normal">(opcional)</span></label><Input id="client_email" name="client_email" type="email" placeholder="tu@email.com" value={formData.client_email} onChange={(e) => setFormData({ ...formData, client_email: e.target.value })} className="h-10" /></div>
                   <div><label htmlFor="client_phone" className="text-xs font-medium text-slate-700 block mb-1">Teléfono</label><Input id="client_phone" name="client_phone" type="tel" placeholder="+56 9 1234 5678" value={formData.client_phone} onChange={(e) => setFormData({ ...formData, client_phone: e.target.value })} required className="h-10" /></div>
                 </form>
               </div>
@@ -931,7 +966,7 @@ export default function PublicAgendaPage() {
                   {submitting ? "Reservando..." : "Confirmar"}
                 </Button>
               ) : (
-                <Button size="sm" onClick={() => { setStep(1); setFormData({ client_name: "", client_phone: "", service_id: "", date: "", time: "" }); }} variant="outline" className="text-sm">Nueva reserva</Button>
+                <Button size="sm" onClick={() => { setStep(1); setFormData({ client_name: "", client_phone: "", client_email: "", service_id: "", date: "", time: "" }); }} variant="outline" className="text-sm">Nueva reserva</Button>
               )}
             </div>
           </div>
