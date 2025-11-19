@@ -89,6 +89,24 @@ export default function RegisterPage() {
             : "Le enviamos un enlace de confirmación",
         });
 
+        // Enviar email de bienvenida (solo si el email está confirmado)
+        if (isEmailConfirmed && authData.user.email) {
+          try {
+            await fetch("/api/send-welcome-email", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                userEmail: authData.user.email,
+                userName: formData.name,
+                businessName: formData.businessName || undefined,
+              }),
+            });
+          } catch (emailError) {
+            console.error("Error enviando email de bienvenida:", emailError);
+            // No fallar el flujo si el email falla
+          }
+        }
+
         // Always redirect to verify-email when email is not confirmed
         if (!isEmailConfirmed) {
           // Email needs confirmation
