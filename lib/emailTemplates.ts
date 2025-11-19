@@ -789,3 +789,143 @@ export function getAppointmentCompletedEmail(params: {
   });
 }
 
+/**
+ * Email de confirmación manual del profesional (cuando confirma una cita pendiente)
+ */
+export function getAppointmentManuallyConfirmedEmail(params: {
+  clientName: string;
+  serviceName: string;
+  date: string;
+  time: string;
+  businessName: string;
+  businessPhone?: string;
+  businessAddress?: string;
+}): string {
+  const content = `
+    <p>Hola <strong>${params.clientName}</strong>,</p>
+    <div class="badge badge-success">✅ Cita Confirmada</div>
+    <p>¡Buenas noticias! Tu reserva ha sido confirmada por <strong>${params.businessName}</strong>:</p>
+    <div class="info-box">
+      <ul>
+        <li><strong>Servicio:</strong> ${params.serviceName}</li>
+        <li><strong>Fecha:</strong> ${params.date}</li>
+        <li><strong>Hora:</strong> ${params.time}</li>
+        <li><strong>Profesional:</strong> ${params.businessName}</li>
+        ${params.businessPhone ? `<li><strong>Teléfono:</strong> ${params.businessPhone}</li>` : ''}
+        ${params.businessAddress ? `<li><strong>Dirección:</strong> ${params.businessAddress}</li>` : ''}
+      </ul>
+    </div>
+    <p>Recibirás recordatorios automáticos 24 horas y 2 horas antes de tu cita.</p>
+    <p>¡Te esperamos!</p>
+  `;
+
+  return getBaseEmailTemplate({
+    title: "¡Tu Cita ha sido Confirmada!",
+    content,
+  });
+}
+
+/**
+ * Email de cambio de contraseña exitoso
+ */
+export function getPasswordChangedEmail(params: {
+  userName: string;
+  changeDate: string;
+  ipAddress?: string;
+}): string {
+  const content = `
+    <p>Hola <strong>${params.userName}</strong>,</p>
+    <div class="badge badge-success">🔒 Contraseña Actualizada</div>
+    <p>Tu contraseña ha sido cambiada exitosamente.</p>
+    <div class="info-box">
+      <ul>
+        <li><strong>Fecha:</strong> ${params.changeDate}</li>
+        ${params.ipAddress ? `<li><strong>Desde:</strong> ${params.ipAddress}</li>` : ''}
+      </ul>
+    </div>
+    <p><strong>¿No fuiste tú?</strong></p>
+    <p>Si no realizaste este cambio, por favor contacta a nuestro equipo de soporte inmediatamente para asegurar tu cuenta.</p>
+    <p style="text-align: center; margin: 30px 0;">
+      <a href="mailto:${SUPPORT_EMAIL}" class="button button-secondary">Contactar Soporte</a>
+    </p>
+    <p>Por seguridad, recomendamos usar una contraseña única y segura.</p>
+  `;
+
+  return getBaseEmailTemplate({
+    title: "Contraseña Actualizada",
+    content,
+    primaryColor: "#3B82F6",
+    accentColor: "#60A5FA",
+  });
+}
+
+/**
+ * Email de actualización de perfil
+ */
+export function getProfileUpdatedEmail(params: {
+  userName: string;
+  changes: string[];
+}): string {
+  const changesList = params.changes.map(change => `<li>${change}</li>`).join('');
+
+  const content = `
+    <p>Hola <strong>${params.userName}</strong>,</p>
+    <div class="badge badge-info">📝 Perfil Actualizado</div>
+    <p>Tu perfil ha sido actualizado exitosamente:</p>
+    <div class="info-box">
+      <ul>
+        ${changesList}
+      </ul>
+    </div>
+    <p>Si no realizaste estos cambios, por favor contacta a nuestro equipo de soporte.</p>
+    <p style="text-align: center; margin: 30px 0;">
+      <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://microagenda.cl'}/dashboard" class="button">
+        Ver mi Perfil
+      </a>
+    </p>
+  `;
+
+  return getBaseEmailTemplate({
+    title: "Perfil Actualizado",
+    content,
+    primaryColor: "#8B5CF6",
+    accentColor: "#A78BFA",
+  });
+}
+
+/**
+ * Email de cancelación de suscripción
+ */
+export function getSubscriptionCancelledEmail(params: {
+  userName: string;
+  endDate: string;
+  planName: string;
+}): string {
+  const content = `
+    <p>Hola <strong>${params.userName}</strong>,</p>
+    <div class="badge badge-warning">⚠️ Suscripción Cancelada</div>
+    <p>Tu suscripción ha sido cancelada:</p>
+    <div class="info-box">
+      <ul>
+        <li><strong>Plan:</strong> ${params.planName}</li>
+        <li><strong>Fecha de finalización:</strong> ${params.endDate}</li>
+      </ul>
+    </div>
+    <p>Tu cuenta seguirá activa hasta la fecha de finalización. Después de esa fecha, perderás acceso a las funcionalidades premium.</p>
+    <p>Si cambias de opinión, puedes reactivar tu suscripción en cualquier momento desde tu dashboard.</p>
+    <p style="text-align: center; margin: 30px 0;">
+      <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://microagenda.cl'}/dashboard" class="button">
+        Ver mi Dashboard
+      </a>
+    </p>
+    <p>Lamentamos verte partir. Si hay algo en lo que podamos mejorar, no dudes en contactarnos.</p>
+  `;
+
+  return getBaseEmailTemplate({
+    title: "Suscripción Cancelada",
+    content,
+    primaryColor: "#F59E0B",
+    accentColor: "#D97706",
+  });
+}
+
