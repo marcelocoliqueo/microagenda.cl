@@ -134,7 +134,7 @@ export default function SettingsPage() {
       });
 
       const compressedFile = await compressImage(file);
-      
+
       console.log('📦 Tamaño original:', (file.size / 1024).toFixed(2), 'KB');
       console.log('📦 Tamaño optimizado:', (compressedFile.size / 1024).toFixed(2), 'KB');
       console.log('📊 Reducción:', (((file.size - compressedFile.size) / file.size) * 100).toFixed(1), '%');
@@ -217,7 +217,7 @@ export default function SettingsPage() {
 
       if (profileError) throw profileError;
       setProfile(profileData);
-      
+
       // Inicializar valores para edición
       if (profileData) {
         setNewUsername(profileData.username || "");
@@ -349,7 +349,7 @@ export default function SettingsPage() {
     if (!user || !profile) return;
 
     const newValue = !profile.auto_confirm;
-    
+
     try {
       const { error } = await supabase
         .from("profiles")
@@ -361,12 +361,42 @@ export default function SettingsPage() {
       setProfile({ ...profile, auto_confirm: newValue });
       toast({
         title: "Configuración actualizada",
-        description: newValue 
-          ? "Las citas se confirmarán automáticamente" 
+        description: newValue
+          ? "Las citas se confirmarán automáticamente"
           : "Ahora debes confirmar manualmente cada cita",
       });
     } catch (error: any) {
       console.error("Update auto confirm error:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar la configuración",
+        variant: "destructive",
+      });
+    }
+  }
+
+  async function handleToggleReviewRequest() {
+    if (!user || !profile) return;
+
+    const newValue = !profile.send_review_request;
+
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ send_review_request: newValue })
+        .eq("id", user.id);
+
+      if (error) throw error;
+
+      setProfile({ ...profile, send_review_request: newValue });
+      toast({
+        title: "Configuración actualizada",
+        description: newValue
+          ? "Se pedirán reviews al completar citas"
+          : "No se enviarán emails de review",
+      });
+    } catch (error: any) {
+      console.error("Update review request error:", error);
       toast({
         title: "Error",
         description: "No se pudo actualizar la configuración",
@@ -479,6 +509,48 @@ export default function SettingsPage() {
                 className="ml-4"
               >
                 {profile?.auto_confirm ? "Activada" : "Desactivada"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Review Request Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.12 }}
+        className="mb-8"
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle>Solicitud de Reviews</CardTitle>
+            <CardDescription>
+              Pide feedback a tus clientes al completar citas
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between py-4">
+              <div className="space-y-1 flex-1">
+                <div className="flex items-center gap-2">
+                  <h4 className="font-medium">Pedir reviews</h4>
+                  {profile?.send_review_request && (
+                    <CheckCircle2 className="w-4 h-4 text-green-600" />
+                  )}
+                </div>
+                <p className="text-sm text-muted">
+                  {profile?.send_review_request
+                    ? "Se enviará un email de agradecimiento con solicitud de review al completar citas"
+                    : "No se enviarán emails al completar citas"}
+                </p>
+              </div>
+              <Button
+                variant={profile?.send_review_request ? "default" : "outline"}
+                size="lg"
+                onClick={handleToggleReviewRequest}
+                className="ml-4"
+              >
+                {profile?.send_review_request ? "Activado" : "Desactivado"}
               </Button>
             </div>
           </CardContent>
@@ -637,8 +709,8 @@ export default function SettingsPage() {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button 
-                      onClick={handleUpdateBusinessInfo} 
+                    <Button
+                      onClick={handleUpdateBusinessInfo}
                       variant="default"
                       disabled={uploadingLogo}
                     >

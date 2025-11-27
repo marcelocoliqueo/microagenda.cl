@@ -49,10 +49,10 @@ if (typeof window !== 'undefined') {
       // Ignorar errores en la inicialización
     }
   };
-  
+
   // Ejecutar después de que el cliente esté listo
   setTimeout(initRealtimeAuth, 100);
-  
+
   // También escuchar cambios de autenticación para actualizar el token
   supabase.auth.onAuthStateChange((event, session) => {
     if (session?.access_token && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
@@ -68,19 +68,19 @@ if (typeof window !== 'undefined') {
 // Database types
 export type Profile = {
   id: string;
-  name: string;
   email: string;
+  name: string;
   username: string | null;
-  whatsapp: string | null;
-  photo_url: string | null;
-  auto_confirm: boolean;
   business_name: string | null;
-  business_logo_url: string | null;
-  bio: string | null;
-  brand_color: string;
-  onboarding_completed: boolean;
-  subscription_status: string;
-  current_plan_id: string | null;
+  business_phone: string | null;
+  business_address: string | null;
+  business_logo: string | null;
+  brand_color: string | null;
+  auto_confirm: boolean;
+  send_review_request: boolean;
+  plan_id: string | null;
+  subscription_status: string | null;
+  subscription_end_date: string | null;
   created_at: string;
 };
 

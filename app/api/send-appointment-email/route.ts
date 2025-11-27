@@ -7,6 +7,8 @@ import {
   getAppointmentRescheduledClientEmail,
   getAppointmentRescheduledProfessionalEmail,
   getAppointmentConfirmationEmail,
+  getAppointmentCompletedEmail,
+  getNoShowNotificationEmail,
 } from "@/lib/emailTemplates";
 import { supabase } from "@/lib/supabaseClient";
 import { formatDateFriendly } from "@/lib/utils";
@@ -80,7 +82,6 @@ export async function POST(request: NextRequest) {
           date: formatDateFriendly(appointment.date),
           time: appointment.time.substring(0, 5),
           businessName: profile?.business_name || profile?.name || "Profesional",
-          businessPhone: profile?.whatsapp || undefined,
         });
 
         subject = "¡Tu Cita ha sido Confirmada!";
@@ -141,7 +142,6 @@ export async function POST(request: NextRequest) {
           newDate: formatDateFriendly(appointment.date),
           newTime: appointment.time.substring(0, 5),
           businessName: profile?.business_name || profile?.name || "Profesional",
-          businessPhone: profile?.whatsapp || undefined,
         });
 
         subject = "Cita Reagendada";
@@ -173,6 +173,49 @@ export async function POST(request: NextRequest) {
         break;
       }
 
+      case "completed": {
+        // Verificar si el profesional tiene activado el envío de reviews
+        if (!profile?.send_review_request) {
+          return NextResponse.json(
+            { success: true, skipped: true, reason: "Review request desactivado" }
+          );
+        }
+
+        if (!appointment.client_email) {
+          return NextResponse.json(
+            { success: true, skipped: true, reason: "Cliente no tiene email" }
+          );
+        }
+
+        emailHtml = getAppointmentCompletedEmail({
+          clientName: appointment.client_name,
+          serviceName: service?.name || "Servicio",
+          date: formatDateFriendly(appointment.date),
+          time: appointment.time.substring(0, 5),
+          businessName: profile?.business_name || profile?.name || "Profesional",
+          reviewLink: undefined, // Opcional: agregar link de review en el futuro
+        });
+
+        subject = "¡Gracias por tu visita!";
+        to = appointment.client_email;
+        break;
+      }
+
+      case "no-show": {
+
+        emailHtml = getNoShowNotificationEmail({
+          professionalName: profile?.name || "Profesional",
+          clientName: appointment.client_name,
+          serviceName: service?.name || "Servicio",
+          date: formatDateFriendly(appointment.date),
+          time: appointment.time.substring(0, 5),
+        });
+
+        subject = "Cliente No Asistió - Cita Perdida";
+        to = profile?.email;
+        break;
+      }
+
       default:
         return NextResponse.json(
           { error: "Tipo de email no válido" },
@@ -194,9 +237,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      mock: result.mock || false 
+    return NextResponse.json({
+      success: true,
+      mock: result.mock || false
     });
   } catch (error: any) {
     console.error("Error en send-appointment-email API:", error);
@@ -206,4 +249,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

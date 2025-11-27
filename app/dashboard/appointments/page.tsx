@@ -225,6 +225,30 @@ export default function AppointmentsPage() {
             }),
           });
         }
+
+        // Si la cita fue completada
+        if (newStatus === "completed") {
+          await fetch("/api/send-appointment-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              type: "completed",
+              appointmentId,
+            }),
+          });
+        }
+
+        // Si la cita fue marcada como no-show
+        if (newStatus === "no-show") {
+          await fetch("/api/send-appointment-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              type: "no-show",
+              appointmentId,
+            }),
+          });
+        }
       } catch (emailError) {
         console.error("Error enviando emails:", emailError);
         // No mostrar error al usuario, los emails son opcionales
