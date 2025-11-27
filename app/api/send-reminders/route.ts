@@ -47,70 +47,79 @@ export async function POST(request: NextRequest) {
     let errors = 0;
 
     // 1. RECORDATORIOS DE 24 HORAS
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowDate = tomorrow.toISOString().split("T")[0];
+    // Solo enviar a las 12:00 UTC (aprox 9:00 AM Chile) para evitar spam cada hora
+    const currentHour = new Date().getUTCHours();
+    const isTargetHour = currentHour === 12; // 12:00 UTC
 
-    const { data: appointments24h, error: error24h } = await supabase
-      .from("appointments")
-      .select(
+    if (isTargetHour) {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowDate = tomorrow.toISOString().split("T")[0];
+
+      const { data: appointments24h, error: error24h } = await supabase
+        .from("appointments")
+        .select(
+          `
+          *,
+          service:services(*),
+          profile:profiles(*)
         `
-        *,
-        service:services(*),
-        profile:profiles(*)
-      `
-      )
-      .eq("date", tomorrowDate)
-      .in("status", ["confirmed", "pending"]);
+        )
+        .eq("date", tomorrowDate)
+        .in("status", ["confirmed", "pending"]);
 
-    if (error24h) {
-      console.error("Error fetching 24h appointments:", error24h);
-      throw error24h;
-    }
+      if (error24h) {
+        console.error("Error fetching 24h appointments:", error24h);
+        throw error24h;
+      }
 
-    if (appointments24h && appointments24h.length > 0) {
-      console.log(`📧 Enviando ${appointments24h.length} recordatorios de 24 horas...`);
+      if (appointments24h && appointments24h.length > 0) {
+        console.log(`📧 Enviando ${appointments24h.length} recordatorios de 24 horas...`);
 
-      for (const appointment of appointments24h) {
-        try {
-          // Validar que tenga email o teléfono
-          if (!appointment.client_phone) {
-            console.warn(`⚠️ Cita ${appointment.id} sin email/teléfono`);
-            continue;
-          }
+        for (const appointment of appointments24h) {
+          try {
+            // Validar que tenga email
+            if (!appointment.client_email) {
+              console.warn(`⚠️ Cita ${appointment.id} sin email. Se omite recordatorio 24h.`);
+              continue;
+            }
 
-          const businessName =
-            appointment.profile?.business_name ||
-            appointment.profile?.name ||
-            "MicroAgenda";
+            const businessName =
+              appointment.profile?.business_name ||
+              appointment.profile?.name ||
+              "MicroAgenda";
 
-          const reminderData = {
-            clientName: appointment.client_name,
-            serviceName: appointment.service?.name || "Servicio",
-            date: formatDate(appointment.date),
-            time: formatTime(appointment.time),
-            businessName,
-          };
+            const reminderData = {
+              clientName: appointment.client_name,
+              serviceName: appointment.service?.name || "Servicio",
+              date: formatDate(appointment.date),
+              time: formatTime(appointment.time),
+              businessName,
+            };
 
-          // Enviar email de recordatorio 24h
-          const emailResult = await sendEmail({
-            to: appointment.client_phone,
-            subject: `Recordatorio: ${reminderData.serviceName} mañana a las ${reminderData.time}`,
-            html: getAppointmentReminderEmail(reminderData),
-          });
+            // Enviar email de recordatorio 24h
+            const emailResult = await sendEmail({
+              to: appointment.client_email,
+              subject: `Recordatorio: ${reminderData.serviceName} mañana a las ${reminderData.time}`,
+              html: getAppointmentReminderEmail(reminderData),
+            });
 
-          if (emailResult.success) {
-            sent24h++;
-          } else {
+            if (emailResult.success) {
+              sent24h++;
+            } else {
+              errors++;
+              console.error(`Error enviando recordatorio 24h para cita ${appointment.id}`);
+            }
+          } catch (err) {
+            console.error("Error procesando recordatorio 24h:", err);
             errors++;
-            console.error(`Error enviando recordatorio 24h para cita ${appointment.id}`);
           }
-        } catch (err) {
-          console.error("Error procesando recordatorio 24h:", err);
-          errors++;
         }
       }
+    } else {
+      console.log(`⏳ Hora actual (${currentHour} UTC) no es la hora de envío de recordatorios 24h (12 UTC). Saltando...`);
     }
+
 
     // 2. RECORDATORIOS DE 2 HORAS
     const now = new Date();
@@ -154,8 +163,8 @@ export async function POST(request: NextRequest) {
 
         for (const appointment of appointments2h) {
           try {
-            if (!appointment.client_phone) {
-              console.warn(`⚠️ Cita ${appointment.id} sin email/teléfono`);
+            if (!appointment.client_email) {
+              console.warn(`⚠️ Cita ${appointment.id} sin email. Se omite recordatorio 2h.`);
               continue;
             }
 
@@ -174,7 +183,7 @@ export async function POST(request: NextRequest) {
 
             // Enviar email de recordatorio 2h
             const emailResult = await sendEmail({
-              to: appointment.client_phone,
+              to: appointment.client_email,
               subject: `¡Tu cita es en 2 horas! - ${reminderData.serviceName}`,
               html: getTwoHourReminderEmail(reminderData),
             });
