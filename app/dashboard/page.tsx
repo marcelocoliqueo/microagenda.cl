@@ -80,7 +80,7 @@ export default function DashboardPage() {
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [activeFilter, setActiveFilter] = useState<AppointmentFilter>("upcoming");
   const [statsPeriod, setStatsPeriod] = useState<"day" | "week" | "month">("month");
-  
+
   // Función para normalizar el username (reemplazar espacios con guiones y limpiar)
   const normalizeUsername = (input: string): string => {
     return input
@@ -91,7 +91,7 @@ export default function DashboardPage() {
       .replace(/--+/g, '-') // Reemplazar múltiples guiones con uno solo
       .replace(/^-+|-+$/g, ''); // Eliminar guiones al inicio y final
   };
-  
+
   // Validar si el username es válido después de normalizar
   const isValidUsername = (input: string): boolean => {
     if (!input.trim()) return false;
@@ -142,6 +142,7 @@ export default function DashboardPage() {
       const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
+        // Si no hay sesión, redirigir y mantener loading en true
         router.push("/login");
         return;
       }
@@ -157,12 +158,12 @@ export default function DashboardPage() {
 
       if (profileError) throw profileError;
       setProfile(profileData);
-      
+
       // Verificar si necesita completar onboarding
       if (!profileData.onboarding_completed) {
         setShowOnboardingDialog(true);
       }
-      
+
       // Inicializar valores para configuración de negocio
       if (profileData) {
         setNewUsername(profileData.username || "");
@@ -172,6 +173,9 @@ export default function DashboardPage() {
 
       // Fetch services
       await fetchServices(session.user.id);
+
+      // Solo desactivar loading si tuvimos éxito y no estamos redirigiendo
+      setLoading(false);
     } catch (error: any) {
       console.error("Auth check error:", error);
       toast({
@@ -179,7 +183,6 @@ export default function DashboardPage() {
         description: "No se pudo cargar tu perfil",
         variant: "destructive",
       });
-    } finally {
       setLoading(false);
     }
   }
@@ -209,7 +212,7 @@ export default function DashboardPage() {
 
       // Cerrar sesión
       const { error } = await supabase.auth.signOut();
-      
+
       if (error) {
         console.error("Error al cerrar sesión:", error);
         toast({
@@ -255,8 +258,8 @@ export default function DashboardPage() {
     if (!isValidUsername(newUsername)) {
       toast({
         title: "Error",
-        description: normalizedUsername.length < 3 
-          ? "El nombre de usuario debe tener al menos 3 caracteres" 
+        description: normalizedUsername.length < 3
+          ? "El nombre de usuario debe tener al menos 3 caracteres"
           : "El nombre de usuario contiene caracteres inválidos o formato incorrecto",
         variant: "destructive",
       });
@@ -387,7 +390,7 @@ export default function DashboardPage() {
       });
 
       const compressedFile = await compressImage(file);
-      
+
       console.log('📦 Tamaño original:', (file.size / 1024).toFixed(2), 'KB');
       console.log('📦 Tamaño optimizado:', (compressedFile.size / 1024).toFixed(2), 'KB');
       console.log('📊 Reducción:', (((file.size - compressedFile.size) / file.size) * 100).toFixed(1), '%');
@@ -839,6 +842,66 @@ export default function DashboardPage() {
     );
   }
 
+  // Blocking UI for expired/inactive subscription
+  if (profile && (profile.subscription_status === "expired" || profile.subscription_status === "inactive")) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <Card className="max-w-md w-full shadow-xl border-t-4 border-t-red-500">
+          <CardHeader className="text-center pb-2">
+            <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+              <AlertCircle className="w-8 h-8 text-red-600" />
+            </div>
+            <CardTitle className="text-2xl font-bold text-slate-900">Suscripción Expirada</CardTitle>
+            <CardDescription className="text-base mt-2">
+              Tu periodo de acceso ha finalizado. Para continuar gestionando tus citas, por favor reactiva tu plan.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6 pt-6">
+            <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
+              <h4 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-primary" />
+                Beneficios de reactivar:
+              </h4>
+              <ul className="space-y-2 text-sm text-slate-600">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                  Acceso ilimitado a tu agenda
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                  Recordatorios automáticos por email
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                  Estadísticas avanzadas
+                </li>
+              </ul>
+            </div>
+
+            <div className="space-y-3">
+              <Button
+                onClick={handleSubscribe}
+                className="w-full bg-gradient-to-r from-primary to-accent hover:brightness-110 text-lg py-6 shadow-lg"
+              >
+                <DollarSign className="w-5 h-5 mr-2" />
+                Reactivar por {formatCurrency(PLAN_PRICE)}/mes
+              </Button>
+
+              <Button
+                variant="ghost"
+                onClick={handleLogout}
+                className="w-full text-slate-500 hover:text-slate-700"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Cerrar Sesión
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   const publicUrl = profile && profile.username
     ? `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/u/${profile.username}`
     : "";
@@ -1094,33 +1157,30 @@ export default function DashboardPage() {
             <button
               onClick={() => setStatsPeriod("day")}
               style={statsPeriod === "day" ? { backgroundColor: brandColor.primary } : {}}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                statsPeriod === "day"
-                  ? "text-white shadow-sm"
-                  : "text-slate-600 hover:bg-slate-100"
-              }`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${statsPeriod === "day"
+                ? "text-white shadow-sm"
+                : "text-slate-600 hover:bg-slate-100"
+                }`}
             >
               Hoy
             </button>
             <button
               onClick={() => setStatsPeriod("week")}
               style={statsPeriod === "week" ? { backgroundColor: brandColor.primary } : {}}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                statsPeriod === "week"
-                  ? "text-white shadow-sm"
-                  : "text-slate-600 hover:bg-slate-100"
-              }`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${statsPeriod === "week"
+                ? "text-white shadow-sm"
+                : "text-slate-600 hover:bg-slate-100"
+                }`}
             >
               Semana
             </button>
             <button
               onClick={() => setStatsPeriod("month")}
               style={statsPeriod === "month" ? { backgroundColor: brandColor.primary } : {}}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                statsPeriod === "month"
-                  ? "text-white shadow-sm"
-                  : "text-slate-600 hover:bg-slate-100"
-              }`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${statsPeriod === "month"
+                ? "text-white shadow-sm"
+                : "text-slate-600 hover:bg-slate-100"
+                }`}
             >
               Mes
             </button>
@@ -1358,7 +1418,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Onboarding Dialog - Primera configuración */}
-      <Dialog open={showOnboardingDialog} onOpenChange={() => {}}>
+      <Dialog open={showOnboardingDialog} onOpenChange={() => { }}>
         <DialogContent className="max-w-lg" onPointerDownOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
           <DialogHeader>
             <DialogTitle className="text-2xl">¡Bienvenido a MicroAgenda! 🎉</DialogTitle>
@@ -1497,7 +1557,7 @@ export default function DashboardPage() {
                   maxLength={30}
                 />
               </div>
-              
+
               {/* Mostrar preview del username normalizado */}
               {newUsername.trim() && (
                 <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
@@ -1513,17 +1573,17 @@ export default function DashboardPage() {
                   )}
                 </div>
               )}
-              
+
               {/* Mensaje de validación */}
               {newUsername.trim() && !isValidUsername(newUsername) && (
                 <p className="text-xs text-red-600 flex items-center gap-1">
                   <AlertCircle className="w-3 h-3" />
-                  {normalizeUsername(newUsername).length < 3 
-                    ? "El nombre debe tener al menos 3 caracteres" 
+                  {normalizeUsername(newUsername).length < 3
+                    ? "El nombre debe tener al menos 3 caracteres"
                     : "El nombre contiene caracteres inválidos. Usa letras, números, espacios, guiones y guiones bajos"}
                 </p>
               )}
-              
+
               <p className="text-xs text-slate-500">
                 Ejemplo: "Juan Pérez" se convertirá en "juan-perez"
               </p>
@@ -1715,7 +1775,7 @@ function NewAppointmentDialog({ services, userId, onSuccess }: { services: Servi
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button 
+        <Button
           className="hover:brightness-110 text-white"
           style={{
             background: `linear-gradient(to right, var(--color-primary), var(--color-accent))`

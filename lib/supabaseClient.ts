@@ -74,10 +74,11 @@ export type Profile = {
   business_name: string | null;
   business_phone: string | null;
   business_address: string | null;
-  business_logo: string | null;
+  business_logo_url: string | null;
   brand_color: string | null;
   auto_confirm: boolean;
   send_review_request: boolean;
+  onboarding_completed: boolean;
   plan_id: string | null;
   subscription_status: string | null;
   subscription_end_date: string | null;

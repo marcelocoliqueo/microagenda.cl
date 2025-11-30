@@ -355,7 +355,7 @@ export function getNewAppointmentNotificationEmail(params: {
   status: "pending" | "confirmed";
   appointmentId: string;
 }): string {
-  const statusBadge = params.status === "confirmed" 
+  const statusBadge = params.status === "confirmed"
     ? '<div class="badge badge-success">✅ Confirmada</div>'
     : '<div class="badge badge-warning">⏳ Pendiente de Confirmación</div>';
 
@@ -373,7 +373,7 @@ export function getNewAppointmentNotificationEmail(params: {
         <li><strong>Hora:</strong> ${params.time}</li>
       </ul>
     </div>
-    ${params.status === "pending" 
+    ${params.status === "pending"
       ? `<p>Esta reserva está pendiente de confirmación. Revisa tu dashboard para confirmarla o contactar al cliente.</p>`
       : `<p>Esta reserva ha sido confirmada automáticamente.</p>`
     }
@@ -424,7 +424,7 @@ export function getClientReservationConfirmationEmail(params: {
         ${params.businessAddress ? `<li><strong>Dirección:</strong> ${params.businessAddress}</li>` : ''}
       </ul>
     </div>
-    ${params.status === "confirmed" 
+    ${params.status === "confirmed"
       ? `<p>Recibirás recordatorios automáticos 24 horas y 2 horas antes de tu cita.</p>`
       : `<p>Te notificaremos por email cuando tu reserva sea confirmada.</p>`
     }
@@ -774,7 +774,7 @@ export function getAppointmentCompletedEmail(params: {
         <li><strong>Hora:</strong> ${params.time}</li>
       </ul>
     </div>
-    ${params.reviewLink 
+    ${params.reviewLink
       ? `<p style="text-align: center; margin: 30px 0;">
            <a href="${params.reviewLink}" class="button">Dejar una Reseña</a>
          </p>`
@@ -890,6 +890,45 @@ export function getProfileUpdatedEmail(params: {
     content,
     primaryColor: "#8B5CF6",
     accentColor: "#A78BFA",
+  });
+}
+
+/**
+ * Email de notificación de expiración de trial
+ */
+export function getTrialExpiredEmail(params: {
+  userName: string;
+  planPrice: string;
+}): string {
+  const content = `
+    <p>Hola <strong>${params.userName}</strong>,</p>
+    <div class="badge badge-warning">⏳ Periodo de Prueba Finalizado</div>
+    <p>Tu periodo de prueba gratuito de 3 días ha terminado.</p>
+    <p>Esperamos que hayas disfrutado de todas las funcionalidades premium de ${APP_NAME}.</p>
+    <div class="info-box">
+      <p>Para seguir gestionando tus citas y mantener tu agenda activa, por favor activa tu suscripción.</p>
+      <p><strong>Precio del plan:</strong> ${params.planPrice}/mes</p>
+    </div>
+    <p>Al activar tu plan obtendrás:</p>
+    <ul>
+      <li>✅ Citas ilimitadas</li>
+      <li>✅ Recordatorios automáticos por email</li>
+      <li>✅ Estadísticas avanzadas</li>
+      <li>✅ Soporte prioritario</li>
+    </ul>
+    <p style="text-align: center; margin: 30px 0;">
+      <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://microagenda.cl'}/dashboard" class="button">
+        Activar Suscripción Ahora
+      </a>
+    </p>
+    <p>Si tienes alguna pregunta, estamos aquí para ayudarte.</p>
+  `;
+
+  return getBaseEmailTemplate({
+    title: "Tu periodo de prueba ha terminado",
+    content,
+    primaryColor: "#F59E0B",
+    accentColor: "#D97706",
   });
 }
 
