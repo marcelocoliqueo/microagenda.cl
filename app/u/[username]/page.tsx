@@ -449,7 +449,6 @@ export default function PublicAgendaPage() {
               <div className="flex-1">
                 <div className="text-center mb-6">
                   <h4 className="text-xl font-bold text-slate-900 mb-1">{profile.business_name || profile.name}</h4>
-                  {profile.bio && <p className="text-sm text-slate-600">{profile.bio}</p>}
                 </div>
                 {services.length === 0 ? (
                   <div className="text-center py-8"><Calendar className="w-12 h-12 text-slate-300 mx-auto mb-4" /><p className="text-slate-600 font-medium">Pronto podrás agendar con este link</p><p className="text-sm text-slate-500 mt-2">El profesional aún no ha configurado sus servicios</p></div>
