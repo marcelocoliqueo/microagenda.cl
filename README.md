@@ -26,7 +26,7 @@ Sistema de agendamiento profesional para profesionales independientes (manicuris
 - **Backend/DB**: Supabase (PostgreSQL + Auth + Realtime)
 - **Emails**: Resend
 - **Pagos**: MercadoPago (Chile, Sandbox)
-- **Notificaciones**: Resend (Email, opcional WhatsApp)
+- **Notificaciones**: Resend (Email)
 - **Hosting**: Vercel
 
 ## Requisitos Previos
@@ -35,7 +35,6 @@ Sistema de agendamiento profesional para profesionales independientes (manicuris
 - Cuenta en Supabase
 - Cuenta en Resend (para emails)
 - Cuenta en MercadoPago Developer (modo sandbox)
-- (Opcional) WhatsApp Business API para recordatorios adicionales
 
 ## Instalación y Configuración
 
@@ -78,10 +77,6 @@ RESEND_API_KEY=re_tu-api-key
 MERCADOPAGO_ACCESS_TOKEN=TEST-tu-access-token
 MERCADOPAGO_WEBHOOK_URL=https://tu-dominio.vercel.app/api/mercadopago-webhook
 
-# WhatsApp Cloud API (opcional)
-WHATSAPP_ID=tu-numero-id
-WHATSAPP_TOKEN=tu-token
-
 # App
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
@@ -102,15 +97,6 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 3. Activar modo **Sandbox** (pruebas)
 4. Copiar **Access Token de prueba** en `MERCADOPAGO_ACCESS_TOKEN`
 5. Configurar webhook URL cuando tengas el dominio de producción
-
-#### WhatsApp Cloud API (Opcional)
-
-1. Crear cuenta en [Meta for Developers](https://developers.facebook.com)
-2. Crear una app de WhatsApp Business
-3. Obtener el **Phone Number ID** y **Access Token**
-4. Configurar en `.env.local`
-
-> **Nota**: En desarrollo, WhatsApp usa un mock que imprime mensajes en consola
 
 ### 5. Ejecutar en Desarrollo
 
@@ -146,8 +132,6 @@ Abrir [http://localhost:3000](http://localhost:3000)
 │   ├── supabaseClient.ts
 │   ├── resendClient.ts
 │   ├── mercadopagoClient.ts
-│   ├── whatsappClient.ts
-│   ├── whatsappMock.ts
 │   ├── authMiddleware.ts
 │   ├── utils.ts
 │   └── constants.ts
@@ -215,13 +199,12 @@ git push origin main
 2. Seleccionar servicio, fecha y hora
 3. Completar datos de contacto
 4. Confirmar reserva
-5. Recibir confirmación por email/WhatsApp
+5. Recibir confirmación por email
 
 ## Pruebas
 
 ### Modo Desarrollo
 
-- WhatsApp: Mensajes simulados en consola
 - Emails: Verificar en logs de Resend
 - Pagos: Usar tarjetas de prueba de MercadoPago
 

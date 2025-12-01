@@ -48,7 +48,7 @@ export default function TermsPage() {
               <ul className="list-disc pl-6 space-y-2">
                 <li>Sistema de agendamiento online con calendario personalizado</li>
                 <li>Gestión de citas y clientes</li>
-                <li>Envío automático de recordatorios por email y WhatsApp</li>
+                <li>Envío automático de recordatorios por email</li>
                 <li>Estadísticas y reportes de actividad</li>
                 <li>Página pública de reservas para compartir con clientes</li>
               </ul>
@@ -165,7 +165,7 @@ export default function TermsPage() {
               </p>
               <p>
                 No somos responsables por interrupciones causadas por servicios de terceros
-                (Supabase, MercadoPago, WhatsApp, etc.).
+                (Supabase, MercadoPago, Resend, etc.).
               </p>
             </section>
 

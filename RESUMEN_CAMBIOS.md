@@ -73,8 +73,9 @@
    - from: "MicroAgenda <noreply@microagenda.cl>"
    - Textos en emails con nuevo branding
 
-✅ lib/whatsappClient.ts
-   - Mensajes actualizados con MicroAgenda
+✅ Notificaciones
+   - Eliminado soporte WhatsApp para enfocarnos 100% en email
+   - Removidos `lib/whatsappClient.ts` y `lib/whatsappMock.ts`
 
 ✅ lib/mercadopagoClient.ts
    - Referencias actualizadas

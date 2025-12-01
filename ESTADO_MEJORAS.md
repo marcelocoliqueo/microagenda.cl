@@ -74,7 +74,7 @@
 - Mejor hover effect
 
 ### 6. Información de Contacto Visible
-- Mostrar WhatsApp si está disponible
+- Mostrar email o teléfono de contacto cuando esté disponible
 - Header o sección lateral con contacto
 
 ### 7. Indicador de Confirmación Automática
@@ -104,4 +104,3 @@
 ## 🎯 Próximo Paso Recomendado
 
 Implementar el **Calendario Visual Simple** para completar las mejoras de alta prioridad y ofrecer una experiencia visual completa para seleccionar fechas.
-

@@ -31,8 +31,6 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=tu-anon-key
 # OPCIONAL - Para desarrollo puedes omitir estos
 # RESEND_API_KEY=
 # MERCADOPAGO_ACCESS_TOKEN=
-# WHATSAPP_ID=
-# WHATSAPP_TOKEN=
 
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
@@ -72,12 +70,6 @@ Tu sistema de agendamiento está funcionando.
 2. Crea aplicación y obtén Access Token de prueba
 3. Agrega `MERCADOPAGO_ACCESS_TOKEN` a `.env.local`
 4. [Guía detallada](MERCADOPAGO_SETUP.md)
-
-### Para WhatsApp
-
-1. Opcional: Configura WhatsApp Business API
-2. Por defecto usa mock (imprime en consola)
-3. [Guía detallada](README.md#whatsapp-cloud-api-opcional)
 
 ## Deploy a Producción
 

@@ -94,9 +94,6 @@ CRON_SECRET=genera_un_secreto_aleatorio
 # Resend (Email Notifications)
 RESEND_API_KEY=re_xxxxxxxxxxxx
 
-# WhatsApp Cloud API (Notifications)
-WHATSAPP_ID=1234567890
-WHATSAPP_TOKEN=EAAxxxxxxxxxx
 ```
 
 #### Cómo añadir las variables en Vercel:
@@ -467,7 +464,6 @@ git push origin main
 
 - [ ] Resend API configurada y email verificado
 - [ ] MercadoPago en modo producción (cambiar de TEST a PROD)
-- [ ] WhatsApp API configurada (o modo mock deshabilitado)
 - [ ] Plan único creado en tabla `plans`
 
 ### Legal y Contenido

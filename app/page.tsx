@@ -1329,7 +1329,7 @@ export default function HomePage() {
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="mt-0.5">•</span>
-                        <span>WhatsApp requiere configuración extra</span>
+                        <span>Requieren integraciones externas complejas</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="mt-0.5">•</span>

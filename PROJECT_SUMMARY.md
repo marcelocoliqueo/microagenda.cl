@@ -40,7 +40,6 @@ Un MicroSaaS completo de agendamiento profesional con las siguientes caracterís
 
 5. **Notificaciones**
    - Email con Resend (confirmaciones y recordatorios)
-   - WhatsApp con Cloud API (con mock para desarrollo)
    - Recordatorios automáticos programables via Cron
 
 6. **Cumplimiento Legal**
@@ -80,8 +79,6 @@ agendaprox/
 │   ├── supabaseClient.ts         # Cliente Supabase
 │   ├── resendClient.ts           # Cliente email
 │   ├── mercadopagoClient.ts      # Cliente pagos
-│   ├── whatsappClient.ts         # Cliente WhatsApp (real)
-│   ├── whatsappMock.ts           # Mock WhatsApp (dev)
 │   ├── authMiddleware.ts         # Protección de rutas
 │   ├── utils.ts                  # Utilidades generales
 │   └── constants.ts              # Constantes del sistema
@@ -96,7 +93,7 @@ agendaprox/
 - **Backend/DB**: Supabase (PostgreSQL + Auth + Realtime)
 - **Pagos**: MercadoPago (Chile)
 - **Emails**: Resend
-- **Notificaciones**: WhatsApp Cloud API
+- **Notificaciones**: Resend (Email)
 - **Deploy**: Vercel (listo para desplegar)
 
 ## Base de Datos
@@ -162,7 +159,6 @@ Ver [QUICKSTART.md](QUICKSTART.md) para instrucciones detalladas.
 | Agenda Pública | ✅ Completo | URL personalizada |
 | Pagos MercadoPago | ✅ Completo | Sandbox + Webhook |
 | Emails (Resend) | ✅ Completo | Opcional en dev |
-| WhatsApp | ✅ Completo | Mock + Real API |
 | Recordatorios | ✅ Completo | Vía Cron Job |
 | Legal (Ley 19.628) | ✅ Completo | Políticas completas |
 | Realtime | ✅ Completo | Supabase Realtime |
@@ -252,9 +248,8 @@ El proyecto está listo para personalizar:
 ## Limitaciones Conocidas
 
 1. **Build con React 19**: Algunas bibliotecas pueden tener warnings menores (no afectan funcionalidad)
-2. **WhatsApp en Dev**: Usa mock, necesita configuración real para producción
-3. **MercadoPago Sandbox**: Solo para pruebas, activar producción cuando estés listo
-4. **Plan Gratuito Supabase**: Límites de 500MB DB, suficiente para ~100-200 profesionales
+2. **MercadoPago Sandbox**: Solo para pruebas, activar producción cuando estés listo
+3. **Plan Gratuito Supabase**: Límites de 500MB DB, suficiente para ~100-200 profesionales
 
 ## Conclusión
 

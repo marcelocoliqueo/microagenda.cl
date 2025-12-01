@@ -22,7 +22,6 @@ export default function RegisterPage() {
     email: "",
     password: "",
     businessName: "",
-    whatsapp: "",
     acceptTerms: false,
   });
 
@@ -61,7 +60,6 @@ export default function RegisterPage() {
           .update({
             name: formData.name,
             business_name: formData.businessName || null,
-            whatsapp: formData.whatsapp || null,
             subscription_status: "trial",
             auto_confirm: true,
           })
@@ -216,19 +214,6 @@ export default function RegisterPage() {
                   value={formData.businessName}
                   onChange={(e) =>
                     setFormData({ ...formData, businessName: e.target.value })
-                  }
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="whatsapp">WhatsApp (opcional)</Label>
-                <Input
-                  id="whatsapp"
-                  type="tel"
-                  placeholder="+56912345678"
-                  value={formData.whatsapp}
-                  onChange={(e) =>
-                    setFormData({ ...formData, whatsapp: e.target.value })
                   }
                 />
               </div>

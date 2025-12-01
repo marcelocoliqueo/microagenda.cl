@@ -157,7 +157,6 @@ if (formData.client_email) {
     date: formatDateFriendly(formData.date),
     time: formData.time,
     businessName: profile.business_name || profile.name,
-    businessPhone: profile.whatsapp || undefined,
     status: profile.auto_confirm ? "confirmed" : "pending",
   });
 
@@ -219,5 +218,10 @@ NEXT_PUBLIC_APP_URL=https://microagenda.cl
 
 ## 🔍 Testing
 
-Para probar los emails localmente sin Resend configurado, los emails se mostrarán en la consola como mock emails.
+- Sin configurar `RESEND_API_KEY`, cada envío aparecerá en la terminal con el tag `📧 [MOCK EMAIL]`.
+- Con Resend configurado, revisa tu Gmail o el dashboard de Resend para confirmar la entrega.
 
+### Email Playground (Nuevo)
+- Ruta protegida: `/dashboard/emails`
+- Permite enviar cualquiera de los templates a un correo de prueba y ver un preview embebido
+- Ideal para validar copy, estilos y spam score antes del despliegue

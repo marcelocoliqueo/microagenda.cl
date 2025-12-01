@@ -241,10 +241,6 @@ MERCADOPAGO_ACCESS_TOKEN=TEST-1234567890...
 MERCADOPAGO_WEBHOOK_SECRET=[el que generaste en 2.5]
 MERCADOPAGO_WEBHOOK_URL=https://PENDIENTE.vercel.app/api/mercadopago-webhook
 
-# WHATSAPP (Opcional, déjalo así por ahora)
-WHATSAPP_ID=
-WHATSAPP_TOKEN=
-
 # APP CONFIG
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 NEXT_PUBLIC_APP_NAME=MicroAgenda
@@ -394,13 +390,9 @@ RESEND_API_KEY=re_...
 MERCADOPAGO_ACCESS_TOKEN=TEST-...
 MERCADOPAGO_WEBHOOK_SECRET=Xk9mP...
 MERCADOPAGO_WEBHOOK_URL=[PENDIENTE - lo configuramos después]
-WHATSAPP_ID=[vacío por ahora]
-WHATSAPP_TOKEN=[vacío por ahora]
 NEXT_PUBLIC_APP_URL=[PENDIENTE - lo configuramos después]
 NEXT_PUBLIC_APP_NAME=MicroAgenda
 CRON_SECRET=[tu secret]
-
-# Para WHATSAPP déjalos vacíos si no los tienes
 ```
 
 ### 6.5 Deploy Inicial
@@ -517,7 +509,6 @@ curl -X POST https://microagenda-abc123.vercel.app/api/send-reminders \
    - Email: tu@email.com
    - Contraseña: test123456
    - Nombre negocio: Mi Salón
-   - WhatsApp: +56912345678
    - ✅ Acepto términos
 # 4. Click "Crear cuenta"
 # 5. Deberías ser redirigido al dashboard
@@ -552,7 +543,7 @@ curl -X POST https://microagenda-abc123.vercel.app/api/send-reminders \
 # 3. Deberías ver tu agenda pública
 # 4. Completa el formulario de reserva:
    - Nombre: Cliente Prueba
-   - WhatsApp: +56987654321
+   - Teléfono: +56987654321
    - Servicio: Corte de cabello
    - Fecha: Mañana
    - Hora: 10:00

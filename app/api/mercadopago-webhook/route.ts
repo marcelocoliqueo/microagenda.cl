@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 import { getPaymentInfo } from "@/lib/mercadopagoClient";
+import {
+  sendEmail,
+  getPaymentSuccessEmail,
+  getPaymentFailedEmail,
+} from "@/lib/resendClient";
+import { PLAN_NAME, PLAN_CURRENCY } from "@/lib/constants";
+import { formatCurrency, formatDate } from "@/lib/utils";
 
 export async function POST(request: NextRequest) {
   try {
@@ -47,8 +54,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Obtener datos del profesional para notificaciones
+    const { data: profile, error: profileFetchError } = await supabase
+      .from("profiles")
+      .select("id, name, email, business_name")
+      .eq("id", userId)
+      .single();
+
+    if (profileFetchError) {
+      console.error("Error fetching profile for payment:", profileFetchError);
+    }
+
+    const userEmail = profile?.email;
+    const userName =
+      profile?.name ||
+      profile?.business_name ||
+      "Profesional MicroAgenda";
+    const planName = payment.metadata?.plan_name || PLAN_NAME;
+    const formattedAmount = formatCurrency(
+      payment.transaction_amount || 0,
+      (payment.currency_id as string) || PLAN_CURRENCY
+    );
+
     // Si el pago fue aprobado, activar suscripción
     if (payment.status === "approved") {
+      const renewalDate = new Date(
+        Date.now() + 30 * 24 * 60 * 60 * 1000
+      ).toISOString();
+
       // Crear o actualizar suscripción
       const { error: subError } = await supabase
         .from("subscriptions")
@@ -59,9 +92,7 @@ export async function POST(request: NextRequest) {
             mercadopago_id: paymentId.toString(),
             status: "active",
             start_date: new Date().toISOString(),
-            renewal_date: new Date(
-              Date.now() + 30 * 24 * 60 * 60 * 1000
-            ).toISOString(),
+            renewal_date: renewalDate,
             trial: false,
           },
         ], {
@@ -94,6 +125,57 @@ export async function POST(request: NextRequest) {
       ]);
 
       console.log(`✅ Subscription activated for user ${userId}`);
+
+      // Enviar email de confirmación de pago
+      if (userEmail) {
+        try {
+          const html = getPaymentSuccessEmail({
+            userName,
+            amount: formattedAmount,
+            planName,
+            nextBillingDate: formatDate(new Date(renewalDate)),
+          });
+
+          await sendEmail({
+            to: userEmail,
+            subject: "Pago exitoso - MicroAgenda",
+            html,
+          });
+        } catch (emailError) {
+          console.error("Error enviando email de pago exitoso:", emailError);
+        }
+      }
+    } else if (
+      ["rejected", "cancelled", "refunded", "charged_back"].includes(payment.status)
+    ) {
+      // Registrar pago fallido para auditoría
+      await supabase.from("payments").insert([
+        {
+          user_id: userId,
+          mercadopago_payment_id: paymentId.toString(),
+          amount: payment.transaction_amount,
+          status: payment.status,
+          payment_date: new Date().toISOString(),
+        },
+      ]);
+
+      if (userEmail) {
+        try {
+          const html = getPaymentFailedEmail({
+            userName,
+            amount: formattedAmount,
+            planName,
+          });
+
+          await sendEmail({
+            to: userEmail,
+            subject: "Pago rechazado - MicroAgenda",
+            html,
+          });
+        } catch (emailError) {
+          console.error("Error enviando email de pago fallido:", emailError);
+        }
+      }
     }
 
     return NextResponse.json({ status: "processed" }, { status: 200 });

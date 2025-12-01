@@ -153,10 +153,6 @@ MERCADOPAGO_ACCESS_TOKEN=TEST-tu-token-sandbox
 MERCADOPAGO_WEBHOOK_SECRET=genera-token-aleatorio
 MERCADOPAGO_WEBHOOK_URL=https://tu-dominio.vercel.app/api/mercadopago-webhook
 
-# WhatsApp (opcional)
-WHATSAPP_ID=tu-numero-id
-WHATSAPP_TOKEN=tu-token
-
 # App Config
 NEXT_PUBLIC_APP_URL=https://tu-dominio.vercel.app
 NEXT_PUBLIC_APP_NAME=MicroAgenda

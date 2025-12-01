@@ -39,8 +39,8 @@ CORE LIBRARIES (/lib)
 ✅ lib/supabaseClient.ts           - Warnings actualizados
 ✅ lib/resendClient.ts             - Plantillas email con MicroAgenda
 ✅ lib/mercadopagoClient.ts        - Referencias actualizadas
-✅ lib/whatsappClient.ts           - Mensajes actualizados
-✅ lib/whatsappMock.ts             - Sin cambios
+❌ lib/whatsappClient.ts           - Eliminado (enfoque solo email)
+❌ lib/whatsappMock.ts             - Eliminado (enfoque solo email)
 ✅ lib/authMiddleware.ts           - Sin cambios (lógica)
 
 ================================================================================

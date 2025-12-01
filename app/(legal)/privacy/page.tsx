@@ -52,8 +52,7 @@ export default function PrivacyPage() {
               <ul className="list-disc pl-6 space-y-2">
                 <li>
                   <strong>Información de cuenta:</strong> Nombre completo, dirección de correo
-                  electrónico, contraseña (encriptada), número de teléfono WhatsApp, nombre del
-                  negocio.
+                  electrónico, contraseña (encriptada) y nombre del negocio.
                 </li>
                 <li>
                   <strong>Información de citas:</strong> Datos de clientes (nombre, teléfono),
@@ -76,7 +75,7 @@ export default function PrivacyPage() {
               <ul className="list-disc pl-6 space-y-2">
                 <li>Crear y gestionar tu cuenta de usuario</li>
                 <li>Procesar y gestionar citas y reservas</li>
-                <li>Enviar recordatorios automáticos por email y WhatsApp</li>
+                <li>Enviar recordatorios automáticos por email</li>
                 <li>Procesar pagos de suscripciones</li>
                 <li>Mejorar nuestros servicios y experiencia de usuario</li>
                 <li>Cumplir con obligaciones legales y regulatorias</li>
@@ -95,9 +94,8 @@ export default function PrivacyPage() {
               <ul className="list-disc pl-6 space-y-2">
                 <li>
                   <strong>Proveedores de servicios:</strong> Supabase (almacenamiento de datos),
-                  Resend (envío de emails), MercadoPago (procesamiento de pagos), WhatsApp
-                  (notificaciones). Estos proveedores están obligados contractualmente a
-                  proteger tu información.
+                  Resend (envío de emails) y MercadoPago (procesamiento de pagos). Estos
+                  proveedores están obligados contractualmente a proteger tu información.
                 </li>
                 <li>
                   <strong>Requerimientos legales:</strong> Cuando sea requerido por ley, orden

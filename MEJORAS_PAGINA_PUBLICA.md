@@ -89,7 +89,7 @@
 **Problema actual:** Solo en footer pequeño
 
 **Solución:**
-- Mostrar WhatsApp si está disponible (botón directo)
+- Mostrar email o teléfono si está disponible (botón directo)
 - Información de contacto en un lugar destacado pero no intrusivo
 - Header o sección lateral con datos clave
 

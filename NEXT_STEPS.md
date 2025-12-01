@@ -55,16 +55,6 @@ npm run dev
 4. Prueba un pago completo
 5. Verifica webhook
 
-### WhatsApp (Opcional)
-
-**Prioridad**: Baja
-**Tiempo**: 1 hora
-
-1. Configura WhatsApp Business API
-2. Obtén credenciales
-3. Actualiza `.env.local`
-4. O mantén el mock para desarrollo
-
 ## Fase 3: Personalización (Semana 1-2)
 
 ### Branding
@@ -148,7 +138,7 @@ git push -u origin main
 - [ ] Verifica todos los flujos (registro, cita, pago)
 - [ ] Prueba en móvil
 - [ ] Revisa velocidad de carga
-- [ ] Verifica emails y WhatsApp
+- [ ] Verifica emails en todos los flujos
 
 ### Marketing Inicial
 
@@ -162,7 +152,7 @@ git push -u origin main
 Ideas para conseguir tus primeros usuarios:
 
 1. **Networking**: Contacta profesionales que conozcas
-2. **Grupos de WhatsApp/Facebook**: Comparte en grupos de emprendedores
+2. **Grupos de Facebook/Telegram**: Comparte en comunidades de emprendedores
 3. **Marketplace Locales**: Ofrece gratis por 1 mes a cambio de testimonios
 4. **Ferias y Eventos**: Asiste y presenta tu solución
 5. **Contenido**: Crea contenido educativo sobre gestión de citas

@@ -61,7 +61,6 @@ export async function POST(request: NextRequest) {
         date: formatDateFriendly(appointment.date),
         time: appointment.time.substring(0, 5),
         businessName: profile?.business_name || profile?.name || "Profesional",
-        businessPhone: profile?.whatsapp || undefined,
         status: appointment.status as "pending" | "confirmed",
       });
 
@@ -123,4 +122,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

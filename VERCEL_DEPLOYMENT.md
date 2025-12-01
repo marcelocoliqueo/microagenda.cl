@@ -57,9 +57,6 @@ Tu proyecto ya está configurado en GitHub y listo para deployment automático e
    # Email - Resend (OPCIONAL pero recomendado)
    RESEND_API_KEY=re_xxxxxxxxxxxx
 
-   # WhatsApp - Meta Cloud API (OPCIONAL)
-   WHATSAPP_ID=1234567890
-   WHATSAPP_TOKEN=EAAxxxxxxxxxx
    ```
 
    **IMPORTANTE:** Añade estas variables para los 3 ambientes:
@@ -268,7 +265,6 @@ Antes de ir a producción, verifica:
 - [ ] RLS (Row Level Security) habilitado en Supabase
 - [ ] Políticas de privacidad y términos actualizados
 - [ ] Emails de Resend verificados
-- [ ] WhatsApp API configurada (o modo mock deshabilitado)
 
 ---
 

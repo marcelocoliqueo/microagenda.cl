@@ -15,6 +15,7 @@ import {
   Package,
   Clock,
   Image,
+  Mail,
   Menu,
   X
 } from "lucide-react";
@@ -36,6 +37,7 @@ const navigation = [
   { name: "Post de Agenda", href: "/dashboard/post-agenda", icon: Image, badge: null },
   { name: "Clientes", href: "/dashboard/clients", icon: Users, badge: null },
   { name: "Informes", href: "/dashboard/reports", icon: BarChart3, badge: "Pro" },
+  { name: "Emails (Test)", href: "/dashboard/emails", icon: Mail, badge: "Beta" },
   { name: "Configuración", href: "/dashboard/settings", icon: Settings, badge: null },
 ];
 
@@ -351,4 +353,3 @@ export function Sidebar() {
     </>
   );
 }
-

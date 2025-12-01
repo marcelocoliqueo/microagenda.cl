@@ -24,7 +24,6 @@ CREATE TABLE IF NOT EXISTS profiles (
   id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
   name TEXT NOT NULL,
   email TEXT NOT NULL,
-  whatsapp TEXT,
   photo_url TEXT,
   auto_confirm BOOLEAN DEFAULT TRUE,
   business_name TEXT,

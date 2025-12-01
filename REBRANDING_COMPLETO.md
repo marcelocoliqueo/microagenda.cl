@@ -55,7 +55,7 @@ v1.0.0  →  v2.0.0
 
 - [x] lib/constants.ts → APP_NAME, SLOGAN
 - [x] Plantillas email actualizadas
-- [x] Mensajes WhatsApp actualizados
+- [x] Notificaciones centradas en email
 - [x] Todas las páginas rebranding completo
 - [x] API routes actualizadas
 
@@ -305,7 +305,7 @@ Complejidad:             Media-Alta
 - Dashboard profesional
 - Agenda pública
 - Pagos MercadoPago
-- Emails y WhatsApp
+- Emails automatizados
 - Legal compliance
 
 ### Lo que Necesitas Hacer

@@ -55,7 +55,7 @@
 
 #### Notificaciones
 - ✅ Email vía Resend con plantilla mejorada
-- ✅ WhatsApp mock para desarrollo
+- ✅ Comunicación centrada 100% en email
 - ✅ Logs detallados de envíos
 - ✅ Manejo de errores robusto
 
@@ -182,7 +182,6 @@ ADD COLUMN next_billing_date TIMESTAMP WITH TIME ZONE;
 ```
 /lib/resendClient.ts               - Plantillas email
 /lib/mercadopagoClient.ts          - Validación mejorada
-/lib/whatsappClient.ts             - Mensajes actualizados
 /lib/supabaseClient.ts             - Tipos actualizados
 ```
 
