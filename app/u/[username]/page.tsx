@@ -386,8 +386,8 @@ export default function PublicAgendaPage() {
       <header className="border-b border-slate-200/70 bg-white/60 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center gap-3">
-            {(profile.business_logo_url || profile.photo_url) && (
-              <img src={profile.business_logo_url || profile.photo_url || ''} alt="Logo" className="h-10 w-10 object-cover rounded-lg" />
+            {profile.business_logo_url && (
+              <img src={profile.business_logo_url} alt="Logo" className="h-10 w-10 object-cover rounded-lg" />
             )}
             <span className="text-xl font-bold text-slate-900">{profile.business_name || profile.name}</span>
           </div>
