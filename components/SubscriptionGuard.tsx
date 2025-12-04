@@ -57,14 +57,31 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
 
     try {
       setProcessing(true);
-      const preference = await createSubscriptionPreference({
+
+      // Get plan
+      const { data: plans, error: planError } = await supabase
+        .from("plans")
+        .select("*")
+        .eq("is_active", true)
+        .single();
+
+      if (planError || !plans) {
+        alert("Error: No se encontró el plan. Por favor intenta nuevamente.");
+        return;
+      }
+
+      const result = await createSubscriptionPreference({
         userId: profile.id,
         userEmail: profile.email,
-        userName: profile.name,
+        planId: plans.id,
+        planName: plans.name,
+        planPrice: plans.price,
       });
 
-      if (preference.init_point) {
-        window.location.href = preference.init_point;
+      if (result.success && result.init_point) {
+        window.location.href = result.init_point;
+      } else {
+        throw new Error("No se pudo crear la preferencia de pago");
       }
     } catch (error: any) {
       console.error("Error creating subscription:", error);
