@@ -46,10 +46,10 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Crear preferencia de pago en MercadoPago
+    // Crear suscripción automática en MercadoPago (API de Preapproval)
     try {
       const response = await fetch(
-        "https://api.mercadopago.com/checkout/preferences",
+        "https://api.mercadopago.com/preapproval",
         {
           method: "POST",
           headers: {
@@ -57,27 +57,18 @@ export async function POST(request: NextRequest) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            items: [
-              {
-                title: `MicroAgenda - Plan ${planName} (Mensual)`,
-                description: "Suscripción mensual al sistema de agendamiento de citas",
-                quantity: 1,
-                unit_price: planPrice,
-                currency_id: "CLP",
-              },
-            ],
-            payer: {
-              email: userEmail,
-            },
-            back_urls: {
-              success: `${APP_URL}/dashboard?payment=success`,
-              failure: `${APP_URL}/dashboard?payment=failure`,
-              pending: `${APP_URL}/dashboard?payment=pending`,
-            },
-            auto_return: "approved",
-            notification_url: `${APP_URL}/api/mercadopago-webhook`,
+            reason: `MicroAgenda - Plan ${planName}`,
+            payer_email: userEmail,
             external_reference: userId,
-            statement_descriptor: "MicroAgenda",
+            auto_recurring: {
+              frequency: 1,
+              frequency_type: "months",
+              transaction_amount: planPrice,
+              currency_id: "CLP",
+              start_date: new Date().toISOString(),
+            },
+            back_url: `${APP_URL}/dashboard?payment=success`,
+            status: "pending",
             metadata: {
               user_id: userId,
               plan_id: planId,
@@ -96,10 +87,11 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      console.log("✅ Suscripción automática creada:", data.id);
       return NextResponse.json({
         success: true,
         init_point: data.init_point,
-        preference_id: data.id,
+        subscription_id: data.id,
       });
     } catch (error: any) {
       console.error("MercadoPago error:", error);

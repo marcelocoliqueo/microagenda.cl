@@ -16,7 +16,7 @@ export async function createSubscriptionPreference(params: {
   planPrice: number;
 }) {
   if (!MERCADOPAGO_ACCESS_TOKEN) {
-    console.log("📦 [MOCK] Creando preferencia de suscripción", params);
+    console.log("📦 [MOCK] Creando suscripción automática", params);
     return {
       success: true,
       mock: true,
@@ -25,8 +25,9 @@ export async function createSubscriptionPreference(params: {
   }
 
   try {
+    // Usar API de Preapproval para suscripciones automáticas
     const response = await fetch(
-      "https://api.mercadopago.com/checkout/preferences",
+      "https://api.mercadopago.com/preapproval",
       {
         method: "POST",
         headers: {
@@ -34,27 +35,18 @@ export async function createSubscriptionPreference(params: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          items: [
-            {
-              title: `MicroAgenda - Plan ${params.planName} (Mensual)`,
-              description: "Suscripción mensual al sistema de agendamiento de citas",
-              quantity: 1,
-              unit_price: params.planPrice,
-              currency_id: "CLP",
-            },
-          ],
-          payer: {
-            email: params.userEmail,
-          },
-          back_urls: {
-            success: `${APP_URL}/dashboard?payment=success`,
-            failure: `${APP_URL}/dashboard?payment=failure`,
-            pending: `${APP_URL}/dashboard?payment=pending`,
-          },
-          auto_return: "approved",
-          notification_url: `${APP_URL}/api/mercadopago-webhook`,
+          reason: `MicroAgenda - Plan ${params.planName}`,
+          payer_email: params.userEmail,
           external_reference: params.userId,
-          statement_descriptor: "MicroAgenda",
+          auto_recurring: {
+            frequency: 1,
+            frequency_type: "months",
+            transaction_amount: params.planPrice,
+            currency_id: "CLP",
+            start_date: new Date().toISOString(),
+          },
+          back_url: `${APP_URL}/dashboard?payment=success`,
+          status: "pending",
           metadata: {
             user_id: params.userId,
             plan_id: params.planId,
@@ -70,7 +62,8 @@ export async function createSubscriptionPreference(params: {
       return { success: false, error: data };
     }
 
-    return { success: true, init_point: data.init_point, preference_id: data.id };
+    console.log("✅ Suscripción automática creada:", data.id);
+    return { success: true, init_point: data.init_point, subscription_id: data.id };
   } catch (error) {
     console.error("MercadoPago error:", error);
     return { success: false, error };
@@ -104,6 +97,39 @@ export async function getPaymentInfo(paymentId: string) {
     }
 
     return { success: true, payment: data };
+  } catch (error) {
+    console.error("MercadoPago error:", error);
+    return { success: false, error };
+  }
+}
+
+export async function getSubscriptionInfo(subscriptionId: string) {
+  if (!MERCADOPAGO_ACCESS_TOKEN) {
+    console.log("📦 [MOCK] Obteniendo info de suscripción:", subscriptionId);
+    return {
+      success: true,
+      mock: true,
+      subscription: { status: "authorized", external_reference: "mock-user-id" },
+    };
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.mercadopago.com/preapproval/${subscriptionId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${MERCADOPAGO_ACCESS_TOKEN}`,
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return { success: false, error: data };
+    }
+
+    return { success: true, subscription: data };
   } catch (error) {
     console.error("MercadoPago error:", error);
     return { success: false, error };

@@ -1,0 +1,32 @@
+#!/bin/bash
+# Script simple para probar renovación de suscripción
+# Usa el MCP de Supabase directamente
+
+echo "🔄 Script de Prueba de Renovación"
+echo ""
+echo "Este script te ayudará a probar la renovación de suscripción."
+echo ""
+echo "Opciones para probar:"
+echo ""
+echo "1️⃣  Usar el MCP de MercadoPago para simular webhook"
+echo "   - Requiere un payment_id real de MercadoPago"
+echo "   - Requiere que el webhook esté configurado"
+echo ""
+echo "2️⃣  Probar directamente desde la app"
+echo "   - Inicia sesión con tu cuenta expirada"
+echo "   - Click en 'Reactivar Suscripción'"
+echo "   - Usa una tarjeta de prueba de MercadoPago"
+echo ""
+echo "3️⃣  Simular webhook manualmente"
+echo "   - Usa el script test-webhook.ts con datos reales"
+echo ""
+echo "📋 Información de tu cuenta:"
+echo "   Email: marcelo.coliqueo@gmail.com"
+echo "   Estado actual: expired"
+echo ""
+echo "💡 Para probar con MercadoPago MCP:"
+echo "   1. Necesitas un payment_id real de un pago de prueba"
+echo "   2. Ejecuta: mcp_mercadopago-mcp-server_simulate_webhook"
+echo "   3. O usa el dashboard de MercadoPago para crear un pago de prueba"
+echo ""
+
