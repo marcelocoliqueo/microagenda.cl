@@ -4,37 +4,52 @@
 
 En la pantalla de pago de MercadoPago aparece "Huracán Air" en lugar de "MicroAgenda".
 
-## Solución
+## ⚠️ Importante
 
-El nombre del comercio se configura en **MercadoPago Developer**, no en el código. Sigue estos pasos:
+El nombre que aparece en la **pantalla de pago** viene de la **configuración de la aplicación en MercadoPago Developer**, NO del código. El `statement_descriptor` que agregamos solo afecta el extracto de la tarjeta del cliente.
 
-### Paso 1: Acceder a la Configuración de la Aplicación
+## Solución: Cambiar en MercadoPago Developer
+
+### Paso 1: Acceder a la Configuración
 
 1. Ve a [MercadoPago Developer](https://www.mercadopago.cl/developers)
 2. Inicia sesión con tu cuenta
-3. Ve a **Tus integraciones** → Selecciona tu aplicación
+3. Click en **"Tus integraciones"** (arriba a la derecha)
+4. Selecciona tu aplicación (la que tiene Application ID: `4223690054220076`)
 
-### Paso 2: Cambiar el Nombre de la Aplicación
+### Paso 2: Editar la Aplicación
 
-1. En la página de detalles de la aplicación, busca la sección **"Información de la aplicación"** o **"Configuración"**
-2. Busca el campo **"Nombre de la aplicación"** o **"Nombre del comercio"**
-3. Cambia el nombre de "Huracán Air" a **"MicroAgenda"**
-4. Guarda los cambios
+1. En la página de detalles de la aplicación, busca el botón **"Editar aplicación"** o **"Editar"**
+2. En la sección **"Configuraciones básicas"**, busca:
+   - **"Nombre de la aplicación"**: Debería decir "Microagenda" (ya lo cambiaste)
+   - **"Nombre corto"**: Este es el que aparece en la pantalla de pago. Cambia "Huracán Air" a **"MicroAgenda"**
+3. **Guarda los cambios** (botón "Guardar cambios" al final de la página)
 
 ### Paso 3: Verificar
 
-1. Crea una nueva preferencia de pago (haz click en "Reactivar" nuevamente)
-2. El nombre debería aparecer como "MicroAgenda" en la pantalla de pago
+1. Espera 2-3 minutos para que el cambio se propague
+2. Crea una nueva preferencia de pago (haz click en "Reactivar" nuevamente)
+3. El nombre debería aparecer como "MicroAgenda" en la pantalla de pago
 
-## Nota
+## Si No Puedes Cambiar el Nombre
 
-- El cambio puede tardar unos minutos en reflejarse
-- Si no ves la opción de cambiar el nombre, puede ser que necesites verificar tu cuenta de MercadoPago primero
-- En algunos casos, el nombre puede estar vinculado a la cuenta de MercadoPago principal, no a la aplicación específica
+Si el campo "Nombre corto" está deshabilitado o no puedes editarlo:
 
-## Alternativa: Usar Statement Descriptor
+1. **Verifica tu cuenta de MercadoPago**:
+   - Ve a [mercadopago.cl](https://www.mercadopago.cl)
+   - Verifica que tu cuenta esté completamente verificada
+   - Completa todos los datos de perfil si faltan
 
-Si no puedes cambiar el nombre de la aplicación, puedes usar el campo `statement_descriptor` en la preferencia de pago para que aparezca un nombre diferente en el extracto de la tarjeta del cliente.
+2. **Contacta a Soporte de MercadoPago**:
+   - Explica que necesitas cambiar el nombre del comercio que aparece en la pantalla de pago
+   - Menciona que actualmente aparece "Huracán Air" y quieres que aparezca "MicroAgenda"
+   - Proporciona el Application ID: `4223690054220076`
 
-Esto ya está implementado en el código, pero el nombre que aparece en la pantalla de pago viene de la configuración de la aplicación.
+## Nota sobre Statement Descriptor
+
+El `statement_descriptor: "MicroAgenda"` que agregamos en el código:
+- ✅ **SÍ afecta**: El extracto de la tarjeta del cliente (lo que aparece en el resumen de la tarjeta)
+- ❌ **NO afecta**: El nombre que aparece en la pantalla de pago de MercadoPago
+
+El nombre en la pantalla de pago **solo** se puede cambiar desde la configuración de la aplicación en MercadoPago Developer.
 
