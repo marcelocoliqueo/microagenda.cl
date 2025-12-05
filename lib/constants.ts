@@ -7,7 +7,7 @@ export const SUPPORT_EMAIL = "soporte@microagenda.cl";
 
 export const PLAN_PRICE = 8500;
 export const PLAN_CURRENCY = "CLP";
-export const PLAN_NAME = "Único";
+export const PLAN_NAME = "Mensual";
 
 export const APPOINTMENT_STATUSES = {
   PENDING: "pending",
