@@ -21,7 +21,82 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
 
   useEffect(() => {
     checkAuth();
+    
+    // Verificar si viene de un pago exitoso (mock o real)
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentStatus = urlParams.get("payment");
+    
+    if (paymentStatus === "mock_success") {
+      // En modo mock, activar suscripción automáticamente
+      handleMockPaymentSuccess();
+    } else if (paymentStatus === "success") {
+      // Si viene de un pago real, refrescar el perfil (el webhook debería haber actualizado)
+      setTimeout(() => {
+        checkAuth();
+      }, 2000);
+    }
   }, []);
+
+  async function handleMockPaymentSuccess() {
+    if (!profile) {
+      // Esperar a que el perfil se cargue
+      setTimeout(handleMockPaymentSuccess, 500);
+      return;
+    }
+
+    try {
+      console.log("📦 Procesando pago mock exitoso...");
+      
+      // Obtener plan
+      const { data: plans } = await supabase
+        .from("plans")
+        .select("*")
+        .eq("is_active", true)
+        .single();
+
+      if (!plans) {
+        console.error("No se encontró el plan");
+        return;
+      }
+
+      // Actualizar perfil a active
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({ subscription_status: "active" })
+        .eq("id", profile.id);
+
+      if (profileError) {
+        console.error("Error actualizando perfil:", profileError);
+        return;
+      }
+
+      // Crear suscripción
+      const renewalDate = new Date();
+      renewalDate.setDate(renewalDate.getDate() + 30);
+
+      await supabase.from("subscriptions").upsert([
+        {
+          user_id: profile.id,
+          plan_id: plans.id,
+          mercadopago_id: `MOCK-${Date.now()}`,
+          status: "active",
+          start_date: new Date().toISOString(),
+          renewal_date: renewalDate.toISOString(),
+          trial: false,
+        },
+      ], {
+        onConflict: "mercadopago_id"
+      });
+
+      console.log("✅ Suscripción mock activada");
+      
+      // Limpiar URL y refrescar
+      window.history.replaceState({}, "", "/dashboard");
+      checkAuth();
+    } catch (error: any) {
+      console.error("Error procesando pago mock:", error);
+    }
+  }
 
   async function checkAuth() {
     try {
