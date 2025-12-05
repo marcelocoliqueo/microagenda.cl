@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase, type Profile } from "@/lib/supabaseClient";
 import { PLAN_PRICE, formatCurrency } from "@/lib/constants";
-import { createSubscriptionPreference } from "@/lib/mercadopagoClient";
+// Removed: import { createSubscriptionPreference } from "@/lib/mercadopagoClient";
 
 interface SubscriptionGuardProps {
   children: React.ReactNode;
@@ -157,15 +157,32 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
 
       console.log("✅ Plan encontrado:", plans);
 
-      const result = await createSubscriptionPreference({
-        userId: profile.id,
-        userEmail: profile.email,
-        planId: plans.id,
-        planName: plans.name,
-        planPrice: plans.price,
+      // Obtener token de sesión para autenticación
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        alert("Error: No se pudo verificar tu sesión. Por favor inicia sesión nuevamente.");
+        router.push("/login");
+        return;
+      }
+
+      // Llamar a la API route para crear la preferencia
+      const response = await fetch("/api/create-subscription-preference", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          userId: profile.id,
+          userEmail: profile.email,
+          planId: plans.id,
+          planName: plans.name,
+          planPrice: plans.price,
+        }),
       });
 
-      console.log("📦 Resultado de createSubscriptionPreference:", result);
+      const result = await response.json();
+      console.log("📦 Resultado de create-subscription-preference:", result);
 
       if (result.success && result.init_point) {
         console.log("✅ Redirigiendo a:", result.init_point);
