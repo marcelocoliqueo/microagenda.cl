@@ -59,8 +59,8 @@ export async function POST(request: NextRequest) {
           body: JSON.stringify({
             items: [
               {
-                title: `Suscripción ${planName} - MicroAgenda`,
-                description: "Suscripción mensual al sistema de agendamiento",
+                title: `MicroAgenda - Plan ${planName} (Mensual)`,
+                description: "Suscripción mensual al sistema de agendamiento de citas",
                 quantity: 1,
                 unit_price: planPrice,
                 currency_id: "CLP",
