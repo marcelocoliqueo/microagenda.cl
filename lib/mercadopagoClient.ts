@@ -25,6 +25,10 @@ export async function createSubscriptionPreference(params: {
   }
 
   try {
+    // Calcular fecha de inicio: ahora + 5 minutos (para evitar problemas de zona horaria)
+    const startDate = new Date();
+    startDate.setMinutes(startDate.getMinutes() + 5);
+    
     // Usar API de Preapproval para suscripciones automáticas
     const response = await fetch(
       "https://api.mercadopago.com/preapproval",
@@ -43,7 +47,7 @@ export async function createSubscriptionPreference(params: {
             frequency_type: "months",
             transaction_amount: params.planPrice,
             currency_id: "CLP",
-            start_date: new Date().toISOString(),
+            start_date: startDate.toISOString(),
           },
           back_url: `${APP_URL}/dashboard?payment=success`,
           status: "pending",

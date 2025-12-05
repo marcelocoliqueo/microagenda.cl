@@ -48,6 +48,10 @@ export async function POST(request: NextRequest) {
 
     // Crear suscripción automática en MercadoPago (API de Preapproval)
     try {
+      // Calcular fecha de inicio: ahora + 5 minutos (para evitar problemas de zona horaria)
+      const startDate = new Date();
+      startDate.setMinutes(startDate.getMinutes() + 5);
+
       const response = await fetch(
         "https://api.mercadopago.com/preapproval",
         {
@@ -65,7 +69,7 @@ export async function POST(request: NextRequest) {
               frequency_type: "months",
               transaction_amount: planPrice,
               currency_id: "CLP",
-              start_date: new Date().toISOString(),
+              start_date: startDate.toISOString(),
             },
             back_url: `${APP_URL}/dashboard?payment=success`,
             status: "pending",
