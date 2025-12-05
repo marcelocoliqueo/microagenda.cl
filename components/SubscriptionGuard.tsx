@@ -52,11 +52,19 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
     }
   }
 
-  async function handleSubscribe() {
-    if (!profile) return;
+  async function handleSubscribe(e?: React.MouseEvent) {
+    e?.preventDefault();
+    e?.stopPropagation();
+    
+    if (!profile) {
+      console.error("No profile available");
+      alert("Error: No se pudo cargar tu información. Por favor recarga la página.");
+      return;
+    }
 
     try {
       setProcessing(true);
+      console.log("🔄 Iniciando proceso de suscripción...");
 
       // Get plan
       const { data: plans, error: planError } = await supabase
@@ -66,9 +74,13 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
         .single();
 
       if (planError || !plans) {
-        alert("Error: No se encontró el plan. Por favor intenta nuevamente.");
+        console.error("Error fetching plan:", planError);
+        alert(`Error: No se encontró el plan. ${planError?.message || ""}`);
+        setProcessing(false);
         return;
       }
+
+      console.log("✅ Plan encontrado:", plans);
 
       const result = await createSubscriptionPreference({
         userId: profile.id,
@@ -78,14 +90,25 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
         planPrice: plans.price,
       });
 
+      console.log("📦 Resultado de createSubscriptionPreference:", result);
+
       if (result.success && result.init_point) {
+        console.log("✅ Redirigiendo a:", result.init_point);
+        window.location.href = result.init_point;
+      } else if (result.mock && result.init_point) {
+        // Si es mock, también redirigir
+        console.log("📦 Modo mock, redirigiendo a:", result.init_point);
         window.location.href = result.init_point;
       } else {
-        throw new Error("No se pudo crear la preferencia de pago");
+        console.error("❌ No se pudo crear la preferencia:", result);
+        const errorMsg = result.error 
+          ? `Error: ${JSON.stringify(result.error)}`
+          : "No se pudo crear la preferencia de pago. Verifica la consola para más detalles.";
+        alert(errorMsg);
       }
     } catch (error: any) {
-      console.error("Error creating subscription:", error);
-      alert("Error al procesar la suscripción. Por favor intenta nuevamente.");
+      console.error("❌ Error creating subscription:", error);
+      alert(`Error al procesar la suscripción: ${error.message || "Error desconocido"}`);
     } finally {
       setProcessing(false);
     }
@@ -145,6 +168,7 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
 
             <div className="space-y-3">
               <Button
+                type="button"
                 onClick={handleSubscribe}
                 disabled={processing}
                 className="w-full bg-gradient-to-r from-primary to-accent hover:brightness-110 text-lg py-6 shadow-lg"
