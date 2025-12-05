@@ -54,6 +54,7 @@ export async function createSubscriptionPreference(params: {
           auto_return: "approved",
           notification_url: `${APP_URL}/api/mercadopago-webhook`,
           external_reference: params.userId,
+          statement_descriptor: "MicroAgenda",
           metadata: {
             user_id: params.userId,
             plan_id: params.planId,

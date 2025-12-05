@@ -77,6 +77,7 @@ export async function POST(request: NextRequest) {
             auto_return: "approved",
             notification_url: `${APP_URL}/api/mercadopago-webhook`,
             external_reference: userId,
+            statement_descriptor: "MicroAgenda",
             metadata: {
               user_id: userId,
               plan_id: planId,
