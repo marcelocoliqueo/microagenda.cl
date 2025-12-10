@@ -29,33 +29,8 @@ export async function POST(request: NextRequest) {
       const subscriptionResult = await getSubscriptionInfo(subscriptionId);
 
       if (!subscriptionResult.success || !subscriptionResult.subscription) {
-        const error = subscriptionResult.error;
-        const statusCode = subscriptionResult.statusCode;
-        
-        // Si el recurso no existe (404), es probablemente una simulación de prueba
-        if (statusCode === 404 || subscriptionResult.isNotFound) {
-          console.log(`📦 Suscripción ${subscriptionId} no encontrada (404) - probablemente simulación de prueba`);
-          return NextResponse.json({ 
-            status: "ignored", 
-            reason: "subscription_not_found",
-            subscription_id: subscriptionId
-          }, { status: 200 });
-        }
-        
-        // Para otros errores (401, 403, 500, etc.), loguear detalladamente para investigar
-        console.error(`❌ Error obteniendo info de suscripción ${subscriptionId}:`, {
-          statusCode,
-          error,
-          errorMessage: error?.message || JSON.stringify(error)
-        });
-        
-        // Responder 200 para evitar reintentos infinitos, pero el error está logueado
-        return NextResponse.json({ 
-          status: "error", 
-          message: "Could not fetch subscription info",
-          subscription_id: subscriptionId,
-          error_code: statusCode
-        }, { status: 200 });
+        console.error("❌ Error obteniendo info de suscripción:", subscriptionResult.error);
+        return NextResponse.json({ status: "processed" }, { status: 200 });
       }
 
       const subscription = subscriptionResult.subscription;
@@ -152,32 +127,8 @@ export async function POST(request: NextRequest) {
       const paymentResult = await getPaymentInfo(paymentId);
 
       if (!paymentResult.success || !paymentResult.payment) {
-        const error = paymentResult.error;
-        const statusCode = paymentResult.statusCode;
-        
-        // Si el recurso no existe (404), es probablemente una simulación de prueba
-        if (statusCode === 404 || paymentResult.isNotFound) {
-          console.log(`📦 Pago ${paymentId} no encontrado (404) - probablemente simulación de prueba`);
-          return NextResponse.json({ 
-            status: "ignored", 
-            reason: "payment_not_found",
-            payment_id: paymentId
-          }, { status: 200 });
-        }
-        
-        // Para otros errores, loguear detalladamente
-        console.error(`❌ Error obteniendo info de pago ${paymentId}:`, {
-          statusCode,
-          error,
-          errorMessage: error?.message || JSON.stringify(error)
-        });
-        
-        return NextResponse.json({ 
-          status: "error", 
-          message: "Could not fetch payment info",
-          payment_id: paymentId,
-          error_code: statusCode
-        }, { status: 200 });
+        console.error("❌ Error obteniendo info de pago:", paymentResult.error);
+        return NextResponse.json({ status: "processed" }, { status: 200 });
       }
 
       const payment = paymentResult.payment;
@@ -315,32 +266,8 @@ export async function POST(request: NextRequest) {
       const paymentResult = await getPaymentInfo(paymentId);
 
       if (!paymentResult.success || !paymentResult.payment) {
-        const error = paymentResult.error;
-        const statusCode = paymentResult.statusCode;
-        
-        // Si el recurso no existe (404), es probablemente una simulación de prueba
-        if (statusCode === 404 || paymentResult.isNotFound) {
-          console.log(`📦 Pago ${paymentId} no encontrado (404) - probablemente simulación de prueba`);
-          return NextResponse.json({ 
-            status: "ignored", 
-            reason: "payment_not_found",
-            payment_id: paymentId
-          }, { status: 200 });
-        }
-        
-        // Para otros errores, loguear detalladamente
-        console.error(`❌ Error fetching payment info ${paymentId}:`, {
-          statusCode,
-          error,
-          errorMessage: error?.message || JSON.stringify(error)
-        });
-        
-        return NextResponse.json({ 
-          status: "error", 
-          message: "Could not fetch payment info",
-          payment_id: paymentId,
-          error_code: statusCode
-        }, { status: 200 });
+        console.error("❌ Error obteniendo info de pago:", paymentResult.error);
+        return NextResponse.json({ status: "processed" }, { status: 200 });
       }
 
       const payment = paymentResult.payment;
@@ -466,13 +393,7 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     const processingTime = Date.now() - startTime;
     console.error(`❌ Webhook error después de ${processingTime}ms:`, error);
-    // Siempre responder 200 para evitar reintentos innecesarios
-    // MercadoPago reintentará si es necesario
-    return NextResponse.json({ 
-      status: "error", 
-      message: error.message,
-      processing_time_ms: processingTime
-    }, { status: 200 });
+    return NextResponse.json({ status: "processed" }, { status: 200 });
   }
 }
 
