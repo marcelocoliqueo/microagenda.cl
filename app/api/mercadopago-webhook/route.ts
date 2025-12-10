@@ -29,8 +29,19 @@ export async function POST(request: NextRequest) {
       const subscriptionResult = await getSubscriptionInfo(subscriptionId);
 
       if (!subscriptionResult.success || !subscriptionResult.subscription) {
-        console.error("Error obteniendo info de suscripción:", subscriptionResult.error);
-        return NextResponse.json({ error: "Could not fetch subscription info" }, { status: 500 });
+        console.error("⚠️ Error obteniendo info de suscripción:", subscriptionResult.error);
+        // Si es un ID de prueba o no existe, responder 200 para evitar reintentos
+        if (subscriptionId === "123453" || subscriptionId?.toString().length < 10) {
+          console.log("📦 ID de prueba detectado, ignorando");
+          return NextResponse.json({ status: "ignored", reason: "test_id" }, { status: 200 });
+        }
+        // Para IDs reales que fallan, responder 200 pero loguear el error
+        console.error("❌ No se pudo obtener info de suscripción real, pero respondiendo 200 para evitar reintentos");
+        return NextResponse.json({ 
+          status: "error", 
+          message: "Could not fetch subscription info",
+          subscription_id: subscriptionId
+        }, { status: 200 });
       }
 
       const subscription = subscriptionResult.subscription;
@@ -127,8 +138,18 @@ export async function POST(request: NextRequest) {
       const paymentResult = await getPaymentInfo(paymentId);
 
       if (!paymentResult.success || !paymentResult.payment) {
-        console.error("Error obteniendo info de pago:", paymentResult.error);
-        return NextResponse.json({ error: "Could not fetch payment info" }, { status: 500 });
+        console.error("⚠️ Error obteniendo info de pago:", paymentResult.error);
+        // Si es un ID de prueba, responder 200
+        if (paymentId === "123453" || paymentId?.toString().length < 10) {
+          console.log("📦 ID de prueba detectado, ignorando");
+          return NextResponse.json({ status: "ignored", reason: "test_id" }, { status: 200 });
+        }
+        // Para IDs reales, responder 200 pero loguear
+        return NextResponse.json({ 
+          status: "error", 
+          message: "Could not fetch payment info",
+          payment_id: paymentId
+        }, { status: 200 });
       }
 
       const payment = paymentResult.payment;
@@ -266,8 +287,18 @@ export async function POST(request: NextRequest) {
       const paymentResult = await getPaymentInfo(paymentId);
 
       if (!paymentResult.success || !paymentResult.payment) {
-        console.error("Error fetching payment info:", paymentResult.error);
-        return NextResponse.json({ error: "Could not fetch payment info" }, { status: 500 });
+        console.error("⚠️ Error fetching payment info:", paymentResult.error);
+        // Si es un ID de prueba, responder 200
+        if (paymentId === "123453" || paymentId?.toString().length < 10) {
+          console.log("📦 ID de prueba detectado, ignorando");
+          return NextResponse.json({ status: "ignored", reason: "test_id" }, { status: 200 });
+        }
+        // Para IDs reales, responder 200 pero loguear
+        return NextResponse.json({ 
+          status: "error", 
+          message: "Could not fetch payment info",
+          payment_id: paymentId
+        }, { status: 200 });
       }
 
       const payment = paymentResult.payment;
