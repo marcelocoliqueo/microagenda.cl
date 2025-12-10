@@ -85,14 +85,29 @@ export async function POST(request: NextRequest) {
       const data = await response.json();
 
       if (!response.ok) {
-        console.error("MercadoPago API error:", data);
+        console.error("❌ MercadoPago API error:", {
+          status: response.status,
+          statusText: response.statusText,
+          error: data,
+          requestBody: {
+            reason: `MicroAgenda - Plan ${planName}`,
+            payer_email: userEmail,
+            external_reference: userId,
+            transaction_amount: planPrice,
+            currency_id: "CLP",
+          }
+        });
         return NextResponse.json(
           { success: false, error: data },
           { status: 500 }
         );
       }
 
-      console.log("✅ Suscripción automática creada:", data.id);
+      console.log("✅ Suscripción automática creada:", {
+        id: data.id,
+        init_point: data.init_point,
+        status: data.status,
+      });
       return NextResponse.json({
         success: true,
         init_point: data.init_point,
