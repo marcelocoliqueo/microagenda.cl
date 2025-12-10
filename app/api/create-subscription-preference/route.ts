@@ -72,6 +72,7 @@ export async function POST(request: NextRequest) {
               start_date: startDate.toISOString(),
             },
             back_url: `${APP_URL}/dashboard?payment=success`,
+            notification_url: `${APP_URL}/api/mercadopago-webhook`,
             status: "pending",
             metadata: {
               user_id: userId,
