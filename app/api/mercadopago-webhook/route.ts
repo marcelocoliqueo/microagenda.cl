@@ -10,11 +10,14 @@ import { PLAN_NAME, PLAN_CURRENCY } from "@/lib/constants";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 export async function POST(request: NextRequest) {
+  // Responder inmediatamente para evitar timeout
+  const startTime = Date.now();
+  
   try {
     const body = await request.json();
-    const { type, data } = body;
+    const { type, data, action } = body;
 
-    console.log("MercadoPago Webhook received:", { type, data });
+    console.log("MercadoPago Webhook received:", { type, data, action });
 
     // ============================================
     // 1. WEBHOOK: Suscripción Autorizada
@@ -249,14 +252,16 @@ export async function POST(request: NextRequest) {
     // ============================================
     // 3. WEBHOOK: Pago Único (compatibilidad)
     // ============================================
-    if (type === "payment") {
+    // Manejar tanto "payment" como "payment.created"
+    if (type === "payment" || action === "payment.created") {
       const paymentId = data.id;
 
       if (!paymentId) {
+        console.error("⚠️ No payment ID in webhook");
         return NextResponse.json({ error: "No payment ID" }, { status: 400 });
       }
 
-      console.log(`💰 Procesando pago único (legacy): ${paymentId}`);
+      console.log(`💰 Procesando pago: ${paymentId} (action: ${action || 'none'})`);
 
       const paymentResult = await getPaymentInfo(paymentId);
 
@@ -376,16 +381,25 @@ export async function POST(request: NextRequest) {
         }
       }
 
+      const processingTime = Date.now() - startTime;
+      console.log(`✅ Pago procesado en ${processingTime}ms`);
       return NextResponse.json({ status: "processed" }, { status: 200 });
     }
 
     // Tipo de webhook no reconocido
-    console.log(`⚠️ Webhook type no manejado: ${type}`);
+    console.log(`⚠️ Webhook type no manejado: ${type} (action: ${action || 'none'})`);
     return NextResponse.json({ status: "ignored" }, { status: 200 });
 
   } catch (error: any) {
-    console.error("Webhook error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const processingTime = Date.now() - startTime;
+    console.error(`❌ Webhook error después de ${processingTime}ms:`, error);
+    // Siempre responder 200 para evitar reintentos innecesarios
+    // MercadoPago reintentará si es necesario
+    return NextResponse.json({ 
+      status: "error", 
+      message: error.message,
+      processing_time_ms: processingTime
+    }, { status: 200 });
   }
 }
 
