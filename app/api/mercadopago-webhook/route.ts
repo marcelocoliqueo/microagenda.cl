@@ -29,18 +29,32 @@ export async function POST(request: NextRequest) {
       const subscriptionResult = await getSubscriptionInfo(subscriptionId);
 
       if (!subscriptionResult.success || !subscriptionResult.subscription) {
-        console.error("⚠️ Error obteniendo info de suscripción:", subscriptionResult.error);
-        // Si es un ID de prueba o no existe, responder 200 para evitar reintentos
-        if (subscriptionId === "123453" || subscriptionId?.toString().length < 10) {
-          console.log("📦 ID de prueba detectado, ignorando");
-          return NextResponse.json({ status: "ignored", reason: "test_id" }, { status: 200 });
+        const error = subscriptionResult.error;
+        const statusCode = subscriptionResult.statusCode;
+        
+        // Si el recurso no existe (404), es probablemente una simulación de prueba
+        if (statusCode === 404 || subscriptionResult.isNotFound) {
+          console.log(`📦 Suscripción ${subscriptionId} no encontrada (404) - probablemente simulación de prueba`);
+          return NextResponse.json({ 
+            status: "ignored", 
+            reason: "subscription_not_found",
+            subscription_id: subscriptionId
+          }, { status: 200 });
         }
-        // Para IDs reales que fallan, responder 200 pero loguear el error
-        console.error("❌ No se pudo obtener info de suscripción real, pero respondiendo 200 para evitar reintentos");
+        
+        // Para otros errores (401, 403, 500, etc.), loguear detalladamente para investigar
+        console.error(`❌ Error obteniendo info de suscripción ${subscriptionId}:`, {
+          statusCode,
+          error,
+          errorMessage: error?.message || JSON.stringify(error)
+        });
+        
+        // Responder 200 para evitar reintentos infinitos, pero el error está logueado
         return NextResponse.json({ 
           status: "error", 
           message: "Could not fetch subscription info",
-          subscription_id: subscriptionId
+          subscription_id: subscriptionId,
+          error_code: statusCode
         }, { status: 200 });
       }
 
@@ -138,17 +152,31 @@ export async function POST(request: NextRequest) {
       const paymentResult = await getPaymentInfo(paymentId);
 
       if (!paymentResult.success || !paymentResult.payment) {
-        console.error("⚠️ Error obteniendo info de pago:", paymentResult.error);
-        // Si es un ID de prueba, responder 200
-        if (paymentId === "123453" || paymentId?.toString().length < 10) {
-          console.log("📦 ID de prueba detectado, ignorando");
-          return NextResponse.json({ status: "ignored", reason: "test_id" }, { status: 200 });
+        const error = paymentResult.error;
+        const statusCode = paymentResult.statusCode;
+        
+        // Si el recurso no existe (404), es probablemente una simulación de prueba
+        if (statusCode === 404 || paymentResult.isNotFound) {
+          console.log(`📦 Pago ${paymentId} no encontrado (404) - probablemente simulación de prueba`);
+          return NextResponse.json({ 
+            status: "ignored", 
+            reason: "payment_not_found",
+            payment_id: paymentId
+          }, { status: 200 });
         }
-        // Para IDs reales, responder 200 pero loguear
+        
+        // Para otros errores, loguear detalladamente
+        console.error(`❌ Error obteniendo info de pago ${paymentId}:`, {
+          statusCode,
+          error,
+          errorMessage: error?.message || JSON.stringify(error)
+        });
+        
         return NextResponse.json({ 
           status: "error", 
           message: "Could not fetch payment info",
-          payment_id: paymentId
+          payment_id: paymentId,
+          error_code: statusCode
         }, { status: 200 });
       }
 
@@ -287,17 +315,31 @@ export async function POST(request: NextRequest) {
       const paymentResult = await getPaymentInfo(paymentId);
 
       if (!paymentResult.success || !paymentResult.payment) {
-        console.error("⚠️ Error fetching payment info:", paymentResult.error);
-        // Si es un ID de prueba, responder 200
-        if (paymentId === "123453" || paymentId?.toString().length < 10) {
-          console.log("📦 ID de prueba detectado, ignorando");
-          return NextResponse.json({ status: "ignored", reason: "test_id" }, { status: 200 });
+        const error = paymentResult.error;
+        const statusCode = paymentResult.statusCode;
+        
+        // Si el recurso no existe (404), es probablemente una simulación de prueba
+        if (statusCode === 404 || paymentResult.isNotFound) {
+          console.log(`📦 Pago ${paymentId} no encontrado (404) - probablemente simulación de prueba`);
+          return NextResponse.json({ 
+            status: "ignored", 
+            reason: "payment_not_found",
+            payment_id: paymentId
+          }, { status: 200 });
         }
-        // Para IDs reales, responder 200 pero loguear
+        
+        // Para otros errores, loguear detalladamente
+        console.error(`❌ Error fetching payment info ${paymentId}:`, {
+          statusCode,
+          error,
+          errorMessage: error?.message || JSON.stringify(error)
+        });
+        
         return NextResponse.json({ 
           status: "error", 
           message: "Could not fetch payment info",
-          payment_id: paymentId
+          payment_id: paymentId,
+          error_code: statusCode
         }, { status: 200 });
       }
 

@@ -98,7 +98,12 @@ export async function getPaymentInfo(paymentId: string) {
     const data = await response.json();
 
     if (!response.ok) {
-      return { success: false, error: data };
+      return { 
+        success: false, 
+        error: data,
+        statusCode: response.status,
+        isNotFound: response.status === 404
+      };
     }
 
     return { success: true, payment: data };
@@ -131,7 +136,12 @@ export async function getSubscriptionInfo(subscriptionId: string) {
     const data = await response.json();
 
     if (!response.ok) {
-      return { success: false, error: data };
+      return { 
+        success: false, 
+        error: data,
+        statusCode: response.status,
+        isNotFound: response.status === 404
+      };
     }
 
     return { success: true, subscription: data };
