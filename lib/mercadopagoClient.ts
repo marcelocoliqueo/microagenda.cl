@@ -51,7 +51,7 @@ export async function createSubscriptionPreference(params: {
           },
           back_url: `${APP_URL}/dashboard?payment=success`,
           notification_url: `${APP_URL}/api/mercadopago-webhook`,
-          status: "pending",
+          status: "authorized",
           metadata: {
             user_id: params.userId,
             plan_id: params.planId,

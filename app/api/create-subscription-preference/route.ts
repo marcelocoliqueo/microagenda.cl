@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
             },
             back_url: `${APP_URL}/dashboard?payment=success`,
             notification_url: `${APP_URL}/api/mercadopago-webhook`,
-            status: "pending",
+            status: "authorized",
             metadata: {
               user_id: userId,
               plan_id: planId,
