@@ -54,7 +54,6 @@ import {
   formatTime,
   PLAN_PRICE,
 } from "@/lib/constants";
-import { createSubscriptionPreference } from "@/lib/mercadopagoClient";
 import { useTheme } from "@/contexts/ThemeContext";
 import type { AppointmentFilter } from "@/lib/appointmentFilters";
 import { filterAppointments, getFilterTitle, getFilterDescription } from "@/lib/appointmentFilters";
@@ -603,7 +602,7 @@ export default function DashboardPage() {
     if (!profile || !user) return;
 
     try {
-      // Get plan
+      // Obtener plan activo
       const { data: plans } = await supabase
         .from("plans")
         .select("*")
@@ -619,18 +618,40 @@ export default function DashboardPage() {
         return;
       }
 
-      const result = await createSubscriptionPreference({
-        userId: user.id,
-        userEmail: profile.email,
-        planId: plans.id,
-        planName: plans.name,
-        planPrice: plans.price,
+      // Obtener token de sesión
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          title: "Error",
+          description: "Sesión no válida. Inicia sesión nuevamente.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Crear preferencia vía API (usa token server-side)
+      const response = await fetch("/api/create-subscription-preference", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          userEmail: profile.email,
+          planId: plans.id,
+          planName: plans.name,
+          planPrice: plans.price,
+        }),
       });
+
+      const result = await response.json();
 
       if (result.success && result.init_point) {
         window.location.href = result.init_point;
       } else {
-        throw new Error("No se pudo crear la preferencia de pago");
+        const msg = result.error ? JSON.stringify(result.error) : "No se pudo crear la preferencia de pago";
+        throw new Error(msg);
       }
     } catch (error: any) {
       console.error("Subscription error:", error);
