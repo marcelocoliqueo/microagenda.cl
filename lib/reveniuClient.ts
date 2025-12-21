@@ -81,25 +81,31 @@ export async function getOrCreatePlan(params: {
         
         if (detailResponse.ok) {
           const planDetail = await detailResponse.json();
-          console.log("📦 Detalles del plan obtenidos:", {
-            id: planDetail.id,
-            title: planDetail.title,
-            link_url: planDetail.link_url || "❌ NO DISPONIBLE",
-            is_custom_link: planDetail.is_custom_link,
-          });
           
-          if (!planDetail.link_url) {
-            console.error("❌ El plan no tiene link_url. Probablemente no tiene 'Link personalizado' activado en Reveniu.");
+          // Log completo para ver todos los campos disponibles
+          console.log("📦 Respuesta COMPLETA del plan:", JSON.stringify(planDetail, null, 2));
+          
+          // Buscar el link en diferentes posibles campos
+          const linkUrl = planDetail.link_url || 
+                         planDetail.custom_link || 
+                         planDetail.checkout_url ||
+                         planDetail.url ||
+                         (planDetail.slug ? `https://sandbox.reveniu.com/checkout-custom-link/${planDetail.slug}` : null);
+          
+          console.log("🔗 Link URL encontrado:", linkUrl || "❌ NO DISPONIBLE");
+          
+          if (!linkUrl) {
+            console.error("❌ No se pudo encontrar la URL del checkout en ningún campo.");
             return {
               success: false,
-              error: "El plan no tiene link_url configurado. Activa 'Link personalizado' en el panel de Reveniu.",
+              error: "No se pudo obtener la URL de checkout del plan.",
             };
           }
           
           return {
             success: true,
             planId: planDetail.id,
-            link_url: planDetail.link_url,
+            link_url: linkUrl,
             plan: planDetail,
           };
         } else {
