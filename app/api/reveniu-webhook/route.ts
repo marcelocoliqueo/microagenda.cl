@@ -41,11 +41,12 @@ export async function POST(request: NextRequest) {
     console.log("Reveniu Webhook received:", { event, data });
 
     // ============================================
-    // 1. WEBHOOK: Suscripción Creada/Activada
+    // 1. WEBHOOK: Suscripción Activada
     // ============================================
-    if (event === "subscription.created" || event === "subscription.activated") {
-      const subscriptionId = data.id || data.subscription_id;
-      console.log(`📝 Procesando suscripción creada/activada: ${subscriptionId}`);
+    if (event === "subscription_activated") {
+      const subscriptionId = data.subscription_id;
+      const externalId = data.subscription_external_id;
+      console.log(`📝 Procesando suscripción activada: ${subscriptionId}`);
 
       const subscriptionResult = await getSubscriptionInfo(subscriptionId);
 
@@ -56,13 +57,7 @@ export async function POST(request: NextRequest) {
 
       const subscription = subscriptionResult.subscription;
 
-      // Solo procesar si está activa
-      if (subscription.status !== "active" && subscription.status !== "activated") {
-        console.log(`Suscripción ${subscriptionId} no activa (status: ${subscription.status})`);
-        return NextResponse.json({ status: "ignored" }, { status: 200 });
-      }
-
-      const userId = subscription.metadata?.user_id;
+      const userId = subscription.metadata?.user_id || externalId;
       const planId = subscription.plan_id || subscription.plan?.id;
 
       if (!userId) {
@@ -141,34 +136,25 @@ export async function POST(request: NextRequest) {
     }
 
     // ============================================
-    // 2. WEBHOOK: Pago Exitoso
+    // 2. WEBHOOK: Pago Exitoso (Cobro Recurrente)
     // ============================================
-    if (event === "payment.success" || event === "payment.completed") {
-      const paymentId = data.id || data.payment_id;
-      console.log(`💳 Procesando pago exitoso: ${paymentId}`);
-
-      const paymentResult = await getPaymentInfo(paymentId);
-
-      if (!paymentResult.success || !paymentResult.payment) {
-        console.error("❌ Error obteniendo info de pago:", paymentResult.error);
-        return NextResponse.json({ status: "processed" }, { status: 200 });
-      }
-
-      const payment = paymentResult.payment;
-      const subscriptionId = payment.subscription_id || data.subscription_id;
+    if (event === "subscription_payment_succeeded") {
+      const subscriptionId = data.subscription_id;
+      const externalId = data.subscription_external_id;
+      const amount = data.amount;
+      const buyOrder = data.buy_order;
+      const issuedOn = data.issued_on;
       
-      // Obtener suscripción para obtener el user_id
-      let userId: string | null = null;
-      if (subscriptionId) {
-        const subResult = await getSubscriptionInfo(subscriptionId);
-        if (subResult.success && subResult.subscription) {
-          userId = subResult.subscription.metadata?.user_id || null;
-        }
-      }
+      console.log(`💳 Procesando pago recurrente exitoso: ${buyOrder} para suscripción ${subscriptionId}`);
 
-      // Fallback: intentar obtener desde metadata del pago
-      if (!userId) {
-        userId = payment.metadata?.user_id || data.metadata?.user_id || null;
+      // Obtener suscripción para obtener el user_id
+      const subResult = await getSubscriptionInfo(subscriptionId);
+      
+      let userId: string | null = null;
+      if (subResult.success && subResult.subscription) {
+        userId = subResult.subscription.metadata?.user_id || externalId;
+      } else if (externalId) {
+        userId = externalId;
       }
 
       if (!userId) {
@@ -185,10 +171,7 @@ export async function POST(request: NextRequest) {
 
       const userEmail = profile?.email;
       const userName = profile?.name || profile?.business_name || "Profesional MicroAgenda";
-      const formattedAmount = formatCurrency(
-        payment.amount || payment.transaction_amount || 0,
-        payment.currency || "CLP"
-      );
+      const formattedAmount = formatCurrency(amount || 0, "CLP");
 
       // Actualizar fecha de renovación de la suscripción
       const renewalDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
@@ -215,10 +198,10 @@ export async function POST(request: NextRequest) {
       await supabase.from("payments").insert([
         {
           user_id: userId,
-          reveniu_payment_id: paymentId.toString(), // Nuevo campo para Reveniu
-          amount: payment.amount || payment.transaction_amount,
+          reveniu_payment_id: buyOrder?.toString() || subscriptionId.toString(),
+          amount: amount,
           status: "approved",
-          payment_date: new Date().toISOString(),
+          payment_date: issuedOn ? new Date(issuedOn).toISOString() : new Date().toISOString(),
         },
       ]);
 
@@ -248,33 +231,24 @@ export async function POST(request: NextRequest) {
     }
 
     // ============================================
-    // 3. WEBHOOK: Pago Fallido
+    // 3. WEBHOOK: Pago en Recuperación (Fallo temporal)
     // ============================================
-    if (event === "payment.failed" || event === "payment.rejected") {
-      const paymentId = data.id || data.payment_id;
-      console.log(`⚠️ Procesando pago fallido: ${paymentId}`);
-
-      const paymentResult = await getPaymentInfo(paymentId);
-
-      if (!paymentResult.success || !paymentResult.payment) {
-        console.error("❌ Error obteniendo info de pago:", paymentResult.error);
-        return NextResponse.json({ status: "processed" }, { status: 200 });
-      }
-
-      const payment = paymentResult.payment;
-      const subscriptionId = payment.subscription_id || data.subscription_id;
+    if (event === "subscription_payment_in_recovery") {
+      const subscriptionId = data.subscription_id;
+      const externalId = data.subscription_external_id;
+      const buyOrder = data.buy_order;
+      const gatewayResponse = data.gateway_response;
       
-      // Obtener suscripción para obtener el user_id
-      let userId: string | null = null;
-      if (subscriptionId) {
-        const subResult = await getSubscriptionInfo(subscriptionId);
-        if (subResult.success && subResult.subscription) {
-          userId = subResult.subscription.metadata?.user_id || null;
-        }
-      }
+      console.log(`⚠️ Procesando pago en recuperación: ${buyOrder} para suscripción ${subscriptionId}`);
 
-      if (!userId) {
-        userId = payment.metadata?.user_id || data.metadata?.user_id || null;
+      // Obtener suscripción para obtener el user_id
+      const subResult = await getSubscriptionInfo(subscriptionId);
+      
+      let userId: string | null = null;
+      if (subResult.success && subResult.subscription) {
+        userId = subResult.subscription.metadata?.user_id || externalId;
+      } else if (externalId) {
+        userId = externalId;
       }
 
       if (!userId) {
@@ -291,62 +265,64 @@ export async function POST(request: NextRequest) {
 
       const userEmail = profile?.email;
       const userName = profile?.name || profile?.business_name || "Profesional MicroAgenda";
-      const formattedAmount = formatCurrency(
-        payment.amount || payment.transaction_amount || 0,
-        payment.currency || "CLP"
-      );
 
-      // Registrar el intento fallido
+      // Registrar el intento en recuperación (no enviar email aún, Reveniu está reintentando)
       await supabase.from("payments").insert([
         {
           user_id: userId,
-          reveniu_payment_id: paymentId.toString(),
-          amount: payment.amount || payment.transaction_amount,
-          status: "rejected",
+          reveniu_payment_id: buyOrder?.toString() || subscriptionId.toString(),
+          amount: 0, // No tenemos el monto en este evento
+          status: "in_recovery",
           payment_date: new Date().toISOString(),
         },
       ]);
 
-      console.log(`⚠️ Pago fallido registrado para usuario ${userId}`);
+      console.log(`⚠️ Pago en recuperación registrado para usuario ${userId} (código: ${gatewayResponse})`);
 
-      // Enviar email de alerta
-      if (userEmail) {
-        try {
-          const html = getPaymentFailedEmail({
-            userName,
-            amount: formattedAmount,
-            planName: PLAN_NAME,
-          });
-
-          await sendEmail({
-            to: userEmail,
-            subject: "Problema con tu renovación - MicroAgenda",
-            html,
-          });
-        } catch (emailError) {
-          console.error("Error enviando email de fallo de renovación:", emailError);
-        }
-      }
+      // No enviar email aún, Reveniu está intentando recuperar el pago
+      // Si falla definitivamente, llegará el evento subscription_deactivated
 
       return NextResponse.json({ status: "processed" }, { status: 200 });
     }
 
     // ============================================
-    // 4. WEBHOOK: Suscripción Cancelada
+    // 4. WEBHOOK: Renovación Cancelada
     // ============================================
-    if (event === "subscription.cancelled" || event === "subscription.canceled") {
-      const subscriptionId = data.id || data.subscription_id;
-      console.log(`🚫 Procesando cancelación de suscripción: ${subscriptionId}`);
+    if (event === "subscription_renewal_cancelled") {
+      const subscriptionId = data.subscription_id;
+      const externalId = data.subscription_external_id;
+      const cancelledBy = data.cancelled_by; // "user" o "admin"
+      const cancelReason = data.cancel_reason;
+      
+      console.log(`🚫 Procesando cancelación de renovación: ${subscriptionId} (por: ${cancelledBy})`);
 
-      const subscriptionResult = await getSubscriptionInfo(subscriptionId);
+      const userId = externalId;
 
-      if (!subscriptionResult.success || !subscriptionResult.subscription) {
-        console.error("❌ Error obteniendo info de suscripción:", subscriptionResult.error);
-        return NextResponse.json({ status: "processed" }, { status: 200 });
+      if (!userId) {
+        console.error("No user ID in subscription cancellation");
+        return NextResponse.json({ error: "No user ID" }, { status: 400 });
       }
 
-      const subscription = subscriptionResult.subscription;
-      const userId = subscription.metadata?.user_id;
+      // Actualizar suscripción a "cancelled" pero mantener activa hasta que expire
+      await supabase
+        .from("subscriptions")
+        .update({ status: "cancelled" })
+        .eq("user_id", userId);
+
+      console.log(`✅ Renovación cancelada para usuario ${userId}`);
+
+      return NextResponse.json({ status: "processed" }, { status: 200 });
+    }
+
+    // ============================================
+    // 5. WEBHOOK: Suscripción Desactivada
+    // ============================================
+    if (event === "subscription_deactivated") {
+      const subscriptionId = data.subscription_id;
+      const externalId = data.subscription_external_id;
+      console.log(`🚫 Procesando desactivación de suscripción: ${subscriptionId}`);
+
+      const userId = externalId;
 
       if (!userId) {
         console.error("No user ID in subscription");
