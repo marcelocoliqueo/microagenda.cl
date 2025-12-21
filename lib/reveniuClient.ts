@@ -48,11 +48,9 @@ export async function getOrCreatePlan(params: {
       
       console.log("📋 Planes disponibles en Reveniu:", JSON.stringify(plans, null, 2));
       
-      // Buscar plan existente con el mismo precio, frecuencia y título
+      // Buscar plan existente por título (la lista no incluye price)
       const existingPlan = Array.isArray(plans) 
         ? plans.find((p: any) => 
-            p.price === params.planPrice && 
-            p.currency === "1" && // CLP
             p.frequency === "3" && // 3 = mensual en Reveniu
             p.title && p.title.includes("MicroAgenda") // Buscar por nombre específico
           )
@@ -104,7 +102,7 @@ export async function getOrCreatePlan(params: {
           console.error("❌ Error obteniendo detalles del plan:", await detailResponse.text());
         }
       } else {
-        console.error("❌ No se encontró plan 'MicroAgenda' con price=8500, currency=1, frequency=3");
+        console.error("❌ No se encontró plan con 'MicroAgenda' en el título y frequency='3'");
       }
     } else {
       console.error("❌ Error listando planes:", await listResponse.text());
