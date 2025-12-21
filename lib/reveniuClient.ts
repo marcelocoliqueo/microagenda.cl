@@ -41,13 +41,13 @@ export async function getOrCreatePlan(params: {
     );
 
     if (listResponse.ok) {
-      const plans = await listResponse.json();
-      // Buscar plan existente con el mismo precio y frecuencia mensual
+      const data = await listResponse.json();
+      const plans = data.data || data;
+      // Buscar plan existente con el mismo precio y frecuencia mensual (3 = mensual)
       const existingPlan = Array.isArray(plans) 
         ? plans.find((p: any) => 
-            p.amount === params.planPrice && 
-            p.currency === (params.currency || "CLP") &&
-            p.frequency === "monthly"
+            p.price === params.planPrice && 
+            p.frequency === "3" // 3 = mensual en Reveniu
           )
         : null;
 
@@ -71,11 +71,13 @@ export async function getOrCreatePlan(params: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: params.planName,
+          title: params.planName,
           amount: params.planPrice,
-          currency: params.currency || "CLP",
-          frequency: "monthly", // Mensual
+          currency: "1", // 1 = CLP en Reveniu
+          frequency: 3, // 3 = mensual en Reveniu
           description: `Plan mensual de MicroAgenda - ${params.planName}`,
+          is_custom_link: true,
+          auto_renew: true,
         }),
       }
     );
@@ -87,11 +89,12 @@ export async function getOrCreatePlan(params: {
       return { success: false, error: data };
     }
 
-    console.log("✅ Plan creado en Reveniu:", data.id);
+    console.log("✅ Plan creado en Reveniu:", data.id || data);
     return {
       success: true,
       planId: data.id,
       plan: data,
+      link_url: data.link_url, // URL de checkout del plan
     };
   } catch (error) {
     console.error("Reveniu error:", error);
@@ -131,16 +134,13 @@ export async function createSubscription(params: {
         },
         body: JSON.stringify({
           plan_id: params.planId,
-          customer_email: params.userEmail,
-          // Metadata para identificar al usuario
-          metadata: {
-            user_id: params.userId,
-            plan_name: params.planName,
-          },
+          email: params.userEmail,
+          // external_id para identificar al usuario en webhooks
+          external_id: params.userId,
           // URL de retorno después del pago
-          return_url: `${APP_URL}/dashboard?payment=success`,
+          redirect_to: `${APP_URL}/dashboard?payment=success`,
           // URL de cancelación
-          cancel_url: `${APP_URL}/dashboard?payment=cancelled`,
+          redirect_to_failure: `${APP_URL}/dashboard?payment=cancelled`,
         }),
       }
     );
@@ -152,13 +152,12 @@ export async function createSubscription(params: {
       return { success: false, error: data };
     }
 
-    console.log("✅ Suscripción creada en Reveniu:", data.id);
+    console.log("✅ Suscripción creada en Reveniu:", data.id || data);
     
-    // Reveniu puede retornar una URL de checkout o un init_point
-    // Ajustar según la estructura real de la respuesta de Reveniu
+    // Reveniu retorna link_url con la URL de checkout
     return {
       success: true,
-      init_point: data.checkout_url || data.init_point || data.url,
+      init_point: data.link_url || data.checkout_url || data.url,
       subscription_id: data.id,
       subscription: data,
     };
