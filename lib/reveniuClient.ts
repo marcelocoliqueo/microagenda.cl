@@ -119,11 +119,11 @@ export async function getOrCreatePlan(params: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          title: params.planName,
+          title: `Plan ${params.planName} MicroAgenda`, // Incluir "MicroAgenda" en el título
           price: params.planPrice, // Campo correcto: "price" no "amount"
           currency: "1", // CLP (código de moneda)
           frequency: "3", // Monthly (código de intervalo)
-          description: `Plan mensual de MicroAgenda - ${params.planName}`,
+          description: `Suscripción ${params.planName} a MicroAgenda`,
           is_custom_link: true,
           auto_renew: true,
           redirect_to: `${APP_URL}/dashboard?payment=success`,
@@ -139,12 +139,26 @@ export async function getOrCreatePlan(params: {
       return { success: false, error: data };
     }
 
-    console.log("✅ Plan creado en Reveniu:", data.id || data);
+    console.log("✅ Plan creado en Reveniu:", {
+      id: data.id,
+      title: data.title,
+      link_url: data.link_url || "❌ NO DISPONIBLE",
+      is_custom_link: data.is_custom_link,
+    });
+    
+    if (!data.link_url) {
+      console.error("❌ El plan recién creado no tiene link_url. Respuesta completa:", data);
+      return {
+        success: false,
+        error: "El plan fue creado pero no tiene link_url. Verifica la configuración en Reveniu.",
+      };
+    }
+    
     return {
       success: true,
       planId: data.id,
       plan: data,
-      link_url: data.link_url, // URL de checkout del plan
+      link_url: data.link_url,
     };
   } catch (error) {
     console.error("Reveniu error:", error);
