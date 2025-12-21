@@ -44,9 +44,11 @@ export async function getOrCreatePlan(params: {
 
     if (listResponse.ok) {
       const data = await listResponse.json();
-      const plans = data.data || data;
+      // La API de Reveniu devuelve los planes en data.results
+      const plans = data.results || data.data || data;
       
-      console.log("📋 Planes disponibles en Reveniu:", JSON.stringify(plans, null, 2));
+      console.log("📋 Planes disponibles en Reveniu:", JSON.stringify(data, null, 2));
+      console.log("📋 Array de planes extraído:", JSON.stringify(plans, null, 2));
       
       // Buscar plan existente por título (la lista no incluye price)
       const existingPlan = Array.isArray(plans) 
