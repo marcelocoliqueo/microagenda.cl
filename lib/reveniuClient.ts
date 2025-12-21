@@ -10,8 +10,9 @@ if (!REVENIU_API_SECRET && process.env.NODE_ENV === 'development') {
 }
 
 /**
- * Crea o obtiene un plan de pagos en Reveniu
- * En Reveniu, los planes se crean una vez y se reutilizan para múltiples clientes
+ * Obtiene el plan de pagos existente en Reveniu
+ * IMPORTANTE: El plan debe estar creado previamente en el panel de Reveniu
+ * NO crea planes nuevos automáticamente - todos los clientes usan el mismo plan
  */
 export async function getOrCreatePlan(params: {
   planName: string;
@@ -103,62 +104,27 @@ export async function getOrCreatePlan(params: {
           console.error("❌ Error obteniendo detalles del plan:", await detailResponse.text());
         }
       } else {
-        console.log("⚠️ No se encontró plan existente con price=8500, currency=1, frequency=3");
+        console.error("❌ No se encontró plan 'MicroAgenda' con price=8500, currency=1, frequency=3");
       }
     } else {
       console.error("❌ Error listando planes:", await listResponse.text());
     }
 
-    // Si no existe, crear un nuevo plan
-    const createResponse = await fetch(
-      `${REVENIU_API_URL}/api/v1/plans/`,
-      {
-        method: "POST",
-        headers: {
-          "Reveniu-Secret-Key": REVENIU_API_SECRET,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          title: `Plan ${params.planName} MicroAgenda`, // Incluir "MicroAgenda" en el título
-          price: params.planPrice, // Campo correcto: "price" no "amount"
-          currency: "1", // CLP (código de moneda)
-          frequency: "3", // Monthly (código de intervalo)
-          description: `Suscripción ${params.planName} a MicroAgenda`,
-          is_custom_link: true,
-          auto_renew: true,
-          redirect_to: `${APP_URL}/dashboard?payment=success`,
-          redirect_to_failure: `${APP_URL}/dashboard?payment=cancelled`,
-        }),
-      }
-    );
-
-    const data = await createResponse.json();
-
-    if (!createResponse.ok) {
-      console.error("Reveniu API error al crear plan:", data);
-      return { success: false, error: data };
-    }
-
-    console.log("✅ Plan creado en Reveniu:", {
-      id: data.id,
-      title: data.title,
-      link_url: data.link_url || "❌ NO DISPONIBLE",
-      is_custom_link: data.is_custom_link,
-    });
-    
-    if (!data.link_url) {
-      console.error("❌ El plan recién creado no tiene link_url. Respuesta completa:", data);
-      return {
-        success: false,
-        error: "El plan fue creado pero no tiene link_url. Verifica la configuración en Reveniu.",
-      };
-    }
+    // NO crear planes automáticamente - debe estar creado previamente
+    console.error("❌ El plan debe existir previamente en Reveniu");
+    console.error("📋 Pasos para solucionar:");
+    console.error("1. Ve al panel de Reveniu");
+    console.error("2. Crea un plan con:");
+    console.error("   - Título: 'Plan Mensual MicroAgenda'");
+    console.error("   - Precio: 8500");
+    console.error("   - Moneda: CLP");
+    console.error("   - Frecuencia: Mensual");
+    console.error("   - ✅ Link personalizado activado");
+    console.error("   - ✅ Auto renovar activado");
     
     return {
-      success: true,
-      planId: data.id,
-      plan: data,
-      link_url: data.link_url,
+      success: false,
+      error: "No se encontró el plan en Reveniu. El plan debe estar creado previamente en el panel de Reveniu con 'Link personalizado' activado.",
     };
   } catch (error) {
     console.error("Reveniu error:", error);
