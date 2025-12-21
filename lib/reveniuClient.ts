@@ -91,8 +91,8 @@ export async function getOrCreatePlan(params: {
         body: JSON.stringify({
           title: params.planName,
           price: params.planPrice, // Campo correcto: "price" no "amount"
-          currency: "1", // 1 = CLP en Reveniu
-          frequency: 3, // 3 = mensual en Reveniu
+          currency: "1", // CLP (código de moneda)
+          frequency: "3", // Monthly (código de intervalo)
           description: `Plan mensual de MicroAgenda - ${params.planName}`,
           is_custom_link: true,
           auto_renew: true,
