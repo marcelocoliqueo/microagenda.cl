@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
-import { getOrCreatePlan, createSubscription } from "@/lib/reveniuClient";
+import { getOrCreatePlan, getCheckoutUrl } from "@/lib/reveniuClient";
 
 const REVENIU_API_SECRET = process.env.REVENIU_API_SECRET;
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
@@ -66,8 +66,8 @@ export async function POST(request: NextRequest) {
 
       console.log("✅ Plan obtenido/creado:", planResult.planId);
 
-      // Paso 2: Crear la suscripción usando el plan
-      const subscriptionResult = await createSubscription({
+      // Paso 2: Obtener URL de checkout del plan
+      const checkoutResult = await getCheckoutUrl({
         userId,
         userEmail,
         planId: planResult.planId,
@@ -75,23 +75,20 @@ export async function POST(request: NextRequest) {
         planPrice,
       });
 
-      if (!subscriptionResult.success || !subscriptionResult.init_point) {
-        console.error("❌ Error creando suscripción:", subscriptionResult.error);
+      if (!checkoutResult.success || !checkoutResult.init_point) {
+        console.error("❌ Error obteniendo URL de checkout:", checkoutResult.error);
         return NextResponse.json(
-          { success: false, error: "Error al crear suscripción" },
+          { success: false, error: "Error al obtener URL de checkout" },
           { status: 500 }
         );
       }
 
-      console.log("✅ Suscripción creada en Reveniu:", {
-        subscription_id: subscriptionResult.subscription_id,
-        init_point: subscriptionResult.init_point,
-      });
+      console.log("✅ URL de checkout obtenida:", checkoutResult.init_point);
 
       return NextResponse.json({
         success: true,
-        init_point: subscriptionResult.init_point,
-        subscription_id: subscriptionResult.subscription_id,
+        init_point: checkoutResult.init_point,
+        plan_id: planResult.planId,
       });
     } catch (error: any) {
       console.error("Reveniu error:", error);

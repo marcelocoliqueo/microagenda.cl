@@ -103,10 +103,11 @@ export async function getOrCreatePlan(params: {
 }
 
 /**
- * Crea una suscripción en Reveniu
- * Suscribe a un cliente a un plan de pagos
+ * Obtiene la URL de checkout de un plan
+ * En Reveniu, NO se crean suscripciones por API.
+ * El usuario debe completar el checkout en el link_url del plan.
  */
-export async function createSubscription(params: {
+export async function getCheckoutUrl(params: {
   userId: string;
   userEmail: string;
   planId: string;
@@ -114,52 +115,45 @@ export async function createSubscription(params: {
   planPrice: number;
 }) {
   if (!REVENIU_API_SECRET) {
-    console.log("📦 [MOCK] Creando suscripción", params);
+    console.log("📦 [MOCK] Obteniendo URL de checkout", params);
     return {
       success: true,
       mock: true,
       init_point: `${APP_URL}/dashboard?payment=mock_success`,
-      subscription_id: "mock-subscription-id",
     };
   }
 
   try {
+    // Obtener detalles del plan para obtener el link_url
     const response = await fetch(
-      `${REVENIU_API_URL}/api/v1/subscriptions/`,
+      `${REVENIU_API_URL}/api/v1/plans/${params.planId}`,
       {
-        method: "POST",
+        method: "GET",
         headers: {
           "Reveniu-Secret-Key": REVENIU_API_SECRET,
-          "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          plan_id: params.planId,
-          email: params.userEmail,
-          // external_id para identificar al usuario en webhooks
-          external_id: params.userId,
-          // URL de retorno después del pago
-          redirect_to: `${APP_URL}/dashboard?payment=success`,
-          // URL de cancelación
-          redirect_to_failure: `${APP_URL}/dashboard?payment=cancelled`,
-        }),
       }
     );
 
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("Reveniu API error al crear suscripción:", data);
+      console.error("Reveniu API error al obtener plan:", data);
       return { success: false, error: data };
     }
 
-    console.log("✅ Suscripción creada en Reveniu:", data.id || data);
+    // El link_url del plan es la URL de checkout
+    // Agregar parámetros para identificar al usuario
+    const checkoutUrl = new URL(data.link_url);
+    checkoutUrl.searchParams.set('email', params.userEmail);
+    checkoutUrl.searchParams.set('external_id', params.userId);
+
+    console.log("✅ URL de checkout obtenida:", checkoutUrl.toString());
     
-    // Reveniu retorna link_url con la URL de checkout
     return {
       success: true,
-      init_point: data.link_url || data.checkout_url || data.url,
-      subscription_id: data.id,
-      subscription: data,
+      init_point: checkoutUrl.toString(),
+      plan: data,
     };
   } catch (error) {
     console.error("Reveniu error:", error);
