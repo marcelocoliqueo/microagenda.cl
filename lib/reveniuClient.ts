@@ -47,12 +47,13 @@ export async function getOrCreatePlan(params: {
       
       console.log("📋 Planes disponibles en Reveniu:", JSON.stringify(plans, null, 2));
       
-      // Buscar plan existente con el mismo precio y frecuencia mensual (3 = mensual)
+      // Buscar plan existente con el mismo precio, frecuencia y título
       const existingPlan = Array.isArray(plans) 
         ? plans.find((p: any) => 
             p.price === params.planPrice && 
             p.currency === "1" && // CLP
-            p.frequency === "3" // 3 = mensual en Reveniu
+            p.frequency === "3" && // 3 = mensual en Reveniu
+            p.title && p.title.includes("MicroAgenda") // Buscar por nombre específico
           )
         : null;
 
