@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
+import { getOrCreatePlan, createSubscription } from "@/lib/reveniuClient";
 
-const MERCADOPAGO_ACCESS_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN;
+const REVENIU_API_SECRET = process.env.REVENIU_API_SECRET;
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 export async function POST(request: NextRequest) {
@@ -36,9 +37,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Si no hay token de MercadoPago, retornar modo mock
-    if (!MERCADOPAGO_ACCESS_TOKEN) {
-      console.log("📦 [MOCK] Creando preferencia de suscripción", { userId, planId });
+    // Si no hay API Secret de Reveniu, retornar modo mock
+    if (!REVENIU_API_SECRET) {
+      console.log("📦 [MOCK] Creando suscripción en Reveniu", { userId, planId });
       return NextResponse.json({
         success: true,
         mock: true,
@@ -46,75 +47,54 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Crear suscripción automática en MercadoPago (API de Preapproval)
+    // Crear suscripción en Reveniu (dos pasos: plan + suscripción)
     try {
-      // Calcular fecha de inicio: ahora + 5 minutos (para evitar problemas de zona horaria)
-      const startDate = new Date();
-      startDate.setMinutes(startDate.getMinutes() + 5);
+      // Paso 1: Obtener o crear el plan de pagos
+      const planResult = await getOrCreatePlan({
+        planName: planName,
+        planPrice: planPrice,
+        currency: "CLP",
+      });
 
-      const response = await fetch(
-        "https://api.mercadopago.com/preapproval",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${MERCADOPAGO_ACCESS_TOKEN}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            reason: `MicroAgenda - Plan ${planName}`,
-            payer_email: userEmail,
-            external_reference: userId,
-            auto_recurring: {
-              frequency: 1,
-              frequency_type: "months",
-              transaction_amount: planPrice,
-              currency_id: "CLP",
-              start_date: startDate.toISOString(),
-            },
-            back_url: `${APP_URL}/dashboard?payment=success`,
-            notification_url: `${APP_URL}/api/mercadopago-webhook`,
-            status: "pending",
-            metadata: {
-              user_id: userId,
-              plan_id: planId,
-            },
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.error("❌ MercadoPago API error:", {
-          status: response.status,
-          statusText: response.statusText,
-          error: data,
-          requestBody: {
-            reason: `MicroAgenda - Plan ${planName}`,
-            payer_email: userEmail,
-            external_reference: userId,
-            transaction_amount: planPrice,
-            currency_id: "CLP",
-          }
-        });
+      if (!planResult.success || !planResult.planId) {
+        console.error("❌ Error obteniendo/creando plan:", planResult.error);
         return NextResponse.json(
-          { success: false, error: data },
+          { success: false, error: "Error al crear plan de pagos" },
           { status: 500 }
         );
       }
 
-      console.log("✅ Suscripción automática creada:", {
-        id: data.id,
-        init_point: data.init_point,
-        status: data.status,
+      console.log("✅ Plan obtenido/creado:", planResult.planId);
+
+      // Paso 2: Crear la suscripción usando el plan
+      const subscriptionResult = await createSubscription({
+        userId,
+        userEmail,
+        planId: planResult.planId,
+        planName,
+        planPrice,
       });
+
+      if (!subscriptionResult.success || !subscriptionResult.init_point) {
+        console.error("❌ Error creando suscripción:", subscriptionResult.error);
+        return NextResponse.json(
+          { success: false, error: "Error al crear suscripción" },
+          { status: 500 }
+        );
+      }
+
+      console.log("✅ Suscripción creada en Reveniu:", {
+        subscription_id: subscriptionResult.subscription_id,
+        init_point: subscriptionResult.init_point,
+      });
+
       return NextResponse.json({
         success: true,
-        init_point: data.init_point,
-        subscription_id: data.id,
+        init_point: subscriptionResult.init_point,
+        subscription_id: subscriptionResult.subscription_id,
       });
     } catch (error: any) {
-      console.error("MercadoPago error:", error);
+      console.error("Reveniu error:", error);
       return NextResponse.json(
         { success: false, error: error.message },
         { status: 500 }
