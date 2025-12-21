@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -70,11 +70,7 @@ export default function AppointmentsPage() {
   // Real-time updates
   useRealtime("appointments", userId, refresh);
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  async function checkAuth() {
+  const checkAuth = useCallback(async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
 
@@ -107,7 +103,11 @@ export default function AppointmentsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [router, toast]);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   async function fetchServices(userId: string) {
     const { data, error } = await supabase
