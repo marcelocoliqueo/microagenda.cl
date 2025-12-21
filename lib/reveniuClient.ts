@@ -44,6 +44,9 @@ export async function getOrCreatePlan(params: {
     if (listResponse.ok) {
       const data = await listResponse.json();
       const plans = data.data || data;
+      
+      console.log("📋 Planes disponibles en Reveniu:", JSON.stringify(plans, null, 2));
+      
       // Buscar plan existente con el mismo precio y frecuencia mensual (3 = mensual)
       const existingPlan = Array.isArray(plans) 
         ? plans.find((p: any) => 
@@ -54,7 +57,12 @@ export async function getOrCreatePlan(params: {
         : null;
 
       if (existingPlan) {
-        console.log("✅ Plan existente encontrado:", existingPlan.id);
+        console.log("✅ Plan existente encontrado:", {
+          id: existingPlan.id,
+          title: existingPlan.title,
+          price: existingPlan.price,
+          has_link_url: !!existingPlan.link_url,
+        });
         
         // Obtener detalles completos del plan para tener link_url
         const detailResponse = await fetch(
@@ -69,14 +77,35 @@ export async function getOrCreatePlan(params: {
         
         if (detailResponse.ok) {
           const planDetail = await detailResponse.json();
+          console.log("📦 Detalles del plan obtenidos:", {
+            id: planDetail.id,
+            title: planDetail.title,
+            link_url: planDetail.link_url || "❌ NO DISPONIBLE",
+            is_custom_link: planDetail.is_custom_link,
+          });
+          
+          if (!planDetail.link_url) {
+            console.error("❌ El plan no tiene link_url. Probablemente no tiene 'Link personalizado' activado en Reveniu.");
+            return {
+              success: false,
+              error: "El plan no tiene link_url configurado. Activa 'Link personalizado' en el panel de Reveniu.",
+            };
+          }
+          
           return {
             success: true,
             planId: planDetail.id,
             link_url: planDetail.link_url,
             plan: planDetail,
           };
+        } else {
+          console.error("❌ Error obteniendo detalles del plan:", await detailResponse.text());
         }
+      } else {
+        console.log("⚠️ No se encontró plan existente con price=8500, currency=1, frequency=3");
       }
+    } else {
+      console.error("❌ Error listando planes:", await listResponse.text());
     }
 
     // Si no existe, crear un nuevo plan
