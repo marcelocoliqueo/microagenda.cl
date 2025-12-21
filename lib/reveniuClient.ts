@@ -24,6 +24,7 @@ export async function getOrCreatePlan(params: {
       success: true,
       mock: true,
       planId: "mock-plan-id",
+      link_url: `${APP_URL}/dashboard?payment=mock_success`,
     };
   }
 
@@ -47,17 +48,34 @@ export async function getOrCreatePlan(params: {
       const existingPlan = Array.isArray(plans) 
         ? plans.find((p: any) => 
             p.price === params.planPrice && 
+            p.currency === "1" && // CLP
             p.frequency === "3" // 3 = mensual en Reveniu
           )
         : null;
 
       if (existingPlan) {
         console.log("✅ Plan existente encontrado:", existingPlan.id);
-        return {
-          success: true,
-          planId: existingPlan.id,
-          plan: existingPlan,
-        };
+        
+        // Obtener detalles completos del plan para tener link_url
+        const detailResponse = await fetch(
+          `${REVENIU_API_URL}/api/v1/plans/${existingPlan.id}`,
+          {
+            method: "GET",
+            headers: {
+              "Reveniu-Secret-Key": REVENIU_API_SECRET,
+            },
+          }
+        );
+        
+        if (detailResponse.ok) {
+          const planDetail = await detailResponse.json();
+          return {
+            success: true,
+            planId: planDetail.id,
+            link_url: planDetail.link_url,
+            plan: planDetail,
+          };
+        }
       }
     }
 
@@ -72,12 +90,14 @@ export async function getOrCreatePlan(params: {
         },
         body: JSON.stringify({
           title: params.planName,
-          amount: params.planPrice,
+          price: params.planPrice, // Campo correcto: "price" no "amount"
           currency: "1", // 1 = CLP en Reveniu
           frequency: 3, // 3 = mensual en Reveniu
           description: `Plan mensual de MicroAgenda - ${params.planName}`,
           is_custom_link: true,
           auto_renew: true,
+          redirect_to: `${APP_URL}/dashboard?payment=success`,
+          redirect_to_failure: `${APP_URL}/dashboard?payment=cancelled`,
         }),
       }
     );
@@ -103,61 +123,21 @@ export async function getOrCreatePlan(params: {
 }
 
 /**
- * Obtiene la URL de checkout de un plan
- * En Reveniu, NO se crean suscripciones por API.
- * El usuario debe completar el checkout en el link_url del plan.
+ * Prepara la URL de checkout con parámetros del usuario
+ * El link_url ya viene del plan, solo agregamos parámetros
  */
-export async function getCheckoutUrl(params: {
-  userId: string;
-  userEmail: string;
-  planId: string;
-  planName: string;
-  planPrice: number;
-}) {
-  if (!REVENIU_API_SECRET) {
-    console.log("📦 [MOCK] Obteniendo URL de checkout", params);
-    return {
-      success: true,
-      mock: true,
-      init_point: `${APP_URL}/dashboard?payment=mock_success`,
-    };
-  }
-
+export function prepareCheckoutUrl(linkUrl: string, userId: string, userEmail: string): string {
   try {
-    // Obtener detalles del plan para obtener el link_url
-    const response = await fetch(
-      `${REVENIU_API_URL}/api/v1/plans/${params.planId}`,
-      {
-        method: "GET",
-        headers: {
-          "Reveniu-Secret-Key": REVENIU_API_SECRET,
-        },
-      }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.error("Reveniu API error al obtener plan:", data);
-      return { success: false, error: data };
-    }
-
-    // El link_url del plan es la URL de checkout
-    // Agregar parámetros para identificar al usuario
-    const checkoutUrl = new URL(data.link_url);
-    checkoutUrl.searchParams.set('email', params.userEmail);
-    checkoutUrl.searchParams.set('external_id', params.userId);
-
-    console.log("✅ URL de checkout obtenida:", checkoutUrl.toString());
+    const checkoutUrl = new URL(linkUrl);
     
-    return {
-      success: true,
-      init_point: checkoutUrl.toString(),
-      plan: data,
-    };
+    // Agregar parámetros para pre-llenar el formulario
+    checkoutUrl.searchParams.set('email', userEmail);
+    checkoutUrl.searchParams.set('external_id', userId);
+    
+    return checkoutUrl.toString();
   } catch (error) {
-    console.error("Reveniu error:", error);
-    return { success: false, error };
+    console.error("Error preparando URL de checkout:", error);
+    return linkUrl; // Devolver URL original si falla
   }
 }
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
-import { getOrCreatePlan, getCheckoutUrl } from "@/lib/reveniuClient";
+import { getOrCreatePlan } from "@/lib/reveniuClient";
 
 const REVENIU_API_SECRET = process.env.REVENIU_API_SECRET;
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
@@ -64,30 +64,30 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      console.log("✅ Plan obtenido/creado:", planResult.planId);
-
-      // Paso 2: Obtener URL de checkout del plan
-      const checkoutResult = await getCheckoutUrl({
-        userId,
-        userEmail,
-        planId: planResult.planId,
-        planName,
-        planPrice,
+      console.log("✅ Plan obtenido/creado:", {
+        id: planResult.planId,
+        link_url: planResult.link_url,
       });
 
-      if (!checkoutResult.success || !checkoutResult.init_point) {
-        console.error("❌ Error obteniendo URL de checkout:", checkoutResult.error);
-        return NextResponse.json(
-          { success: false, error: "Error al obtener URL de checkout" },
-          { status: 500 }
-        );
+      // Paso 2: Preparar URL con datos del usuario (opcional)
+      let checkoutUrl = planResult.link_url;
+      
+      // Agregar parámetros si la URL lo permite
+      if (checkoutUrl) {
+        try {
+          const url = new URL(checkoutUrl);
+          url.searchParams.set('email', userEmail);
+          url.searchParams.set('external_id', userId);
+          checkoutUrl = url.toString();
+          console.log("✅ URL de checkout preparada con parámetros de usuario");
+        } catch (e) {
+          console.log("⚠️ No se pudieron agregar parámetros a la URL");
+        }
       }
-
-      console.log("✅ URL de checkout obtenida:", checkoutResult.init_point);
 
       return NextResponse.json({
         success: true,
-        init_point: checkoutResult.init_point,
+        init_point: checkoutUrl,
         plan_id: planResult.planId,
       });
     } catch (error: any) {
