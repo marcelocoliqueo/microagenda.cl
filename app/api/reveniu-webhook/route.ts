@@ -36,14 +36,21 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { event, data } = body;
+    
+    // Reveniu envía: { data: { event: '...', data: {...} } }
+    // Necesitamos extraer correctamente
+    const webhookData = body.data || body;
+    const event = webhookData.event;
+    const data = webhookData.data || webhookData;
 
-    console.log("Reveniu Webhook received:", { event, data });
+    console.log("📨 Reveniu Webhook received:", JSON.stringify(body, null, 2));
+    console.log("📋 Event:", event);
+    console.log("📦 Data:", JSON.stringify(data, null, 2));
 
     // ============================================
-    // 1. WEBHOOK: Suscripción Activada
+    // 1. WEBHOOK: Primer Pago Exitoso (Suscripción Activada)
     // ============================================
-    if (event === "subscription_activated") {
+    if (event === "subscription_activated" || event === "subscription_payment_succeeded") {
       const subscriptionId = data.subscription_id;
       const externalId = data.subscription_external_id;
       console.log(`📝 Procesando suscripción activada: ${subscriptionId}`);
@@ -57,11 +64,26 @@ export async function POST(request: NextRequest) {
 
       const subscription = subscriptionResult.subscription;
 
-      const userId = subscription.metadata?.user_id || externalId;
+      let userId = subscription.metadata?.user_id || externalId;
       const planId = subscription.plan_id || subscription.plan?.id;
 
+      // Si no hay user_id en metadata, buscarlo por email en Supabase
+      if (!userId && subscription.customer?.email) {
+        console.log(`🔍 Buscando usuario por email: ${subscription.customer.email}`);
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("email", subscription.customer.email)
+          .single();
+        
+        if (profile) {
+          userId = profile.id;
+          console.log(`✅ Usuario encontrado por email: ${userId}`);
+        }
+      }
+
       if (!userId) {
-        console.error("No user ID in subscription");
+        console.error("❌ No se pudo determinar user_id. Metadata:", subscription.metadata, "Email:", subscription.customer?.email);
         return NextResponse.json({ error: "No user ID" }, { status: 400 });
       }
 
