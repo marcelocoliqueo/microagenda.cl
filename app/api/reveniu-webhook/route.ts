@@ -9,19 +9,20 @@ import {
 import { PLAN_NAME, PLAN_CURRENCY } from "@/lib/constants";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
-const REVENIU_WEBHOOK_SECRET = process.env.REVENIU_WEBHOOK_SECRET;
+const REVENIU_API_SECRET = process.env.REVENIU_API_SECRET;
 
 /**
  * Valida el webhook de Reveniu usando el header Reveniu-Secret-Key
+ * Usa la misma REVENIU_API_SECRET que las llamadas API
  */
 function validateWebhook(request: NextRequest): boolean {
-  if (!REVENIU_WEBHOOK_SECRET) {
-    console.warn("⚠️ REVENIU_WEBHOOK_SECRET no configurado, saltando validación");
+  if (!REVENIU_API_SECRET) {
+    console.warn("⚠️ REVENIU_API_SECRET no configurado, saltando validación");
     return true; // En desarrollo, permitir sin validación
   }
 
   const secretKey = request.headers.get("Reveniu-Secret-Key");
-  return secretKey === REVENIU_WEBHOOK_SECRET;
+  return secretKey === REVENIU_API_SECRET;
 }
 
 export async function POST(request: NextRequest) {
