@@ -344,7 +344,7 @@ export default function PublicAgendaPage() {
         try {
           // Email al cliente (ahora siempre requerido)
           if (formData.client_email) {
-            await fetch("/api/send-new-reservation-emails", {
+            const clientEmailResponse = await fetch("/api/send-new-reservation-emails", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
@@ -352,10 +352,14 @@ export default function PublicAgendaPage() {
                 type: "client",
               }),
             });
+            
+            if (!clientEmailResponse.ok) {
+              console.warn("No se pudo enviar email al cliente:", clientEmailResponse.status);
+            }
           }
           
           // Email al profesional
-          await fetch("/api/send-new-reservation-emails", {
+          const professionalEmailResponse = await fetch("/api/send-new-reservation-emails", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -363,6 +367,10 @@ export default function PublicAgendaPage() {
               type: "professional",
             }),
           });
+          
+          if (!professionalEmailResponse.ok) {
+            console.warn("No se pudo enviar email al profesional:", professionalEmailResponse.status);
+          }
         } catch (emailError) {
           console.error("Error enviando emails:", emailError);
           // No fallar el flujo si los emails fallan
