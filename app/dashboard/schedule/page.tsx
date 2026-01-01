@@ -296,15 +296,15 @@ export default function SchedulePage() {
         // El nuevo bloque empieza donde termina el último bloque
         newStart = lastBlock.end;
         
-        // Calcular hora de fin: +4 horas desde el inicio, máximo hasta las 20:00
+        // Calcular hora de fin: +4 horas desde el inicio, máximo hasta las 24:00
         const calculatedEnd = addHours(newStart, 4);
-        const maxEnd = "20:00";
+        const maxEnd = "24:00";
         
         // Usar el menor entre el calculado y el máximo
         newEnd = compareTime(calculatedEnd, maxEnd) <= 0 ? calculatedEnd : maxEnd;
         
-        // Si el nuevo bloque empezaría después de las 20:00, usar valores por defecto
-        if (compareTime(newStart, "20:00") >= 0) {
+        // Si el nuevo bloque empezaría después de las 24:00, usar valores por defecto
+        if (compareTime(newStart, "24:00") >= 0) {
           newStart = "09:00";
           newEnd = "13:00";
         }
