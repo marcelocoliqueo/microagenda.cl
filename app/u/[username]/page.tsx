@@ -219,6 +219,36 @@ export default function PublicAgendaPage() {
         setLoading(false);
         return;
       }
+
+      // Verificar estado de suscripción del profesional
+      // Si está expired o inactive, verificar si hay suscripción activa (sincronización)
+      if (profile.subscription_status === "expired" || profile.subscription_status === "inactive") {
+        const { data: activeSubscription } = await supabase
+          .from("subscriptions")
+          .select("id, status, renewal_date")
+          .eq("user_id", profile.id)
+          .eq("status", "active")
+          .single();
+
+        if (activeSubscription) {
+          const renewalDate = new Date(activeSubscription.renewal_date);
+          const now = new Date();
+
+          // Si la fecha de renovación es futura, la suscripción está activa
+          if (renewalDate > now) {
+            console.log("✅ Encontrada suscripción activa desincronizada - Sincronizando...");
+            
+            // Sincronizar el estado del perfil
+            await supabase
+              .from("profiles")
+              .update({ subscription_status: "active" })
+              .eq("id", profile.id);
+
+            profile.subscription_status = "active";
+          }
+        }
+      }
+
       setProfile(profile);
 
       // Get buffer time from profile
@@ -377,6 +407,27 @@ export default function PublicAgendaPage() {
   if (!profile) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4"><div className="text-center max-w-md"><h1 className="text-2xl font-bold text-slate-900 mb-4">Profesional no encontrado</h1><p className="text-slate-600 mb-6">El enlace que intentas acceder no existe o ha sido deshabilitado.</p><Link href="/"><Button>Volver al inicio</Button></Link></div></div>
+    );
+  }
+
+  // Verificar si el profesional tiene suscripción activa
+  if (profile.subscription_status === "expired" || profile.subscription_status === "inactive") {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 via-white to-slate-50">
+        <div className="text-center max-w-md">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Calendar className="w-8 h-8 text-red-600" />
+          </div>
+          <h1 className="text-2xl font-bold text-slate-900 mb-4">Servicio Temporalmente No Disponible</h1>
+          <p className="text-slate-600 mb-6">
+            El profesional {profile.business_name || profile.name} ha suspendido temporalmente su servicio de reservas.
+            Por favor, intenta más tarde o contacta directamente con el profesional.
+          </p>
+          <Link href="/">
+            <Button>Volver al inicio</Button>
+          </Link>
+        </div>
+      </div>
     );
   }
 
