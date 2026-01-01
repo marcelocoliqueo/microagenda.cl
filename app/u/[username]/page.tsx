@@ -328,7 +328,7 @@ export default function PublicAgendaPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!profile || !selectedService) return;
+    if (!profile || !selectedService || !formData.client_email) return;
     try {
       setSubmitting(true);
       const { data: appointmentData, error } = await supabase.from("appointments").insert([{
@@ -336,7 +336,7 @@ export default function PublicAgendaPage() {
         service_id: formData.service_id,
           client_name: formData.client_name,
           client_phone: sanitizePhone(formData.client_phone),
-          client_email: formData.client_email || null,
+          client_email: formData.client_email,
           date: formData.date,
         time: formData.time + ":00",
           status: profile.auto_confirm ? "confirmed" : "pending",
@@ -347,7 +347,7 @@ export default function PublicAgendaPage() {
       // Enviar emails después de crear la reserva
       if (appointmentData) {
         try {
-          // Email al cliente si tiene email
+          // Email al cliente (ahora siempre requerido)
           if (formData.client_email) {
             await fetch("/api/send-new-reservation-emails", {
               method: "POST",
@@ -965,7 +965,7 @@ export default function PublicAgendaPage() {
                 <form onSubmit={handleSubmit} className="space-y-3">
                   {formData.date && formData.time && (<div className="rounded-lg bg-primary/5 border border-primary/20 p-2 text-xs space-y-1"><div className="flex justify-between"><span className="font-medium">{selectedService.name}</span><span>{formatCurrency(selectedService.price)}</span></div><div className="text-slate-600">{formatDateFriendly(formData.date)} · {formData.time}</div></div>)}
                   <div><label htmlFor="client_name" className="text-xs font-medium text-slate-700 block mb-1">Nombre</label><Input id="client_name" name="client_name" placeholder="Tu nombre completo" value={formData.client_name} onChange={(e) => setFormData({ ...formData, client_name: e.target.value })} required className="h-10" /></div>
-                  <div><label htmlFor="client_email" className="text-xs font-medium text-slate-700 block mb-1">Email <span className="text-slate-400 font-normal">(opcional)</span></label><Input id="client_email" name="client_email" type="email" placeholder="tu@email.com" value={formData.client_email} onChange={(e) => setFormData({ ...formData, client_email: e.target.value })} className="h-10" /></div>
+                  <div><label htmlFor="client_email" className="text-xs font-medium text-slate-700 block mb-1">Email</label><Input id="client_email" name="client_email" type="email" placeholder="tu@email.com" value={formData.client_email} onChange={(e) => setFormData({ ...formData, client_email: e.target.value })} required className="h-10" /></div>
                   <div><label htmlFor="client_phone" className="text-xs font-medium text-slate-700 block mb-1">Teléfono</label><Input id="client_phone" name="client_phone" type="tel" placeholder="+56 9 1234 5678" value={formData.client_phone} onChange={(e) => setFormData({ ...formData, client_phone: e.target.value })} required className="h-10" /></div>
                 </form>
               </div>
@@ -984,7 +984,7 @@ export default function PublicAgendaPage() {
                 </div>
                 <h5 className="text-xl font-bold text-slate-900 mb-2">¡Reserva confirmada!</h5>
                 <p className="text-sm text-slate-600 mb-4">{profile.auto_confirm ? "Tu cita ha sido confirmada automáticamente" : "Recibirás confirmación pronto"}</p>
-                <div className="w-full bg-slate-50 rounded-lg p-4 text-left"><div className="text-xs text-slate-600 space-y-1"><div><span className="font-medium">Servicio:</span> {selectedService.name}</div><div><span className="font-medium">Duración:</span> {selectedService.duration} min</div><div><span className="font-medium">Fecha:</span> {formatDateFriendly(formData.date)}, {formData.time}</div><div><span className="font-medium">Cliente:</span> {formData.client_name}</div><div><span className="font-medium">Total:</span> {formatCurrency(selectedService.price)}</div></div></div>
+                <div className="w-full bg-slate-50 rounded-lg p-4 text-left"><div className="text-xs text-slate-600 space-y-1"><div><span className="font-medium">Servicio:</span> {selectedService.name}</div><div><span className="font-medium">Duración:</span> {selectedService.duration} min</div><div><span className="font-medium">Fecha:</span> {formatDateFriendly(formData.date)}, {formData.time}</div><div><span className="font-medium">Cliente:</span> {formData.client_name}</div><div><span className="font-medium">Email:</span> {formData.client_email}</div><div><span className="font-medium">Total:</span> {formatCurrency(selectedService.price)}</div></div></div>
               </div>
             )}
 
@@ -1007,7 +1007,7 @@ export default function PublicAgendaPage() {
                 <Button 
                   size="sm" 
                   onClick={handleSubmit} 
-                  disabled={submitting || !formData.client_name || !formData.client_phone} 
+                  disabled={submitting || !formData.client_name || !formData.client_email || !formData.client_phone} 
                   className="text-white text-sm disabled:opacity-50"
                   style={{
                     background: `linear-gradient(to right, var(--color-primary), var(--color-accent))`
