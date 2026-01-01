@@ -288,90 +288,137 @@ export default function SchedulePage() {
     }));
   }
 
+  // Función para validar solapamientos entre bloques
+  function hasOverlappingBlocks(blocks: TimeBlock[]): { hasOverlap: boolean; message?: string } {
+    if (blocks.length <= 1) return { hasOverlap: false };
+
+    const parseTime = (time: string) => {
+      const [hours, minutes] = time.split(':').map(Number);
+      return hours * 60 + minutes;
+    };
+
+    for (let i = 0; i < blocks.length; i++) {
+      const block1 = blocks[i];
+      
+      // Validar que start < end dentro del mismo bloque
+      if (block1.start >= block1.end) {
+        return {
+          hasOverlap: true,
+          message: `El bloque ${i + 1} tiene hora de inicio mayor o igual a la hora de fin`
+        };
+      }
+
+      // Comparar con otros bloques
+      for (let j = i + 1; j < blocks.length; j++) {
+        const block2 = blocks[j];
+        
+        const start1 = parseTime(block1.start);
+        const end1 = parseTime(block1.end);
+        const start2 = parseTime(block2.start);
+        const end2 = parseTime(block2.end);
+        
+        // Detectar solapamiento
+        const overlaps = (start1 < end2 && end1 > start2);
+        
+        if (overlaps) {
+          let message = '';
+          if (start1 <= start2 && end1 >= end2) {
+            message = `El bloque ${i + 1} (${block1.start}-${block1.end}) contiene completamente al bloque ${j + 1} (${block2.start}-${block2.end})`;
+          } else if (start2 <= start1 && end2 >= end1) {
+            message = `El bloque ${j + 1} (${block2.start}-${block2.end}) contiene completamente al bloque ${i + 1} (${block1.start}-${block1.end})`;
+          } else {
+            message = `El bloque ${i + 1} (${block1.start}-${block1.end}) se solapa con el bloque ${j + 1} (${block2.start}-${block2.end})`;
+          }
+          return { hasOverlap: true, message };
+        }
+      }
+    }
+
+    return { hasOverlap: false };
+  }
+
   function updateBlock(day: string, blockId: string, field: "start" | "end", value: string) {
-    setAvailability((prev) => ({
-      ...prev,
-      [day]: {
-        ...prev[day],
-        blocks: prev[day].blocks.map((block) =>
-          block.id === blockId ? { ...block, [field]: value } : block
-        ),
-      },
-    }));
+    setAvailability((prev) => {
+      const updated = {
+        ...prev,
+        [day]: {
+          ...prev[day],
+          blocks: prev[day].blocks.map((block) =>
+            block.id === blockId ? { ...block, [field]: value } : block
+          ),
+        },
+      };
+
+      // Validar solapamientos en tiempo real
+      const dayConfig = updated[day];
+      if (dayConfig.enabled && dayConfig.blocks.length > 0) {
+        const validation = hasOverlappingBlocks(dayConfig.blocks);
+        if (validation.hasOverlap && validation.message) {
+          // Mostrar toast de advertencia
+          toast({
+            title: "⚠️ Horarios solapados",
+            description: `${dayNames[day]}: ${validation.message}`,
+            variant: "destructive",
+          });
+        }
+      }
+
+      return updated;
+    });
+  }
+
+  // Función para verificar si hay solapamientos en todos los días
+  function hasAnyOverlaps(): { hasOverlap: boolean; conflicts: Array<{ day: string; message: string }> } {
+    const conflicts: Array<{ day: string; message: string }> = [];
+
+    for (const [day, config] of Object.entries(availability)) {
+      if (config.enabled && config.blocks.length > 0) {
+        // Validar cada bloque individualmente
+        for (let i = 0; i < config.blocks.length; i++) {
+          const block = config.blocks[i];
+          
+          // Validar que start < end
+          if (block.start >= block.end) {
+            conflicts.push({
+              day,
+              message: `La hora de inicio debe ser menor que la hora de fin en el bloque ${i + 1}`
+            });
+          }
+        }
+        
+        // Validar solapamientos entre bloques
+        const validation = hasOverlappingBlocks(config.blocks);
+        if (validation.hasOverlap && validation.message) {
+          conflicts.push({
+            day,
+            message: validation.message
+          });
+        }
+      }
+    }
+
+    return {
+      hasOverlap: conflicts.length > 0,
+      conflicts
+    };
   }
 
   async function handleSaveAvailability() {
     if (!user) return;
 
+    // Validar solapamientos antes de guardar
+    const validation = hasAnyOverlaps();
+    if (validation.hasOverlap) {
+      const firstConflict = validation.conflicts[0];
+      toast({
+        title: "Error de validación",
+        description: `${dayNames[firstConflict.day]}: ${firstConflict.message}`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
-      // Validar que no haya bloques entrelazados
-      for (const [day, config] of Object.entries(availability)) {
-        if (config.enabled && config.blocks.length > 0) {
-          const blocks = config.blocks.slice();
-          
-          // Validar cada bloque individualmente
-          for (let i = 0; i < blocks.length; i++) {
-            const block = blocks[i];
-            
-            // Validar que start < end
-            if (block.start >= block.end) {
-              toast({
-                title: "Error de validación",
-                description: `${dayNames[day]}: La hora de inicio debe ser menor que la hora de fin en el bloque ${i + 1}`,
-                variant: "destructive",
-              });
-              return;
-            }
-          }
-          
-          // Validar solapamientos entre todos los bloques
-          if (blocks.length > 1) {
-            for (let i = 0; i < blocks.length; i++) {
-              for (let j = i + 1; j < blocks.length; j++) {
-                const block1 = blocks[i];
-                const block2 = blocks[j];
-                
-                // Convertir a minutos para comparar fácilmente
-                const parseTime = (time: string) => {
-                  const [hours, minutes] = time.split(':').map(Number);
-                  return hours * 60 + minutes;
-                };
-                
-                const start1 = parseTime(block1.start);
-                const end1 = parseTime(block1.end);
-                const start2 = parseTime(block2.start);
-                const end2 = parseTime(block2.end);
-                
-                // Detectar solapamiento
-                const overlaps = (start1 < end2 && end1 > start2);
-                
-                if (overlaps) {
-                  // Determinar el tipo de solapamiento para un mensaje más claro
-                  let message = '';
-                  
-                  if (start1 <= start2 && end1 >= end2) {
-                    // Bloque 1 contiene completamente a bloque 2
-                    message = `El bloque ${block1.start}-${block1.end} contiene completamente al bloque ${block2.start}-${block2.end}. Elimina uno de ellos o ajústalos para que no se solapen.`;
-                  } else if (start2 <= start1 && end2 >= end1) {
-                    // Bloque 2 contiene completamente a bloque 1
-                    message = `El bloque ${block2.start}-${block2.end} contiene completamente al bloque ${block1.start}-${block1.end}. Elimina uno de ellos o ajústalos para que no se solapen.`;
-                  } else {
-                    // Solapamiento parcial
-                    message = `El bloque ${block1.start}-${block1.end} se solapa parcialmente con ${block2.start}-${block2.end}. Ajusta los horarios para que no se entrelacen.`;
-                  }
-                  
-                  toast({
-                    title: "Error de validación",
-                    description: `${dayNames[day]}: ${message}`,
-                    variant: "destructive",
-                  });
-                  return;
-                }
-              }
-            }
-          }
-        }
-      }
       
       // Primero eliminar todos los registros existentes del usuario
       const { error: deleteError } = await supabase
@@ -613,12 +660,21 @@ export default function SchedulePage() {
                       </div>
 
                       <div className="space-y-3">
-                        {config.blocks.map((block, index) => (
+                        {config.blocks.map((block, index) => {
+                          // Verificar si este bloque tiene solapamiento
+                          const validation = hasOverlappingBlocks(config.blocks);
+                          const blockHasConflict = validation.hasOverlap;
+                          
+                          return (
                           <motion.div
                             key={block.id}
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200"
+                            className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${
+                              blockHasConflict 
+                                ? 'bg-red-50 border-red-300' 
+                                : 'bg-slate-50 border-slate-200'
+                            }`}
                           >
                             <span className="text-sm text-slate-500 w-8">
                               {index + 1}
@@ -663,20 +719,52 @@ export default function SchedulePage() {
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             )}
+                            {blockHasConflict && (
+                              <div className="flex items-center gap-1 text-xs text-red-600">
+                                <Ban className="w-3 h-3" />
+                                <span>Conflicto</span>
+                              </div>
+                            )}
                           </motion.div>
-                        ))}
+                          );
+                        })}
                       </div>
+                      {hasOverlappingBlocks(config.blocks).hasOverlap && (
+                        <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
+                          <p className="text-xs text-red-700 font-medium">
+                            ⚠️ Hay horarios solapados. Ajusta los bloques para que no se entrelacen.
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
               ))}
 
               <div className="pt-4 border-t border-slate-200">
+                {hasAnyOverlaps().hasOverlap && (
+                  <div className="mb-4 p-3 bg-red-50 border-2 border-red-200 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <Ban className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-red-900 mb-1">
+                          ⚠️ No se pueden guardar los horarios
+                        </p>
+                        <p className="text-xs text-red-700">
+                          Hay conflictos de horarios solapados. Por favor corrige los bloques marcados en rojo antes de guardar.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <Button
                   onClick={handleSaveAvailability}
-                  className="bg-gradient-to-r from-primary to-accent hover:brightness-110"
+                  disabled={hasAnyOverlaps().hasOverlap}
+                  className="bg-gradient-to-r from-primary to-accent hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{
-                    backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-accent))`
+                    backgroundImage: hasAnyOverlaps().hasOverlap 
+                      ? 'none' 
+                      : `linear-gradient(to right, var(--color-primary), var(--color-accent))`
                   }}
                 >
                   <Save className="w-4 h-4 mr-2" />
