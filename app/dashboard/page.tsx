@@ -985,7 +985,7 @@ export default function DashboardPage() {
                       </h3>
                       <p className="text-xs sm:text-sm text-slate-600 mb-2">
                         {profile.subscription_status === "trial"
-                          ? "Disfruta de todas las funciones premium durante 3 días. Luego solo " + formatCurrency(PLAN_PRICE) + "/mes"
+                          ? "Disfruta de todas las funciones premium durante 15 días. Luego solo " + formatCurrency(PLAN_PRICE) + "/mes"
                           : "Activa tu plan por solo " + formatCurrency(PLAN_PRICE) + "/mes y desbloquea todo el potencial"}
                       </p>
                       <div className="flex flex-wrap gap-2">

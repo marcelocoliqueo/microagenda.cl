@@ -121,7 +121,7 @@
 **Pasos**:
 1. Crear 4 citas:
    - Cita A: Mañana, estado `confirmed`
-   - Cita B: En 3 días, estado `pending`
+   - Cita B: En 15 días, estado `pending`
    - Cita C: En 10 días, estado `confirmed`
    - Cita D: Hoy, estado `completed`
 2. Hacer clic en "Próximas"

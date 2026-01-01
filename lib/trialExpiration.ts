@@ -4,7 +4,7 @@ import { Resend } from "resend";
 import { PLAN_PRICE, formatCurrency } from "./constants";
 
 // Configuración
-const TRIAL_DAYS = 3;
+const TRIAL_DAYS = 15;
 
 // Cliente Supabase Admin (Service Role para bypass RLS)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";

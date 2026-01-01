@@ -903,7 +903,7 @@ export function getTrialExpiredEmail(params: {
   const content = `
     <p>Hola <strong>${params.userName}</strong>,</p>
     <div class="badge badge-warning">⏳ Periodo de Prueba Finalizado</div>
-    <p>Tu periodo de prueba gratuito de 3 días ha terminado.</p>
+    <p>Tu periodo de prueba gratuito de 15 días ha terminado.</p>
     <p>Esperamos que hayas disfrutado de todas las funcionalidades premium de ${APP_NAME}.</p>
     <div class="info-box">
       <p>Para seguir gestionando tus citas y mantener tu agenda activa, por favor activa tu suscripción.</p>

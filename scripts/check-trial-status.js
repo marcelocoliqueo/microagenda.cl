@@ -39,7 +39,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
     }
 });
 
-const TRIAL_DAYS = 3;
+const TRIAL_DAYS = 15;
 const userEmail = process.argv[2] || 'marcelo.coliqueo@gmail.com';
 
 async function checkTrialStatus() {

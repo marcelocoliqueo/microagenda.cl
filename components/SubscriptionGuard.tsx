@@ -119,23 +119,23 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
         return;
       }
 
-      // Verificar si el trial expiró por fecha (3 días)
+      // Verificar si el trial expiró por fecha (15 días)
       if (profileData.subscription_status === "trial") {
         const createdAt = new Date(profileData.created_at);
         const now = new Date();
         const daysSinceCreation = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
-        
+
         console.log(`📅 Trial check: Cuenta creada hace ${daysSinceCreation} días`);
-        
-        if (daysSinceCreation >= 3) {
+
+        if (daysSinceCreation >= 15) {
           console.log("⏰ Trial expirado - Actualizando estado...");
-          
+
           // Actualizar estado a expired
           await supabase
             .from("profiles")
             .update({ subscription_status: "expired" })
             .eq("id", profileData.id);
-          
+
           // Actualizar estado local
           profileData.subscription_status = "expired";
         }
