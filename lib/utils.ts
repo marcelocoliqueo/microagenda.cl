@@ -154,15 +154,29 @@ export function getDayName(date: Date | string): string {
  * Formatea fecha para mostrar de forma amigable
  */
 export function formatDateFriendly(date: Date | string): string {
-  const d = typeof date === "string" ? new Date(date) : date;
+  // Normalizar la fecha a medianoche en hora local para evitar problemas de zona horaria
+  let d: Date;
+  if (typeof date === "string") {
+    // Si es un string tipo "YYYY-MM-DD", crear fecha en hora local
+    const [year, month, day] = date.split('-').map(Number);
+    d = new Date(year, month - 1, day);
+  } else {
+    d = new Date(date);
+  }
+  
+  // Normalizar a medianoche en hora local
+  d.setHours(0, 0, 0, 0);
+  
   const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
-  if (d.toDateString() === today.toDateString()) {
+  if (d.getTime() === today.getTime()) {
     return "Hoy";
   }
-  if (d.toDateString() === tomorrow.toDateString()) {
+  if (d.getTime() === tomorrow.getTime()) {
     return "Mañana";
   }
 

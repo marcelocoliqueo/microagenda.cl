@@ -963,7 +963,21 @@ export default function PublicAgendaPage() {
               <div className="flex-1">
                 <h5 className="font-semibold text-slate-900 mb-4">Completa tus datos</h5>
                 <form onSubmit={handleSubmit} className="space-y-3">
-                  {formData.date && formData.time && (<div className="rounded-lg bg-primary/5 border border-primary/20 p-2 text-xs space-y-1"><div className="flex justify-between"><span className="font-medium">{selectedService.name}</span><span>{formatCurrency(selectedService.price)}</span></div><div className="text-slate-600">{formatDateFriendly(formData.date)} · {formData.time}</div></div>)}
+                  {formData.date && formData.time && (
+                    <div 
+                      className="rounded-lg p-2 text-xs space-y-1 border"
+                      style={{
+                        backgroundColor: `rgba(var(--color-primary-rgb, 16, 185, 129), 0.1)`,
+                        borderColor: `rgba(var(--color-primary-rgb, 16, 185, 129), 0.2)`
+                      }}
+                    >
+                      <div className="flex justify-between">
+                        <span className="font-medium">{selectedService.name}</span>
+                        <span style={{ color: "var(--color-primary)" }}>{formatCurrency(selectedService.price)}</span>
+                      </div>
+                      <div className="text-slate-600">{formatDateFriendly(formData.date)} · {formData.time}</div>
+                    </div>
+                  )}
                   <div><label htmlFor="client_name" className="text-xs font-medium text-slate-700 block mb-1">Nombre</label><Input id="client_name" name="client_name" placeholder="Tu nombre completo" value={formData.client_name} onChange={(e) => setFormData({ ...formData, client_name: e.target.value })} required className="h-10" /></div>
                   <div><label htmlFor="client_email" className="text-xs font-medium text-slate-700 block mb-1">Email</label><Input id="client_email" name="client_email" type="email" placeholder="tu@email.com" value={formData.client_email} onChange={(e) => setFormData({ ...formData, client_email: e.target.value })} required className="h-10" /></div>
                   <div><label htmlFor="client_phone" className="text-xs font-medium text-slate-700 block mb-1">Teléfono</label><Input id="client_phone" name="client_phone" type="tel" placeholder="+56 9 1234 5678" value={formData.client_phone} onChange={(e) => setFormData({ ...formData, client_phone: e.target.value })} required className="h-10" /></div>
