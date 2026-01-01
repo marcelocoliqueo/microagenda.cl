@@ -147,11 +147,17 @@ export async function getOrCreatePlan(params: {
 export function prepareCheckoutUrl(linkUrl: string, userId: string, userEmail: string): string {
   try {
     const checkoutUrl = new URL(linkUrl);
-    
+
     // Agregar parámetros para pre-llenar el formulario
     checkoutUrl.searchParams.set('email', userEmail);
     checkoutUrl.searchParams.set('external_id', userId);
-    
+
+    // Agregar parámetros de redirección para después del pago
+    // Reveniu debería redirigir a estas URLs después del pago
+    checkoutUrl.searchParams.set('success_url', `${APP_URL}/dashboard?reveniu=success`);
+    checkoutUrl.searchParams.set('cancel_url', `${APP_URL}/dashboard?reveniu=cancelled`);
+    checkoutUrl.searchParams.set('failure_url', `${APP_URL}/dashboard?reveniu=failed`);
+
     return checkoutUrl.toString();
   } catch (error) {
     console.error("Error preparando URL de checkout:", error);

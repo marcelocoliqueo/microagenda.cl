@@ -49,9 +49,9 @@ export async function POST(request: NextRequest) {
     console.log("📦 Data:", JSON.stringify(data, null, 2));
 
     // ============================================
-    // 1. WEBHOOK: Primer Pago Exitoso (Suscripción Activada)
+    // 1. WEBHOOK: Suscripción Activada (Primer pago exitoso)
     // ============================================
-    if (event === "subscription_activated" || event === "subscription_payment_succeeded") {
+    if (event === "subscription_activated") {
       const subscriptionId = data.subscription_id;
       const externalId = data.subscription_external_id;
       console.log(`📝 Procesando suscripción activada: ${subscriptionId}`);
@@ -159,7 +159,7 @@ export async function POST(request: NextRequest) {
     }
 
     // ============================================
-    // 2. WEBHOOK: Pago Exitoso (Cobro Recurrente)
+    // 1.1. WEBHOOK: Pago Recurrente Exitoso (Renovación)
     // ============================================
     if (event === "subscription_payment_succeeded") {
       const subscriptionId = data.subscription_id;
@@ -167,12 +167,12 @@ export async function POST(request: NextRequest) {
       const amount = data.amount;
       const buyOrder = data.buy_order;
       const issuedOn = data.issued_on;
-      
+
       console.log(`💳 Procesando pago recurrente exitoso: ${buyOrder} para suscripción ${subscriptionId}`);
 
       // Obtener suscripción para obtener el user_id
       const subResult = await getSubscriptionInfo(subscriptionId);
-      
+
       let userId: string | null = null;
       if (subResult.success && subResult.subscription) {
         userId = subResult.subscription.metadata?.user_id || externalId;
@@ -183,6 +183,18 @@ export async function POST(request: NextRequest) {
       if (!userId) {
         console.error("No user ID in payment");
         return NextResponse.json({ error: "No user ID" }, { status: 400 });
+      }
+
+      // Verificar que la suscripción ya existe (es renovación, no creación)
+      const { data: existingSub } = await supabase
+        .from("subscriptions")
+        .select("id, status")
+        .eq("user_id", userId)
+        .single();
+
+      if (!existingSub) {
+        console.error(`❌ No existe suscripción para usuario ${userId}. Este evento debería ser subscription_activated`);
+        return NextResponse.json({ error: "Subscription not found" }, { status: 400 });
       }
 
       // Obtener datos del usuario
@@ -196,7 +208,7 @@ export async function POST(request: NextRequest) {
       const userName = profile?.name || profile?.business_name || "Profesional MicroAgenda";
       const formattedAmount = formatCurrency(amount || 0, "CLP");
 
-      // Actualizar fecha de renovación de la suscripción
+      // Actualizar fecha de renovación de la suscripción existente
       const renewalDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
       const { error: updateSubError } = await supabase
@@ -211,13 +223,13 @@ export async function POST(request: NextRequest) {
         console.error("Error actualizando suscripción:", updateSubError);
       }
 
-      // Asegurarse de que el perfil esté activo
+      // Asegurarse de que el perfil esté activo (por si acaso)
       await supabase
         .from("profiles")
         .update({ subscription_status: "active" })
         .eq("id", userId);
 
-      // Registrar el pago
+      // Registrar el pago recurrente
       await supabase.from("payments").insert([
         {
           user_id: userId,
@@ -228,7 +240,7 @@ export async function POST(request: NextRequest) {
         },
       ]);
 
-      console.log(`✅ Pago exitoso procesado para usuario ${userId}`);
+      console.log(`✅ Pago recurrente exitoso procesado para usuario ${userId}`);
 
       // Enviar email de confirmación de renovación
       if (userEmail) {

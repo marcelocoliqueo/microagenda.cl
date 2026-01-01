@@ -18,24 +18,137 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
+  const [subscriptionPolling, setSubscriptionPolling] = useState(false);
 
   useEffect(() => {
     checkAuth();
-    
+
     // Verificar si viene de un pago exitoso (mock o real)
     const urlParams = new URLSearchParams(window.location.search);
     const paymentStatus = urlParams.get("payment");
-    
+    const reveniuStatus = urlParams.get("reveniu"); // Parámetro específico de Reveniu
+
     if (paymentStatus === "mock_success") {
       // En modo mock, activar suscripción automáticamente
       handleMockPaymentSuccess();
-    } else if (paymentStatus === "success") {
-      // Si viene de un pago real, refrescar el perfil (el webhook debería haber actualizado)
-      setTimeout(() => {
-        checkAuth();
-      }, 2000);
+    } else if (paymentStatus === "success" || reveniuStatus === "success") {
+      // Si viene de un pago real (MercadoPago o Reveniu), esperar y refrescar múltiples veces
+      handlePaymentSuccess();
     }
   }, []);
+
+  // Polling para verificar cambios de estado de suscripción
+  useEffect(() => {
+    if (!profile || loading) return;
+
+    // Si el perfil está en trial o expired, hacer polling para verificar si cambió
+    if (profile.subscription_status === "trial" || profile.subscription_status === "expired") {
+      if (!subscriptionPolling) {
+        console.log("🔄 Iniciando polling de estado de suscripción...");
+        setSubscriptionPolling(true);
+
+        const pollInterval = setInterval(async () => {
+          try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return;
+
+            const { data: updatedProfile, error } = await supabase
+              .from("profiles")
+              .select("subscription_status")
+              .eq("id", session.user.id)
+              .single();
+
+            if (!error && updatedProfile) {
+              if (updatedProfile.subscription_status === "active") {
+                console.log("✅ ¡Estado cambió a active durante polling!");
+                setProfile({ ...profile, subscription_status: "active" });
+                setSubscriptionPolling(false);
+                clearInterval(pollInterval);
+              }
+            }
+          } catch (error) {
+            console.error("Error en polling:", error);
+          }
+        }, 5000); // Verificar cada 5 segundos
+
+        // Detener polling después de 5 minutos
+        setTimeout(() => {
+          console.log("⏰ Deteniendo polling automático");
+          setSubscriptionPolling(false);
+          clearInterval(pollInterval);
+        }, 5 * 60 * 1000);
+
+        return () => clearInterval(pollInterval);
+      }
+    } else {
+      // Si el estado ya es active, detener polling
+      if (subscriptionPolling) {
+        setSubscriptionPolling(false);
+      }
+    }
+  }, [profile, loading, subscriptionPolling]);
+
+  async function handlePaymentSuccess() {
+    console.log("💳 Procesando pago exitoso, esperando actualización del webhook...");
+
+    // Intentar refrescar múltiples veces para dar tiempo al webhook
+    const maxAttempts = 10;
+    const delayMs = 2000; // 2 segundos entre intentos
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      console.log(`🔄 Intento ${attempt}/${maxAttempts} de verificar estado de suscripción...`);
+
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (!session) {
+          console.log("❌ No hay sesión activa");
+          continue;
+        }
+
+        const { data: profileData, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", session.user.id)
+          .single();
+
+        if (error) {
+          console.error("❌ Error obteniendo perfil:", error);
+          continue;
+        }
+
+        console.log(`📊 Estado actual: ${profileData.subscription_status}`);
+
+        // Si el estado cambió a activo, refrescar completamente
+        if (profileData.subscription_status === "active") {
+          console.log("✅ ¡Suscripción activada exitosamente!");
+          setProfile(profileData);
+
+          // Limpiar parámetros de URL
+          const url = new URL(window.location.href);
+          url.searchParams.delete("payment");
+          url.searchParams.delete("reveniu");
+          window.history.replaceState({}, "", url.toString());
+
+          return;
+        }
+
+        // Si sigue en trial o expired, continuar esperando
+        if (profileData.subscription_status === "trial" || profileData.subscription_status === "expired") {
+          console.log(`⏳ Estado sigue siendo ${profileData.subscription_status}, esperando webhook...`);
+          continue;
+        }
+
+      } catch (error) {
+        console.error("❌ Error en verificación:", error);
+      }
+    }
+
+    console.log("⚠️ No se pudo verificar la activación automática. El webhook puede estar tardando más de lo esperado.");
+    console.log("💡 El usuario puede refrescar la página manualmente para ver los cambios.");
+  }
 
   async function handleMockPaymentSuccess() {
     if (!profile) {
