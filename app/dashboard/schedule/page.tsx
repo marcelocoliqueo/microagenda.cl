@@ -261,21 +261,70 @@ export default function SchedulePage() {
     }
   }
 
+  // Función auxiliar para sumar horas a una hora
+  function addHours(time: string, hours: number): string {
+    const [h, m] = time.split(':').map(Number);
+    const totalMinutes = h * 60 + m + (hours * 60);
+    const newHours = Math.floor(totalMinutes / 60);
+    const newMinutes = totalMinutes % 60;
+    return `${newHours.toString().padStart(2, '0')}:${newMinutes.toString().padStart(2, '0')}`;
+  }
+
+  // Función auxiliar para comparar horas
+  function compareTime(time1: string, time2: string): number {
+    const [h1, m1] = time1.split(':').map(Number);
+    const [h2, m2] = time2.split(':').map(Number);
+    const minutes1 = h1 * 60 + m1;
+    const minutes2 = h2 * 60 + m2;
+    return minutes1 - minutes2;
+  }
+
   function addBlock(day: string) {
-    setAvailability((prev) => ({
-      ...prev,
-      [day]: {
-        ...prev[day],
-        blocks: [
-          ...prev[day].blocks,
-          {
-            id: `new-${Date.now()}`,
-            start: "09:00",
-            end: "18:00",
-          },
-        ],
-      },
-    }));
+    setAvailability((prev) => {
+      const dayConfig = prev[day];
+      const existingBlocks = dayConfig.blocks;
+
+      let newStart = "09:00";
+      let newEnd = "13:00"; // 4 horas por defecto
+
+      // Si hay bloques existentes, encontrar el último bloque (el que termina más tarde)
+      if (existingBlocks.length > 0) {
+        // Ordenar bloques por hora de fin para encontrar el último
+        const sortedBlocks = [...existingBlocks].sort((a, b) => compareTime(a.end, b.end));
+        const lastBlock = sortedBlocks[sortedBlocks.length - 1];
+        
+        // El nuevo bloque empieza donde termina el último bloque
+        newStart = lastBlock.end;
+        
+        // Calcular hora de fin: +4 horas desde el inicio, máximo hasta las 20:00
+        const calculatedEnd = addHours(newStart, 4);
+        const maxEnd = "20:00";
+        
+        // Usar el menor entre el calculado y el máximo
+        newEnd = compareTime(calculatedEnd, maxEnd) <= 0 ? calculatedEnd : maxEnd;
+        
+        // Si el nuevo bloque empezaría después de las 20:00, usar valores por defecto
+        if (compareTime(newStart, "20:00") >= 0) {
+          newStart = "09:00";
+          newEnd = "13:00";
+        }
+      }
+
+      return {
+        ...prev,
+        [day]: {
+          ...prev[day],
+          blocks: [
+            ...prev[day].blocks,
+            {
+              id: `new-${Date.now()}`,
+              start: newStart,
+              end: newEnd,
+            },
+          ],
+        },
+      };
+    });
   }
 
   function removeBlock(day: string, blockId: string) {
