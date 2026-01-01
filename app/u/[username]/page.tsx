@@ -24,7 +24,7 @@ export default function PublicAgendaPage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [availability, setAvailability] = useState<Record<string, Array<{ start: string; end: string }>>>({});
-  const [bookedSlots, setBookedSlots] = useState<string[]>([]);
+  const [bookedSlots, setBookedSlots] = useState<Array<{ time: string; duration: number }>>([]);
   const [bufferTimeMinutes, setBufferTimeMinutes] = useState<number>(0);
   const [blockedDates, setBlockedDates] = useState<Array<{ start_date: string; end_date: string }>>([]);
   const [loading, setLoading] = useState(true);
@@ -129,26 +129,35 @@ export default function PublicAgendaPage() {
     // Filtrar slots considerando buffer time
     // Un slot está ocupado si hay una cita que termina dentro del buffer time antes del slot
     const finalSlots = availableSlots.filter(slot => {
-      // Check if the slot itself is booked
-      if (bookedForDay.includes(slot)) {
-        return false;
-      }
+      const slotMinutes = parseInt(slot.split(':')[0]) * 60 + parseInt(slot.split(':')[1]);
 
-      // If there's a buffer time, check if any booked slot conflicts
-      if (bufferTimeMinutes > 0 && selectedService) {
-        const slotMinutes = parseInt(slot.split(':')[0]) * 60 + parseInt(slot.split(':')[1]);
+      // Check each booked slot to see if it conflicts with this slot
+      for (const bookedSlot of bookedForDay) {
+        const bookedMinutes = parseInt(bookedSlot.time.split(':')[0]) * 60 + parseInt(bookedSlot.time.split(':')[1]);
 
-        // Check each booked slot to see if it conflicts with this slot
-        for (const bookedSlot of bookedForDay) {
-          const bookedMinutes = parseInt(bookedSlot.split(':')[0]) * 60 + parseInt(bookedSlot.split(':')[1]);
+        // Check if the slot itself is booked (mismo horario exacto)
+        if (slotMinutes === bookedMinutes) {
+          console.log(`🚫 Slot ${slot} está ocupado exactamente`);
+          return false;
+        }
 
-          // Calculate when the booked appointment would end (assuming same service duration)
-          // In a real scenario, we'd fetch the actual appointment duration
-          const bookedEndMinutes = bookedMinutes + (selectedService.duration || 60) + bufferTimeMinutes;
+        // If there's a buffer time, check if any booked slot conflicts
+        if (bufferTimeMinutes > 0) {
+          // Calculate when the booked appointment would end using its actual duration
+          const bookedEndMinutes = bookedMinutes + bookedSlot.duration + bufferTimeMinutes;
 
           // Check if our slot starts before the booked appointment ends (including buffer)
+          // El slot no está disponible si empieza antes de que termine la cita + buffer
           if (slotMinutes < bookedEndMinutes && slotMinutes >= bookedMinutes) {
-            console.log(`🚫 Slot ${slot} conflicts with booked slot ${bookedSlot} (ends at ${Math.floor(bookedEndMinutes/60)}:${(bookedEndMinutes%60).toString().padStart(2,'0')} with buffer)`);
+            const conflictEndTime = `${Math.floor(bookedEndMinutes/60)}:${(bookedEndMinutes%60).toString().padStart(2,'0')}`;
+            console.log(`🚫 Slot ${slot} conflicts with booked slot ${bookedSlot.time} (dura ${bookedSlot.duration}min, termina a las ${conflictEndTime} con buffer de ${bufferTimeMinutes}min)`);
+            return false;
+          }
+        } else {
+          // Sin buffer, solo verificar que no empiece durante otra cita
+          const bookedEndMinutes = bookedMinutes + bookedSlot.duration;
+          if (slotMinutes < bookedEndMinutes && slotMinutes >= bookedMinutes) {
+            console.log(`🚫 Slot ${slot} está dentro de la cita ${bookedSlot.time} (dura ${bookedSlot.duration}min)`);
             return false;
           }
         }
@@ -300,9 +309,10 @@ export default function PublicAgendaPage() {
   async function fetchBookedSlots() {
     if (!formData.date || !profile) return;
     try {
+      // Obtener citas con su servicio para conocer la duración real
       const { data, error } = await supabase
         .from("appointments")
-        .select("time")
+        .select("time, service_id, services(duration)")
         .eq("user_id", profile.id)
         .eq("date", formData.date)
         .in("status", ["pending", "confirmed"]);
@@ -316,7 +326,10 @@ export default function PublicAgendaPage() {
       const slots = (data || []).map((a: any) => {
         const timeStr = a.time;
         // Si viene como "HH:MM:SS", extraer "HH:MM"
-        return typeof timeStr === 'string' ? timeStr.substring(0, 5) : timeStr;
+        const time = typeof timeStr === 'string' ? timeStr.substring(0, 5) : timeStr;
+        // Obtener duración del servicio (o 60 min por defecto)
+        const duration = a.services?.duration || 60;
+        return { time, duration };
       });
       console.log('🔒 Slots ocupados cargados para', formData.date, ':', slots);
       setBookedSlots(slots);
