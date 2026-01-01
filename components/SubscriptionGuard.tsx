@@ -23,18 +23,18 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
   useEffect(() => {
     checkAuth();
 
-    // Verificar si viene de un pago exitoso (mock o real)
+    // Verificar si viene de un pago exitoso (solo para modo mock o MercadoPago)
     const urlParams = new URLSearchParams(window.location.search);
     const paymentStatus = urlParams.get("payment");
-    const reveniuStatus = urlParams.get("reveniu"); // Parámetro específico de Reveniu
 
     if (paymentStatus === "mock_success") {
       // En modo mock, activar suscripción automáticamente
       handleMockPaymentSuccess();
-    } else if (paymentStatus === "success" || reveniuStatus === "success") {
-      // Si viene de un pago real (MercadoPago o Reveniu), esperar y refrescar múltiples veces
+    } else if (paymentStatus === "success") {
+      // Si viene de MercadoPago con éxito, esperar y refrescar múltiples veces
       handlePaymentSuccess();
     }
+    // Nota: Reveniu no redirige automáticamente, así que no esperamos parámetros específicos
   }, []);
 
   // Polling para verificar cambios de estado de suscripción
@@ -69,14 +69,14 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
           } catch (error) {
             console.error("Error en polling:", error);
           }
-        }, 5000); // Verificar cada 5 segundos
+        }, 3000); // Verificar cada 3 segundos (más rápido)
 
-        // Detener polling después de 5 minutos
+        // Detener polling después de 10 minutos (más tiempo para Reveniu)
         setTimeout(() => {
           console.log("⏰ Deteniendo polling automático");
           setSubscriptionPolling(false);
           clearInterval(pollInterval);
-        }, 5 * 60 * 1000);
+        }, 10 * 60 * 1000);
 
         return () => clearInterval(pollInterval);
       }
@@ -265,7 +265,7 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
   async function handleSubscribe(e?: React.MouseEvent) {
     e?.preventDefault();
     e?.stopPropagation();
-    
+
     if (!profile) {
       console.error("No profile available");
       alert("Error: No se pudo cargar tu información. Por favor recarga la página.");
@@ -300,6 +300,9 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
         return;
       }
 
+      // Mostrar mensaje informativo antes de redirigir
+      alert("💳 Vas a ser redirigido a Reveniu para procesar el pago.\n\nDespués del pago exitoso, Reveniu te mantendrá en su página. Simplemente regresa a MicroAgenda haciendo clic en 'Volver' o en el logo de MicroAgenda.\n\nLa activación será automática una vez que regreses.");
+
       // Llamar a la API route para crear la preferencia
       const response = await fetch("/api/create-subscription-preference", {
         method: "POST",
@@ -328,7 +331,7 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
         window.location.href = result.init_point;
       } else {
         console.error("❌ No se pudo crear la preferencia:", result);
-        const errorMsg = result.error 
+        const errorMsg = result.error
           ? `Error: ${JSON.stringify(result.error)}`
           : "No se pudo crear la preferencia de pago. Verifica la consola para más detalles.";
         alert(errorMsg);
@@ -369,28 +372,67 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
             <CardTitle className="text-2xl font-bold text-slate-900">Suscripción Expirada</CardTitle>
             <CardDescription className="text-base mt-2">
               Tu periodo de acceso ha finalizado. Para continuar gestionando tus citas, por favor reactiva tu plan.
+              {subscriptionPolling && (
+                <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-center gap-2 text-blue-700">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                    <span className="text-sm font-medium">Verificando activación automática...</span>
+                  </div>
+                  <p className="text-xs text-blue-600 mt-1">
+                    Si acabas de pagar, la activación será automática en unos segundos.
+                  </p>
+                </div>
+              )}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6 pt-6">
             <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
-              <h4 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-primary" />
-                Beneficios de reactivar:
-              </h4>
-              <ul className="space-y-2 text-sm text-slate-600">
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
-                  Acceso ilimitado a tu agenda
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
-                  Recordatorios automáticos por email
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
-                  Estadísticas avanzadas
-                </li>
-              </ul>
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 text-primary" />
+                    Beneficios de reactivar:
+                  </h4>
+                  <ul className="space-y-2 text-sm text-slate-600">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                      Acceso ilimitado a tu agenda
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                      Recordatorios automáticos por email
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                      Estadísticas avanzadas
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="bg-amber-50 p-3 rounded-lg border border-amber-200">
+                  <h4 className="font-semibold text-amber-900 mb-2 flex items-center gap-2">
+                    💳 Proceso de Pago
+                  </h4>
+                  <ol className="text-sm text-amber-800 space-y-1">
+                    <li className="flex items-start gap-2">
+                      <span className="font-medium">1.</span>
+                      <span>Haz clic en "Reactivar" y serás redirigido a Reveniu</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="font-medium">2.</span>
+                      <span>Completa el pago de forma segura</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="font-medium">3.</span>
+                      <span>Regresa a MicroAgenda (Reveniu te mantendrá en su página)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="font-medium">4.</span>
+                      <span>¡Activación automática en segundos!</span>
+                    </li>
+                  </ol>
+                </div>
+              </div>
             </div>
 
             <div className="space-y-3">

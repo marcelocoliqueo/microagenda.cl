@@ -152,11 +152,8 @@ export function prepareCheckoutUrl(linkUrl: string, userId: string, userEmail: s
     checkoutUrl.searchParams.set('email', userEmail);
     checkoutUrl.searchParams.set('external_id', userId);
 
-    // Agregar parámetros de redirección para después del pago
-    // Reveniu debería redirigir a estas URLs después del pago
-    checkoutUrl.searchParams.set('success_url', `${APP_URL}/dashboard?reveniu=success`);
-    checkoutUrl.searchParams.set('cancel_url', `${APP_URL}/dashboard?reveniu=cancelled`);
-    checkoutUrl.searchParams.set('failure_url', `${APP_URL}/dashboard?reveniu=failed`);
+    // Nota: Reveniu no soporta URLs de redirección automática según su documentación
+    // Los usuarios deben regresar manualmente después del pago
 
     return checkoutUrl.toString();
   } catch (error) {
