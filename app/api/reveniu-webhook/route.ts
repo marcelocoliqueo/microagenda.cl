@@ -47,6 +47,8 @@ export async function POST(request: NextRequest) {
     console.log("📨 Reveniu Webhook received:", JSON.stringify(body, null, 2));
     console.log("📋 Event:", event);
     console.log("📦 Data:", JSON.stringify(data, null, 2));
+    console.log("🔑 External ID:", data.subscription_external_id);
+    console.log("📧 Subscription ID:", data.subscription_id);
 
     // ============================================
     // 1. WEBHOOK: Suscripción Activada (Primer pago exitoso)

@@ -52,18 +52,42 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) return;
 
-            const { data: updatedProfile, error } = await supabase
+            // Verificar estado del perfil
+            const { data: updatedProfile, error: profileError } = await supabase
               .from("profiles")
               .select("subscription_status")
               .eq("id", session.user.id)
               .single();
 
-            if (!error && updatedProfile) {
+            if (!profileError && updatedProfile) {
+              // Si el perfil cambió a active, actualizar
               if (updatedProfile.subscription_status === "active") {
                 console.log("✅ ¡Estado cambió a active durante polling!");
-                setProfile({ ...profile, subscription_status: "active" });
+                await checkAuth(); // Refrescar perfil completo
                 setSubscriptionPolling(false);
                 clearInterval(pollInterval);
+                return;
+              }
+
+              // Si sigue en expired, verificar si hay suscripción activa (sincronización)
+              if (updatedProfile.subscription_status === "expired") {
+                const { data: activeSub } = await supabase
+                  .from("subscriptions")
+                  .select("id, status, renewal_date")
+                  .eq("user_id", session.user.id)
+                  .eq("status", "active")
+                  .single();
+
+                if (activeSub) {
+                  const renewalDate = new Date(activeSub.renewal_date);
+                  if (renewalDate > new Date()) {
+                    console.log("✅ Encontrada suscripción activa durante polling - Sincronizando...");
+                    await checkAuth(); // Esto sincronizará el estado
+                    setSubscriptionPolling(false);
+                    clearInterval(pollInterval);
+                    return;
+                  }
+                }
               }
             }
           } catch (error) {
@@ -230,6 +254,43 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
         console.error("Error fetching profile:", error);
         setLoading(false);
         return;
+      }
+
+      // Verificar si hay una desincronización: perfil expired pero suscripción activa
+      if (profileData.subscription_status === "expired" || profileData.subscription_status === "inactive") {
+        console.log("🔍 Verificando si hay suscripción activa desincronizada...");
+        
+        const { data: activeSubscription } = await supabase
+          .from("subscriptions")
+          .select("id, status, renewal_date")
+          .eq("user_id", session.user.id)
+          .eq("status", "active")
+          .single();
+
+        if (activeSubscription) {
+          const renewalDate = new Date(activeSubscription.renewal_date);
+          const now = new Date();
+
+          // Si la fecha de renovación es futura, la suscripción está activa
+          if (renewalDate > now) {
+            console.log("✅ Encontrada suscripción activa desincronizada - Sincronizando...");
+            
+            // Sincronizar el estado del perfil
+            const { error: syncError } = await supabase
+              .from("profiles")
+              .update({ subscription_status: "active" })
+              .eq("id", session.user.id);
+
+            if (!syncError) {
+              console.log("✅ Estado sincronizado correctamente");
+              profileData.subscription_status = "active";
+            } else {
+              console.error("❌ Error sincronizando estado:", syncError);
+            }
+          } else {
+            console.log("⚠️ Suscripción activa pero fecha de renovación expirada");
+          }
+        }
       }
 
       // Verificar si el trial expiró por fecha (15 días)
