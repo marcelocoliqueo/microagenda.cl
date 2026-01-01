@@ -43,7 +43,6 @@ export default function SchedulePage() {
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [bufferTime, setBufferTime] = useState<number>(0);
   const [blockedDates, setBlockedDates] = useState<BlockedDate[]>([]);
   const [newBlock, setNewBlock] = useState({ start_date: "", end_date: "", reason: "" });
 
@@ -84,7 +83,6 @@ export default function SchedulePage() {
 
       setUser(session.user);
       await fetchAvailability(session.user.id);
-      await fetchBufferTime(session.user.id);
       await fetchBlockedDates(session.user.id);
     } catch (error: any) {
       console.error("Auth check error:", error);
@@ -140,25 +138,6 @@ export default function SchedulePage() {
     } catch (error: any) {
       console.error("Fetch availability error:", error);
       // No mostramos toast aquí porque es opcional tener horarios guardados
-    }
-  }
-
-  async function fetchBufferTime(userId: string) {
-    try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("buffer_time_minutes")
-        .eq("id", userId)
-        .single();
-
-      if (error) throw error;
-
-      if (data && data.buffer_time_minutes !== null) {
-        setBufferTime(data.buffer_time_minutes);
-      }
-    } catch (error: any) {
-      console.error("Fetch buffer time error:", error);
-      // No mostramos toast aquí porque es opcional
     }
   }
 
@@ -508,14 +487,6 @@ export default function SchedulePage() {
         if (insertError) throw insertError;
       }
 
-      // Guardar buffer time en el perfil
-      const { error: bufferError } = await supabase
-        .from("profiles")
-        .update({ buffer_time_minutes: bufferTime })
-        .eq("id", user.id);
-
-      if (bufferError) throw bufferError;
-
       toast({
         title: "¡Guardado!",
         description: "Tus horarios de disponibilidad han sido actualizados",
@@ -565,84 +536,6 @@ export default function SchedulePage() {
         <p className="text-slate-600">
           Configura los bloques de horarios disponibles para cada día. Puedes agregar múltiples horarios por día, por ejemplo: 09:00-12:00 y 14:00-18:00
         </p>
-      </motion.div>
-
-      {/* Buffer Time Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="mb-6"
-      >
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Timer className="w-5 h-5" style={{ color: "var(--color-primary)" }} />
-              Tiempo de Preparación
-            </CardTitle>
-            <CardDescription>
-              Define un tiempo de buffer entre citas consecutivas para preparación, limpieza o descanso.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <Label htmlFor="buffer-time" className="text-sm font-medium text-slate-700 min-w-[200px]">
-                  Tiempo entre citas:
-                </Label>
-                <select
-                  id="buffer-time"
-                  value={bufferTime}
-                  onChange={(e) => setBufferTime(Number(e.target.value))}
-                  className="flex h-10 w-full max-w-xs rounded-md border border-slate-300 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <option value={0}>Sin buffer (citas consecutivas)</option>
-                  <option value={5}>5 minutos</option>
-                  <option value={10}>10 minutos</option>
-                  <option value={15}>15 minutos</option>
-                  <option value={20}>20 minutos</option>
-                  <option value={30}>30 minutos</option>
-                  <option value={45}>45 minutos</option>
-                  <option value={60}>60 minutos</option>
-                </select>
-              </div>
-
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0">
-                    <Timer className="w-5 h-5 text-blue-600 mt-0.5" />
-                  </div>
-                  <div className="text-sm text-blue-900">
-                    <p className="font-medium mb-1">¿Qué es el tiempo de preparación?</p>
-                    <p className="text-blue-700">
-                      Es el tiempo que necesitas entre citas para preparar el espacio, limpiar, o simplemente tomar un descanso.
-                      Si una cita termina a las 10:00 y tienes un buffer de 15 minutos, la próxima cita disponible será a las 10:15.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {bufferTime > 0 && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0">
-                      <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5" />
-                    </div>
-                    <div className="text-sm text-green-900">
-                      <p className="font-medium">
-                        Tiempo de buffer activo: {bufferTime} minutos
-                      </p>
-                      <p className="text-green-700 mt-1">
-                        Ejemplo: Si tienes una cita de 60 minutos a las 10:00, terminará a las 11:00.
-                        Con {bufferTime} minutos de buffer, la próxima cita disponible será a las {new Date(0, 0, 0, 11, bufferTime).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
       </motion.div>
 
       {/* Availability Section */}

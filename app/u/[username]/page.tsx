@@ -25,7 +25,6 @@ export default function PublicAgendaPage() {
   const [services, setServices] = useState<Service[]>([]);
   const [availability, setAvailability] = useState<Record<string, Array<{ start: string; end: string }>>>({});
   const [bookedSlots, setBookedSlots] = useState<Array<{ time: string; duration: number }>>([]);
-  const [bufferTimeMinutes, setBufferTimeMinutes] = useState<number>(0);
   const [blockedDates, setBlockedDates] = useState<Array<{ start_date: string; end_date: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -126,46 +125,32 @@ export default function PublicAgendaPage() {
     const bookedForDay = bookedSlots;
     console.log('🚫 Slots ocupados:', bookedForDay);
 
-    // Filtrar slots considerando buffer time
-    // Un slot está ocupado si hay una cita que termina dentro del buffer time antes del slot
+    // Filtrar slots que están ocupados
+    // Un slot está ocupado si hay una cita que se solapa con ese horario
     const finalSlots = availableSlots.filter(slot => {
       const slotMinutes = parseInt(slot.split(':')[0]) * 60 + parseInt(slot.split(':')[1]);
 
-      // Check each booked slot to see if it conflicts with this slot
+      // Verificar cada cita reservada para ver si hay conflicto
       for (const bookedSlot of bookedForDay) {
         const bookedMinutes = parseInt(bookedSlot.time.split(':')[0]) * 60 + parseInt(bookedSlot.time.split(':')[1]);
 
-        // Check if the slot itself is booked (mismo horario exacto)
+        // Verificar si el slot está ocupado exactamente (mismo horario)
         if (slotMinutes === bookedMinutes) {
           console.log(`🚫 Slot ${slot} está ocupado exactamente`);
           return false;
         }
 
-        // If there's a buffer time, check if any booked slot conflicts
-        if (bufferTimeMinutes > 0) {
-          // Calculate when the booked appointment would end using its actual duration
-          const bookedEndMinutes = bookedMinutes + bookedSlot.duration + bufferTimeMinutes;
-
-          // Check if our slot starts before the booked appointment ends (including buffer)
-          // El slot no está disponible si empieza antes de que termine la cita + buffer
-          if (slotMinutes < bookedEndMinutes && slotMinutes >= bookedMinutes) {
-            const conflictEndTime = `${Math.floor(bookedEndMinutes/60)}:${(bookedEndMinutes%60).toString().padStart(2,'0')}`;
-            console.log(`🚫 Slot ${slot} conflicts with booked slot ${bookedSlot.time} (dura ${bookedSlot.duration}min, termina a las ${conflictEndTime} con buffer de ${bufferTimeMinutes}min)`);
-            return false;
-          }
-        } else {
-          // Sin buffer, solo verificar que no empiece durante otra cita
-          const bookedEndMinutes = bookedMinutes + bookedSlot.duration;
-          if (slotMinutes < bookedEndMinutes && slotMinutes >= bookedMinutes) {
-            console.log(`🚫 Slot ${slot} está dentro de la cita ${bookedSlot.time} (dura ${bookedSlot.duration}min)`);
-            return false;
-          }
+        // Verificar si el slot empieza durante otra cita
+        const bookedEndMinutes = bookedMinutes + bookedSlot.duration;
+        if (slotMinutes < bookedEndMinutes && slotMinutes >= bookedMinutes) {
+          console.log(`🚫 Slot ${slot} está dentro de la cita ${bookedSlot.time} (dura ${bookedSlot.duration}min)`);
+          return false;
         }
       }
 
       return true;
     });
-    console.log('🎯 Slots finales disponibles (con buffer):', finalSlots);
+    console.log('🎯 Slots finales disponibles:', finalSlots);
 
     return finalSlots;
   };
@@ -259,9 +244,6 @@ export default function PublicAgendaPage() {
       }
 
       setProfile(profile);
-
-      // Get buffer time from profile
-      setBufferTimeMinutes(profile.buffer_time_minutes || 0);
 
       const { data: servicesData } = await supabase
         .from("services")
