@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, Info, Trash2, HelpCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -36,6 +37,8 @@ export function ConfirmDialog({
   variant = "primary",
   isLoading = false,
 }: ConfirmDialogProps) {
+  const { brandColor } = useTheme();
+
   const getVariantStyles = () => {
     switch (variant) {
       case "danger":
@@ -44,6 +47,7 @@ export function ConfirmDialog({
           iconBg: "bg-red-100",
           button: "bg-red-600 hover:bg-red-700 text-white border-none",
           accent: "border-t-red-500",
+          iconColor: "text-red-600",
         };
       case "warning":
         return {
@@ -51,6 +55,7 @@ export function ConfirmDialog({
           iconBg: "bg-amber-100",
           button: "bg-amber-600 hover:bg-amber-700 text-white border-none",
           accent: "border-t-amber-500",
+          iconColor: "text-amber-600",
         };
       case "info":
         return {
@@ -58,13 +63,20 @@ export function ConfirmDialog({
           iconBg: "bg-blue-100",
           button: "bg-blue-600 hover:bg-blue-700 text-white border-none",
           accent: "border-t-blue-500",
+          iconColor: "text-blue-600",
         };
       default:
         return {
-          icon: <HelpCircle className="w-6 h-6 text-primary" />,
-          iconBg: "bg-primary/10",
-          button: "bg-primary hover:brightness-110 text-white border-none",
-          accent: "border-t-primary",
+          icon: <HelpCircle className="w-6 h-6" style={{ color: brandColor.primary }} />,
+          iconBg: "",
+          iconBgStyle: { backgroundColor: `${brandColor.primary}1A` }, // 10% opacity
+          button: "text-white border-none shadow-sm hover:brightness-110",
+          buttonStyle: { 
+            background: `linear-gradient(to right, ${brandColor.primary}, ${brandColor.accent})` 
+          },
+          accent: "",
+          accentStyle: { borderTopColor: brandColor.primary },
+          iconColor: "",
         };
     }
   };
@@ -80,10 +92,16 @@ export function ConfirmDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className={`sm:max-w-[400px] border-t-4 ${styles.accent} p-0 overflow-hidden`}>
+      <DialogContent 
+        className={`sm:max-w-[400px] border-t-4 p-0 overflow-hidden ${styles.accent}`}
+        style={{ borderTopColor: brandColor.primary }}
+      >
         <div className="p-6">
           <div className="flex items-start gap-4">
-            <div className={`p-3 rounded-full flex-shrink-0 ${styles.iconBg}`}>
+            <div 
+              className={`p-3 rounded-full flex-shrink-0 ${styles.iconBg}`}
+              style={variant === "primary" ? styles.iconBgStyle : {}}
+            >
               {styles.icon}
             </div>
             <div className="flex-1">
@@ -104,7 +122,12 @@ export function ConfirmDialog({
             variant="ghost"
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
-            className="flex-1 sm:flex-none text-slate-500 hover:text-slate-700 hover:bg-slate-100"
+            className="flex-1 sm:flex-none text-slate-500 hover:bg-slate-100"
+            style={{ 
+              transition: 'color 0.2s',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.color = brandColor.primary}
+            onMouseLeave={(e) => e.currentTarget.style.color = ''}
           >
             {cancelText}
           </Button>
@@ -112,6 +135,7 @@ export function ConfirmDialog({
             onClick={handleConfirm}
             disabled={isLoading}
             className={`flex-1 sm:flex-none font-semibold ${styles.button}`}
+            style={variant === "primary" ? styles.buttonStyle : {}}
           >
             {isLoading ? "Cargando..." : confirmText}
           </Button>

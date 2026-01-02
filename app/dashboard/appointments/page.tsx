@@ -68,6 +68,8 @@ export default function AppointmentsPage() {
   // State for confirm dialog
   const [confirmArchiveOpen, setConfirmArchiveOpen] = useState(false);
   const [appointmentToArchive, setAppointmentToArchive] = useState<string | null>(null);
+  const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
+  const [appointmentToCancel, setAppointmentToCancel] = useState<string | null>(null);
 
   const { appointments, loading: appointmentsLoading, updateAppointment, deleteAppointment, refresh } = useAppointments(user?.id);
 
@@ -203,6 +205,12 @@ export default function AppointmentsPage() {
   }, [filteredAppointments]);
 
   async function handleStatusChange(appointmentId: string, newStatus: string) {
+    if (newStatus === "cancelled") {
+      setAppointmentToCancel(appointmentId);
+      setConfirmCancelOpen(true);
+      return;
+    }
+
     // Obtener el estado anterior para detectar cambios
     const appointment = appointments.find(a => a.id === appointmentId);
     const previousStatus = appointment?.status;
@@ -310,6 +318,48 @@ export default function AppointmentsPage() {
       });
     }
     setAppointmentToArchive(null);
+  }
+
+  async function executeCancel() {
+    if (!appointmentToCancel) return;
+
+    const result = await updateAppointment(appointmentToCancel, { status: "cancelled" });
+
+    if (result.success) {
+      toast({
+        title: "Cita cancelada",
+        description: "Se ha enviado una notificación al cliente.",
+      });
+      
+      // Enviar email de cancelación
+      try {
+        await fetch("/api/send-appointment-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: "cancellation-client",
+            appointmentId: appointmentToCancel,
+          }),
+        });
+        await fetch("/api/send-appointment-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: "cancellation-professional",
+            appointmentId: appointmentToCancel,
+          }),
+        });
+      } catch (error) {
+        console.error("Error enviando emails de cancelación:", error);
+      }
+    } else {
+      toast({
+        title: "Error",
+        description: "No se pudo cancelar la cita",
+        variant: "destructive",
+      });
+    }
+    setAppointmentToCancel(null);
   }
 
   async function handleReschedule(appointmentId: string, newDate: string, newTime: string) {
@@ -627,6 +677,16 @@ export default function AppointmentsPage() {
         description="La cita se moverá a tu historial. Podrás seguir viéndola en tus estadísticas generales pero ya no aparecerá en tu listado de citas activas."
         confirmText="Sí, archivar"
         variant="primary"
+      />
+
+      <ConfirmDialog
+        isOpen={confirmCancelOpen}
+        onOpenChange={setConfirmCancelOpen}
+        onConfirm={executeCancel}
+        title="¿Cancelar esta cita?"
+        description="Esta acción notificará al cliente sobre la cancelación. No podrás deshacer esta acción fácilmente."
+        confirmText="Sí, cancelar cita"
+        variant="danger"
       />
     </div>
   );

@@ -100,6 +100,8 @@ export default function DashboardPage() {
   const [confirmArchiveOpen, setConfirmArchiveOpen] = useState(false);
   const [appointmentToArchive, setAppointmentToArchive] = useState<string | null>(null);
   const [confirmDeleteAccountOpen, setConfirmDeleteAccountOpen] = useState(false);
+  const [confirmCancelOpen, setConfirmCancelOpen] = useState(false);
+  const [appointmentToCancel, setAppointmentToCancel] = useState<string | null>(null);
 
   // Función para normalizar el username (reemplazar espacios con guiones y limpiar)
   const normalizeUsername = (input: string): string => {
@@ -685,6 +687,12 @@ export default function DashboardPage() {
   }
 
   async function handleStatusChange(appointmentId: string, newStatus: string) {
+    if (newStatus === "cancelled") {
+      setAppointmentToCancel(appointmentId);
+      setConfirmCancelOpen(true);
+      return;
+    }
+
     const result = await updateAppointment(appointmentId, { status: newStatus });
 
     if (result.success) {
@@ -754,6 +762,26 @@ export default function DashboardPage() {
       });
     }
     setAppointmentToArchive(null);
+  }
+
+  async function executeCancel() {
+    if (!appointmentToCancel) return;
+
+    const result = await updateAppointment(appointmentToCancel, { status: "cancelled" });
+
+    if (result.success) {
+      toast({
+        title: "Cita cancelada",
+        description: "Se ha enviado una notificación al cliente.",
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "No se pudo cancelar la cita",
+        variant: "destructive",
+      });
+    }
+    setAppointmentToCancel(null);
   }
 
   async function handleDeleteAccount() {
@@ -1868,6 +1896,16 @@ export default function DashboardPage() {
         description="La cita se moverá a tu historial. Podrás seguir viéndola en tus estadísticas generales pero ya no aparecerá en tu agenda diaria."
         confirmText="Sí, archivar"
         variant="primary"
+      />
+
+      <ConfirmDialog
+        isOpen={confirmCancelOpen}
+        onOpenChange={setConfirmCancelOpen}
+        onConfirm={executeCancel}
+        title="¿Cancelar esta cita?"
+        description="Esta acción notificará al cliente sobre la cancelación. No podrás deshacer esta acción fácilmente."
+        confirmText="Sí, cancelar cita"
+        variant="danger"
       />
 
       <ConfirmDialog
