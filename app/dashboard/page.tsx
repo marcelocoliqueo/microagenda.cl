@@ -806,6 +806,7 @@ export default function DashboardPage() {
 
     const total = filteredByPeriod.length;
     const confirmed = filteredByPeriod.filter(a => a.status === APPOINTMENT_STATUSES.CONFIRMED).length;
+    const completed = filteredByPeriod.filter(a => a.status === APPOINTMENT_STATUSES.COMPLETED).length;
     const pending = filteredByPeriod.filter(a => a.status === APPOINTMENT_STATUSES.PENDING).length;
     const revenue = filteredByPeriod
       .filter(a => a.status === APPOINTMENT_STATUSES.COMPLETED)
@@ -827,18 +828,30 @@ export default function DashboardPage() {
       ? Math.round(((total - previousTotal) / previousTotal) * 100)
       : total > 0 ? 100 : 0;
 
+    const successfulAppointments = confirmed + completed;
+
     return {
       totalAppointments: total,
-      confirmedAppointments: confirmed,
+      confirmedAppointments: successfulAppointments,
       pendingAppointments: pending,
+      completedAppointments: completed,
       totalRevenue: revenue,
-      confirmationRate: total > 0 ? Math.round((confirmed / total) * 100) : 0,
+      confirmationRate: total > 0 ? Math.round((successfulAppointments / total) * 100) : 0,
       revenueGrowth,
       appointmentsGrowth,
     };
   }, [appointments, statsPeriod]);
 
-  const { totalAppointments, confirmedAppointments, pendingAppointments, totalRevenue, confirmationRate, revenueGrowth, appointmentsGrowth } = stats;
+  const { 
+    totalAppointments, 
+    confirmedAppointments, 
+    pendingAppointments, 
+    completedAppointments,
+    totalRevenue, 
+    confirmationRate, 
+    revenueGrowth, 
+    appointmentsGrowth 
+  } = stats;
 
   // Filtrar citas según el filtro activo
   const filteredAppointments = useMemo(() => {
@@ -1309,7 +1322,7 @@ export default function DashboardPage() {
                 <p className="text-sm text-slate-600 font-medium mb-1">Ingresos</p>
                 <p className="text-3xl font-bold text-primary tabular-nums">{formatCurrency(totalRevenue)}</p>
                 <div className="flex items-center gap-2 mt-2">
-                  <p className="text-xs text-slate-500">Citas completadas</p>
+                  <p className="text-xs text-slate-500">{completedAppointments} cita{completedAppointments !== 1 ? 's' : ''} completada{completedAppointments !== 1 ? 's' : ''}</p>
                   {revenueGrowth !== 0 && (
                     <span className={`text-xs font-semibold ${revenueGrowth > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                       {revenueGrowth > 0 ? '↑' : '↓'} {Math.abs(revenueGrowth)}%
