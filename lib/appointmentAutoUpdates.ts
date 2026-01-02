@@ -61,7 +61,7 @@ function getAppointmentEndTime(appointment: Appointment): Date {
 
 /**
  * Auto-actualiza citas pendientes a confirmadas
- * Ejecuta después de X horas de creación
+ * Ejecuta después de X horas de creación, respetando la configuración de cada profesional
  */
 export async function autoConfirmPendingAppointments(
   config: Partial<AutoUpdateConfig> = {}
@@ -70,16 +70,17 @@ export async function autoConfirmPendingAppointments(
   const errors: string[] = [];
 
   try {
-    // Calcular el timestamp límite
-    const thresholdTime = new Date();
-    thresholdTime.setHours(thresholdTime.getHours() - pendingToConfirmedHours);
-
-    // Buscar citas pendientes creadas hace más de X horas
+    // Buscar citas pendientes con información del perfil del profesional
     const { data: pendingAppointments, error: fetchError } = await supabase
       .from("appointments")
-      .select("*")
-      .eq("status", "pending")
-      .lt("created_at", thresholdTime.toISOString());
+      .select(`
+        *,
+        profile:profiles!appointments_user_id_fkey(
+          auto_confirm_pending,
+          auto_confirm_pending_hours
+        )
+      `)
+      .eq("status", "pending");
 
     if (fetchError) {
       errors.push(`Error fetching pending appointments: ${fetchError.message}`);
@@ -90,19 +91,47 @@ export async function autoConfirmPendingAppointments(
       return { updated: 0, errors };
     }
 
-    // Actualizar a confirmadas
+    const now = new Date();
+    const appointmentsToConfirm: string[] = [];
+
+    // Filtrar citas que deben ser auto-confirmadas según la configuración del profesional
+    for (const appointment of pendingAppointments) {
+      const profile = appointment.profile as any;
+      
+      // Si el profesional tiene auto_confirm_pending desactivado, saltar
+      if (profile?.auto_confirm_pending === false) {
+        continue;
+      }
+
+      // Usar el tiempo configurado por el profesional, o el default
+      const hoursToWait = profile?.auto_confirm_pending_hours ?? pendingToConfirmedHours;
+      
+      // Calcular el timestamp límite para esta cita
+      const thresholdTime = new Date(appointment.created_at);
+      thresholdTime.setHours(thresholdTime.getHours() + hoursToWait);
+
+      // Si ya pasó el tiempo, agregar a la lista para confirmar
+      if (now >= thresholdTime) {
+        appointmentsToConfirm.push(appointment.id);
+      }
+    }
+
+    if (appointmentsToConfirm.length === 0) {
+      return { updated: 0, errors };
+    }
+
+    // Actualizar todas las citas que deben ser confirmadas
     const { error: updateError } = await supabase
       .from("appointments")
       .update({ status: "confirmed" })
-      .eq("status", "pending")
-      .lt("created_at", thresholdTime.toISOString());
+      .in("id", appointmentsToConfirm);
 
     if (updateError) {
       errors.push(`Error updating to confirmed: ${updateError.message}`);
       return { updated: 0, errors };
     }
 
-    return { updated: pendingAppointments.length, errors };
+    return { updated: appointmentsToConfirm.length, errors };
   } catch (error: any) {
     errors.push(`Unexpected error in autoConfirmPendingAppointments: ${error.message}`);
     return { updated: 0, errors };

@@ -17,6 +17,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase, type Profile } from "@/lib/supabaseClient";
 
@@ -375,6 +382,62 @@ export default function SettingsPage() {
     }
   }
 
+  async function handleToggleAutoConfirmPending() {
+    if (!user || !profile) return;
+
+    const newValue = !(profile.auto_confirm_pending ?? true);
+
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ auto_confirm_pending: newValue })
+        .eq("id", user.id);
+
+      if (error) throw error;
+
+      setProfile({ ...profile, auto_confirm_pending: newValue });
+      toast({
+        title: "Configuración actualizada",
+        description: newValue
+          ? "Las citas pendientes se confirmarán automáticamente después del tiempo configurado"
+          : "Las citas pendientes deberán ser confirmadas manualmente",
+      });
+    } catch (error: any) {
+      console.error("Update auto confirm pending error:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar la configuración",
+        variant: "destructive",
+      });
+    }
+  }
+
+  async function handleUpdateAutoConfirmPendingHours(hours: number) {
+    if (!user || !profile) return;
+
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ auto_confirm_pending_hours: hours })
+        .eq("id", user.id);
+
+      if (error) throw error;
+
+      setProfile({ ...profile, auto_confirm_pending_hours: hours });
+      toast({
+        title: "Configuración actualizada",
+        description: `Las citas pendientes se confirmarán automáticamente después de ${hours} hora${hours !== 1 ? 's' : ''}`,
+      });
+    } catch (error: any) {
+      console.error("Update auto confirm pending hours error:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar la configuración",
+        variant: "destructive",
+      });
+    }
+  }
+
   async function handleToggleReviewRequest() {
     if (!user || !profile) return;
 
@@ -498,8 +561,8 @@ export default function SettingsPage() {
                 </div>
                 <p className="text-sm text-muted">
                   {profile?.auto_confirm
-                    ? "Las citas se confirman automáticamente sin tu intervención"
-                    : "Debes confirmar manualmente cada cita antes de que el cliente la vea confirmada"}
+                    ? "Las citas se crean directamente como confirmadas cuando el cliente las reserva"
+                    : "Las citas se crean como pendientes y requieren confirmación manual o automática (según configuración)"}
                 </p>
               </div>
               <Button
@@ -510,6 +573,76 @@ export default function SettingsPage() {
               >
                 {profile?.auto_confirm ? "Activada" : "Desactivada"}
               </Button>
+            </div>
+            {/* Auto-confirmación de citas pendientes */}
+            <div className="border-t border-slate-200 pt-6 mt-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1 flex-1">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-medium">Auto-confirmar citas pendientes</h4>
+                      {(profile?.auto_confirm_pending ?? true) && (
+                        <CheckCircle2 className="w-4 h-4 text-green-600" />
+                      )}
+                    </div>
+                    <p className="text-sm text-muted">
+                      {(profile?.auto_confirm_pending ?? true)
+                        ? "Las citas pendientes se confirmarán automáticamente después del tiempo configurado"
+                        : "Las citas pendientes deberán ser confirmadas manualmente. No se auto-confirmarán."}
+                    </p>
+                  </div>
+                  <Button
+                    variant={(profile?.auto_confirm_pending ?? true) ? "default" : "outline"}
+                    size="lg"
+                    onClick={handleToggleAutoConfirmPending}
+                    className="ml-4"
+                  >
+                    {(profile?.auto_confirm_pending ?? true) ? "Activada" : "Desactivada"}
+                  </Button>
+                </div>
+
+                {(profile?.auto_confirm_pending ?? true) && (
+                  <div className="bg-slate-50 rounded-lg p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <Label htmlFor="auto-confirm-hours" className="text-sm font-medium">
+                          Tiempo de espera antes de auto-confirmar
+                        </Label>
+                        <p className="text-xs text-muted">
+                          Las citas pendientes se confirmarán automáticamente después de este tiempo
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Select
+                        value={String(profile?.auto_confirm_pending_hours ?? 2)}
+                        onValueChange={(value) => handleUpdateAutoConfirmPendingHours(Number(value))}
+                      >
+                        <SelectTrigger className="w-[140px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0">Inmediato</SelectItem>
+                          <SelectItem value="1">1 hora</SelectItem>
+                          <SelectItem value="2">2 horas</SelectItem>
+                          <SelectItem value="4">4 horas</SelectItem>
+                          <SelectItem value="6">6 horas</SelectItem>
+                          <SelectItem value="12">12 horas</SelectItem>
+                          <SelectItem value="24">24 horas</SelectItem>
+                          <SelectItem value="48">48 horas</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <span className="text-sm text-muted">
+                        {profile?.auto_confirm_pending_hours === 0
+                          ? "(Se confirman inmediatamente)"
+                          : profile?.auto_confirm_pending_hours === 1
+                          ? "(Se confirma después de 1 hora)"
+                          : `(Se confirma después de ${profile?.auto_confirm_pending_hours ?? 2} horas)`}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>

@@ -77,6 +77,8 @@ export type Profile = {
   business_logo_url: string | null;
   brand_color: string | null;
   auto_confirm: boolean;
+  auto_confirm_pending: boolean | null;
+  auto_confirm_pending_hours: number | null;
   send_review_request: boolean;
   onboarding_completed: boolean;
   plan_id: string | null;
