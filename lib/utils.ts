@@ -13,8 +13,27 @@ export function formatCurrency(amount: number, currency: string = "CLP"): string
   }).format(amount);
 }
 
+/**
+ * Convierte una fecha local a formato YYYY-MM-DD sin usar UTC
+ * Esto evita problemas de timezone donde una fecha puede cambiar de día
+ */
+export function formatDateToLocalString(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 export function formatDate(date: Date | string): string {
-  const d = typeof date === "string" ? new Date(date) : date;
+  // Si es un string tipo "YYYY-MM-DD", crear fecha en hora local para evitar problemas de timezone
+  let d: Date;
+  if (typeof date === "string") {
+    const [year, month, day] = date.split('-').map(Number);
+    d = new Date(year, month - 1, day);
+  } else {
+    d = new Date(date);
+  }
+  
   return new Intl.DateTimeFormat("es-CL", {
     day: "2-digit",
     month: "long",

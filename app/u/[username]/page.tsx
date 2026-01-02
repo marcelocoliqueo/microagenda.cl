@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase, type Profile, type Service } from "@/lib/supabaseClient";
-import { formatCurrency, formatDateFriendly, generateAvailableSlots, getDayName, sanitizePhone } from "@/lib/utils";
+import { formatCurrency, formatDateFriendly, generateAvailableSlots, getDayName, sanitizePhone, formatDateToLocalString } from "@/lib/utils";
 import { APP_NAME } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -269,11 +269,12 @@ export default function PublicAgendaPage() {
       setAvailability(availMap);
 
       // Fetch blocked dates
+      const todayStr = formatDateToLocalString(new Date());
       const { data: blockedData } = await supabase
         .from("blocked_dates")
         .select("start_date, end_date")
         .eq("user_id", profile.id)
-        .gte("end_date", new Date().toISOString().split('T')[0]); // Only future/current blocks
+        .gte("end_date", todayStr); // Only future/current blocks
 
       if (blockedData) {
         setBlockedDates(blockedData);
@@ -633,7 +634,7 @@ export default function PublicAgendaPage() {
                       for (let i = 0; i < 14; i++) {
                         const date = new Date(today);
                         date.setDate(today.getDate() + startOffset + i);
-                        const dateStr = date.toISOString().split("T")[0];
+                        const dateStr = formatDateToLocalString(date);
                         const dayOfWeek = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][date.getDay()];
 
                         // Check if date is blocked
