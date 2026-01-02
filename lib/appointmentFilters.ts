@@ -128,3 +128,25 @@ export function getFilterDescription(filter: AppointmentFilter): string {
       return "Listado completo";
   }
 }
+
+/**
+ * Determina el estado temporal de una cita (pasada, ahora, futura)
+ */
+export function getAppointmentState(appointment: Appointment) {
+  const now = new Date();
+  const [hours, minutes] = appointment.time.split(":").map(Number);
+  const [year, month, day] = appointment.date.split("-").map(Number);
+  
+  // Crear fecha de la cita en hora local
+  const appointmentTime = new Date(year, month - 1, day, hours, minutes, 0, 0);
+
+  // Si tiene servicio con duración, usar esa duración, sino 60 min
+  const duration = appointment.service?.duration || 60;
+  const endTime = new Date(appointmentTime.getTime() + duration * 60000);
+
+  const isPast = now > endTime;
+  const isNow = now >= appointmentTime && now <= endTime;
+  const isUpcoming = now < appointmentTime;
+
+  return { isPast, isNow, isUpcoming, appointmentTime, endTime };
+}

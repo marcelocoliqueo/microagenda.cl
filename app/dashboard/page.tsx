@@ -19,6 +19,11 @@ import {
   Upload,
   X,
   Image as ImageIcon,
+  Check,
+  XCircle,
+  CalendarClock,
+  MoreVertical,
+  RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -56,9 +61,10 @@ import {
 } from "@/lib/constants";
 import { useTheme } from "@/contexts/ThemeContext";
 import type { AppointmentFilter } from "@/lib/appointmentFilters";
-import { filterAppointments, getFilterTitle, getFilterDescription } from "@/lib/appointmentFilters";
+import { filterAppointments, getFilterTitle, getFilterDescription, getAppointmentState } from "@/lib/appointmentFilters";
 import { AppointmentFilters } from "@/components/AppointmentFilters";
 import { TodayTimeline } from "@/components/TodayTimeline";
+import { RescheduleDialog } from "@/components/RescheduleDialog";
 
 /**
  * Parsea un string YYYY-MM-DD a un objeto Date en hora local (medianoche)
@@ -1382,72 +1388,128 @@ export default function DashboardPage() {
               <TodayTimeline
                 appointments={filteredAppointments}
                 onStatusChange={handleStatusChange}
+                onReschedule={handleReschedule}
                 onDelete={handleDeleteAppointment}
               />
             ) : (
               <div className="space-y-3">
-                {filteredAppointments.map((appointment) => (
-                  <div
-                    key={appointment.id}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border-2 border-slate-200 rounded-xl transition-all gap-3"
-                    style={{
-                      transition: "border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease"
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.5)`;
-                      e.currentTarget.style.backgroundColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.02)`;
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = "rgb(226, 232, 240)"; // slate-200
-                      e.currentTarget.style.backgroundColor = "transparent";
-                    }}
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start sm:items-center gap-2 mb-2 flex-wrap">
-                        <h4 className="font-semibold text-sm sm:text-base text-slate-900 truncate">{appointment.client_name}</h4>
-                        <span className={`text-[10px] sm:text-xs px-2 py-1 rounded-lg whitespace-nowrap ${STATUS_COLORS[appointment.status]}`}>
-                          {STATUS_LABELS[appointment.status]}
-                        </span>
+                {filteredAppointments.map((appointment) => {
+                  const state = getAppointmentState(appointment);
+                  
+                  return (
+                    <div
+                      key={appointment.id}
+                      className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border-2 border-slate-200 rounded-xl transition-all gap-3"
+                      style={{
+                        transition: "border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease"
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.5)`;
+                        e.currentTarget.style.backgroundColor = `rgba(var(--color-primary-rgb, 16, 185, 129), 0.02)`;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = "rgb(226, 232, 240)"; // slate-200
+                        e.currentTarget.style.backgroundColor = "transparent";
+                      }}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start sm:items-center gap-2 mb-2 flex-wrap">
+                          <h4 className="font-semibold text-sm sm:text-base text-slate-900 truncate">{appointment.client_name}</h4>
+                          <span className={`text-[10px] sm:text-xs px-2 py-1 rounded-lg whitespace-nowrap ${STATUS_COLORS[appointment.status]}`}>
+                            {STATUS_LABELS[appointment.status]}
+                          </span>
+                        </div>
+                        <div className="text-xs sm:text-sm text-slate-600 space-y-1">
+                          <p className="font-medium text-slate-700">{appointment.service?.name}</p>
+                          <p className="flex flex-wrap gap-1">
+                            <span>{formatDate(appointment.date)}</span>
+                            <span>·</span>
+                            <span>{formatTime(appointment.time)}</span>
+                          </p>
+                          <p className="truncate">{appointment.client_phone}</p>
+                        </div>
                       </div>
-                      <div className="text-xs sm:text-sm text-slate-600 space-y-1">
-                        <p className="font-medium text-slate-700">{appointment.service?.name}</p>
-                        <p className="flex flex-wrap gap-1">
-                          <span>{formatDate(appointment.date)}</span>
-                          <span>·</span>
-                          <span>{formatTime(appointment.time)}</span>
-                        </p>
-                        <p className="truncate">{appointment.client_phone}</p>
+                      <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                        {/* ACCIONES CONTEXTUALES */}
+                        {appointment.status === "pending" && (
+                          <>
+                            <Button
+                              size="sm"
+                              onClick={() => handleStatusChange(appointment.id, "confirmed")}
+                              className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 text-white"
+                            >
+                              <Check className="w-4 h-4 mr-1.5" />
+                              Confirmar
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleStatusChange(appointment.id, "cancelled")}
+                              className="flex-1 sm:flex-none border-red-200 text-red-600 hover:bg-red-50"
+                            >
+                              <X className="w-4 h-4 mr-1.5" />
+                              Rechazar
+                            </Button>
+                          </>
+                        )}
+
+                        {appointment.status === "confirmed" && (state.isNow || state.isPast) && (
+                          <Button
+                            size="sm"
+                            onClick={() => handleStatusChange(appointment.id, "completed")}
+                            className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 text-white"
+                          >
+                            <CheckCircle2 className="w-4 h-4 mr-1.5" />
+                            Finalizar
+                          </Button>
+                        )}
+
+                        {appointment.status === "confirmed" && state.isUpcoming && (
+                          <div className="flex items-center gap-2 w-full sm:w-auto">
+                            <RescheduleDialog
+                              appointment={appointment}
+                              onReschedule={handleReschedule}
+                            />
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleStatusChange(appointment.id, "cancelled")}
+                              className="flex-1 sm:flex-none border-slate-200 text-slate-600"
+                            >
+                              <XCircle className="w-4 h-4 mr-1.5" />
+                              Cancelar
+                            </Button>
+                          </div>
+                        )}
+
+                        {(appointment.status === "completed" || appointment.status === "cancelled" || appointment.status === "no-show") && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleStatusChange(appointment.id, "pending")}
+                            className="flex-1 sm:flex-none text-slate-500 hover:bg-slate-100"
+                          >
+                            <RotateCcw className="w-4 h-4 mr-1.5" />
+                            Corregir
+                          </Button>
+                        )}
+
+                        {/* BOTÓN ELIMINAR SUTIL */}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteAppointment(appointment.id)}
+                          className="text-slate-400 hover:text-red-600 px-2"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
-                      <Select
-                        value={appointment.status}
-                        onValueChange={(value) => handleStatusChange(appointment.id, value)}
-                      >
-                        <SelectTrigger className="w-full sm:w-[140px]">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.entries(STATUS_LABELS).map(([key, label]) => (
-                            <SelectItem key={key} value={key}>
-                              {label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDeleteAppointment(appointment.id)}
-                        className="w-full sm:w-auto"
-                      >
-                        Eliminar
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
-            )}
+            )
+
           </CardContent>
         </Card>
 

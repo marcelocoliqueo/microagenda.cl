@@ -1,27 +1,23 @@
 "use client";
 
 import { useMemo } from "react";
-import { Clock, Phone, DollarSign, CheckCircle2, AlertCircle, XCircle, User } from "lucide-react";
+import { Clock, Phone, DollarSign, CheckCircle2, AlertCircle, XCircle, User, Check, X, CalendarClock, RotateCcw } from "lucide-react";
 import { Appointment } from "@/lib/supabaseClient";
 import { formatTime, formatCurrency, STATUS_LABELS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { RescheduleDialog } from "./RescheduleDialog";
 
 interface TodayTimelineProps {
   appointments: Appointment[];
   onStatusChange: (appointmentId: string, newStatus: string) => void;
+  onReschedule: (appointmentId: string, newDate: string, newTime: string) => Promise<void>;
   onDelete: (appointmentId: string) => void;
 }
 
 export function TodayTimeline({
   appointments,
   onStatusChange,
+  onReschedule,
   onDelete,
 }: TodayTimelineProps) {
   // Ordenar citas por hora
@@ -215,55 +211,83 @@ export function TodayTimeline({
                   </div>
 
                   {/* Acciones rápidas contextuales */}
-                  <div className="flex gap-2">
-                    {/* Botón de acción principal basado en estado */}
-                    {state.isNow && appointment.status !== "completed" && (
+                  <div className="flex flex-wrap gap-2">
+                    {/* ACCIÓN PARA PENDIENTES */}
+                    {appointment.status === "pending" && (
+                      <>
+                        <Button
+                          size="sm"
+                          onClick={() => onStatusChange(appointment.id, "confirmed")}
+                          className="flex-1 bg-green-600 hover:bg-green-700 text-white shadow-sm"
+                        >
+                          <Check className="w-4 h-4 mr-1.5" />
+                          Confirmar
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => onStatusChange(appointment.id, "cancelled")}
+                          className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
+                        >
+                          <X className="w-4 h-4 mr-1.5" />
+                          Rechazar
+                        </Button>
+                      </>
+                    )}
+
+                    {/* ACCIÓN PARA CONFIRMADAS (HOY/PASADO) */}
+                    {appointment.status === "confirmed" && (state.isNow || state.isPast) && (
                       <Button
                         size="sm"
                         onClick={() => onStatusChange(appointment.id, "completed")}
-                        className="flex-1 bg-green-500 hover:bg-green-600 text-white"
+                        className="flex-1 bg-green-600 hover:bg-green-700 text-white shadow-sm"
                       >
-                        <CheckCircle2 className="w-4 h-4 mr-2" />
-                        Marcar Completada
+                        <CheckCircle2 className="w-4 h-4 mr-1.5" />
+                        Finalizar Cita
                       </Button>
                     )}
 
-                    {appointment.status === "pending" && state.isUpcoming && (
+                    {/* ACCIÓN PARA CONFIRMADAS (FUTURO) */}
+                    {appointment.status === "confirmed" && state.isUpcoming && (
+                      <div className="flex items-center gap-2 flex-1">
+                        <RescheduleDialog
+                          appointment={appointment}
+                          onReschedule={onReschedule}
+                        />
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => onStatusChange(appointment.id, "cancelled")}
+                          className="flex-1 border-slate-200 text-slate-600 hover:bg-slate-50"
+                        >
+                          <XCircle className="w-4 h-4 mr-1.5" />
+                          Cancelar
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* ACCIÓN PARA COMPLETADAS/CANCELADAS (CORRECCIÓN) */}
+                    {(appointment.status === "completed" || appointment.status === "cancelled" || appointment.status === "no-show") && (
                       <Button
                         size="sm"
-                        onClick={() => onStatusChange(appointment.id, "confirmed")}
-                        className="flex-1 bg-green-500 hover:bg-green-600 text-white"
+                        variant="ghost"
+                        onClick={() => onStatusChange(appointment.id, "pending")}
+                        className="flex-1 text-slate-500 hover:text-slate-700 hover:bg-slate-100"
                       >
-                        <CheckCircle2 className="w-4 h-4 mr-2" />
-                        Confirmar
+                        <RotateCcw className="w-4 h-4 mr-1.5" />
+                        Corregir
                       </Button>
                     )}
 
-                    {/* Selector de estado */}
-                    <Select
-                      value={appointment.status}
-                      onValueChange={(value) => onStatusChange(appointment.id, value)}
-                    >
-                      <SelectTrigger className="flex-1 h-9">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.entries(STATUS_LABELS).map(([key, label]) => (
-                          <SelectItem key={key} value={key}>
-                            {label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
-                    {/* Botón eliminar */}
+                    {/* BOTÓN ELIMINAR (SIEMPRE DISPONIBLE PERO SUTIL) */}
                     <Button
                       size="sm"
-                      variant="outline"
+                      variant="ghost"
                       onClick={() => onDelete(appointment.id)}
-                      className="border-red-200 text-red-600 hover:bg-red-50"
+                      className="text-slate-400 hover:text-red-600 px-2"
+                      title="Eliminar registro"
                     >
-                      Eliminar
+                      <X className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
