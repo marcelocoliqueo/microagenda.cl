@@ -694,6 +694,35 @@ export default function DashboardPage() {
     }
   }
 
+  async function handleReschedule(appointmentId: string, newDate: string, newTime: string) {
+    try {
+      const response = await fetch("/api/reschedule-appointment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ appointmentId, newDate, newTime }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Error al reagendar");
+      }
+
+      toast({
+        title: "Cita reagendada",
+        description: `La cita ha sido reagendada para el ${formatDate(newDate)} a las ${formatTime(newTime)}`,
+      });
+
+      refresh();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  }
+
   async function handleDeleteAppointment(appointmentId: string) {
     if (!confirm("¿Estás seguro de eliminar esta cita?")) return;
 
@@ -1508,7 +1537,7 @@ export default function DashboardPage() {
                   );
                 })}
               </div>
-            )
+            )}
 
           </CardContent>
         </Card>
