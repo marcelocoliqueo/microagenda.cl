@@ -283,19 +283,19 @@ export default function AppointmentsPage() {
   }
 
   async function handleDeleteAppointment(appointmentId: string) {
-    if (!confirm("¿Estás seguro de eliminar esta cita?")) return;
+    if (!confirm("¿Quieres quitar esta cita de tu vista? Podrás seguir viéndola en tus estadísticas generales.")) return;
 
-    const result = await deleteAppointment(appointmentId);
+    const result = await updateAppointment(appointmentId, { status: "archived" });
 
     if (result.success) {
       toast({
-        title: "Cita eliminada",
-        description: "La cita ha sido eliminada",
+        title: "Cita quitada",
+        description: "La cita se ha movido a tu historial.",
       });
     } else {
       toast({
         title: "Error",
-        description: result.error,
+        description: "No se pudo quitar la cita",
         variant: "destructive",
       });
     }

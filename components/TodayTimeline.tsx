@@ -285,7 +285,7 @@ export function TodayTimeline({
                       variant="ghost"
                       onClick={() => onDelete(appointment.id)}
                       className="text-slate-400 hover:text-red-600 px-2"
-                      title="Eliminar registro"
+                      title="Quitar de la vista (Archivar)"
                     >
                       <X className="w-4 h-4" />
                     </Button>

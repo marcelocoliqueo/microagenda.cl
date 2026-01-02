@@ -37,19 +37,21 @@ export function AppointmentFilters({
     const sevenDaysFromNow = new Date(today);
     sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
 
+    // No contar citas archivadas
+    const activeAppointments = appointments.filter(apt => apt.status !== "archived");
+
     return {
-      today: appointments.filter((apt) => {
+      today: activeAppointments.filter((apt) => {
         const aptDate = parseLocalDate(apt.date);
         return (
           aptDate.getTime() === today.getTime() &&
-          apt.status !== "archived" &&
           apt.status !== "cancelled"
         );
       }).length,
-      pending: appointments.filter((apt) => {
+      pending: activeAppointments.filter((apt) => {
         return apt.status === "pending";
       }).length,
-      upcoming: appointments.filter((apt) => {
+      upcoming: activeAppointments.filter((apt) => {
         const aptDate = parseLocalDate(apt.date);
         return (
           aptDate > today &&
@@ -57,7 +59,7 @@ export function AppointmentFilters({
           apt.status === "confirmed"
         );
       }).length,
-      completed: appointments.filter(
+      completed: activeAppointments.filter(
         (apt) =>
           apt.status === "completed"
       ).length,
