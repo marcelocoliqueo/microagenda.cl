@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase, type Service } from "@/lib/supabaseClient";
 import { formatCurrency } from "@/lib/constants";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import {
   Dialog,
   DialogContent,
@@ -42,6 +43,10 @@ export default function ServicesPage() {
     price: "",
     category: "",
   });
+
+  // State for confirm dialog
+  const [confirmDeleteServiceOpen, setConfirmDeleteServiceOpen] = useState(false);
+  const [serviceToDelete, setServiceToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     checkAuth();
@@ -154,13 +159,18 @@ export default function ServicesPage() {
   }
 
   async function handleDeleteService(serviceId: string) {
-    if (!confirm("¿Estás seguro de eliminar este servicio?")) return;
+    setServiceToDelete(serviceId);
+    setConfirmDeleteServiceOpen(true);
+  }
+
+  async function executeDeleteService() {
+    if (!serviceToDelete) return;
 
     try {
       const { error } = await supabase
         .from("services")
         .delete()
-        .eq("id", serviceId);
+        .eq("id", serviceToDelete);
 
       if (error) throw error;
 
@@ -177,6 +187,8 @@ export default function ServicesPage() {
         description: "No se pudo eliminar el servicio",
         variant: "destructive",
       });
+    } finally {
+      setServiceToDelete(null);
     }
   }
 
@@ -251,7 +263,7 @@ export default function ServicesPage() {
               </div>
               <Button
                 onClick={openNewDialog}
-                className="bg-gradient-to-r from-primary to-accent hover:brightness-110"
+                className="bg-gradient-to-r from-primary to-accent hover:brightness-110 text-white font-semibold shadow-md"
                 style={{
                   backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-accent))`
                 }}
@@ -424,7 +436,7 @@ export default function ServicesPage() {
               </Button>
               <Button
                 onClick={handleSaveService}
-                className="bg-gradient-to-r from-primary to-accent hover:brightness-110"
+                className="bg-gradient-to-r from-primary to-accent hover:brightness-110 text-white font-semibold"
                 style={{
                   backgroundImage: `linear-gradient(to right, var(--color-primary), var(--color-accent))`
                 }}
@@ -436,7 +448,17 @@ export default function ServicesPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* DIÁLOGO DE CONFIRMACIÓN PREMIUM */}
+      <ConfirmDialog
+        isOpen={confirmDeleteServiceOpen}
+        onOpenChange={setConfirmDeleteServiceOpen}
+        onConfirm={executeDeleteService}
+        title="¿Eliminar servicio?"
+        description="Esta acción eliminará el servicio de manera permanente. Las citas existentes que usen este servicio no se verán afectadas."
+        confirmText="Sí, eliminar"
+        variant="danger"
+      />
     </div>
   );
 }
-

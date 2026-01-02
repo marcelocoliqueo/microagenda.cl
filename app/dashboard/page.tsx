@@ -66,6 +66,7 @@ import { filterAppointments, getFilterTitle, getFilterDescription, getAppointmen
 import { AppointmentFilters } from "@/components/AppointmentFilters";
 import { TodayTimeline } from "@/components/TodayTimeline";
 import { RescheduleDialog } from "@/components/RescheduleDialog";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 /**
  * Parsea un string YYYY-MM-DD a un objeto Date en hora local (medianoche)
@@ -94,6 +95,11 @@ export default function DashboardPage() {
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [activeFilter, setActiveFilter] = useState<AppointmentFilter>("upcoming");
   const [statsPeriod, setStatsPeriod] = useState<"day" | "week" | "month">("month");
+
+  // State for confirm dialogs
+  const [confirmArchiveOpen, setConfirmArchiveOpen] = useState(false);
+  const [appointmentToArchive, setAppointmentToArchive] = useState<string | null>(null);
+  const [confirmDeleteAccountOpen, setConfirmDeleteAccountOpen] = useState(false);
 
   // Función para normalizar el username (reemplazar espacios con guiones y limpiar)
   const normalizeUsername = (input: string): string => {
@@ -725,10 +731,15 @@ export default function DashboardPage() {
   }
 
   async function handleDeleteAppointment(appointmentId: string) {
-    if (!confirm("¿Quieres quitar esta cita de tu vista? Podrás seguir viéndola en tus estadísticas generales.")) return;
+    setAppointmentToArchive(appointmentId);
+    setConfirmArchiveOpen(true);
+  }
+
+  async function executeArchive() {
+    if (!appointmentToArchive) return;
 
     // Cambiamos el estado a 'archived' en lugar de borrar físicamente
-    const result = await updateAppointment(appointmentId, { status: "archived" });
+    const result = await updateAppointment(appointmentToArchive, { status: "archived" });
 
     if (result.success) {
       toast({
@@ -742,11 +753,14 @@ export default function DashboardPage() {
         variant: "destructive",
       });
     }
+    setAppointmentToArchive(null);
   }
 
   async function handleDeleteAccount() {
-    if (!confirm("¿Estás seguro? Esta acción no se puede deshacer y eliminará todos tus datos.")) return;
+    setConfirmDeleteAccountOpen(true);
+  }
 
+  async function executeDeleteAccount() {
     if (!user) return;
 
     try {
@@ -1844,6 +1858,28 @@ export default function DashboardPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* DIÁLOGOS DE CONFIRMACIÓN PREMIUM */}
+      <ConfirmDialog
+        isOpen={confirmArchiveOpen}
+        onOpenChange={setConfirmArchiveOpen}
+        onConfirm={executeArchive}
+        title="¿Quitar de la vista?"
+        description="La cita se moverá a tu historial. Podrás seguir viéndola en tus estadísticas generales pero ya no aparecerá en tu agenda diaria."
+        confirmText="Sí, archivar"
+        variant="primary"
+      />
+
+      <ConfirmDialog
+        isOpen={confirmDeleteAccountOpen}
+        onOpenChange={setConfirmDeleteAccountOpen}
+        onConfirm={executeDeleteAccount}
+        title="¿Eliminar cuenta definitivamente?"
+        description="Esta acción es irreversible. Se borrarán todos tus datos, citas, servicios y configuración de manera permanente."
+        confirmText="Eliminar todo"
+        cancelText="No, mantener cuenta"
+        variant="danger"
+      />
     </div>
   );
 }

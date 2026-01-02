@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase, type Profile } from "@/lib/supabaseClient";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -40,6 +41,7 @@ export default function SettingsPage() {
   const [businessLogoFile, setBusinessLogoFile] = useState<File | null>(null);
   const [businessLogoPreview, setBusinessLogoPreview] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [confirmDeleteAccountOpen, setConfirmDeleteAccountOpen] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -469,8 +471,10 @@ export default function SettingsPage() {
   }
 
   async function handleDeleteAccount() {
-    if (!confirm("¿Estás seguro? Esta acción no se puede deshacer y eliminará todos tus datos.")) return;
+    setConfirmDeleteAccountOpen(true);
+  }
 
+  async function executeDeleteAccount() {
     if (!user) return;
 
     try {
@@ -939,6 +943,18 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* DIÁLOGO DE CONFIRMACIÓN PREMIUM */}
+      <ConfirmDialog
+        isOpen={confirmDeleteAccountOpen}
+        onOpenChange={setConfirmDeleteAccountOpen}
+        onConfirm={executeDeleteAccount}
+        title="¿Eliminar cuenta definitivamente?"
+        description="Esta acción es irreversible. Se borrarán todos tus datos, citas, servicios y configuración de manera permanente."
+        confirmText="Eliminar todo"
+        cancelText="No, mantener cuenta"
+        variant="danger"
+      />
     </div>
   );
 }

@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase, type Profile } from "@/lib/supabaseClient";
 import { PLAN_PRICE, formatCurrency } from "@/lib/constants";
-// Removed: import { createSubscriptionPreference } from "@/lib/mercadopagoClient";
+import { ConfirmDialog } from "./ConfirmDialog";
+import { useToast } from "@/components/ui/use-toast";
 
 interface SubscriptionGuardProps {
   children: React.ReactNode;
@@ -19,6 +20,8 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [subscriptionPolling, setSubscriptionPolling] = useState(false);
+  const [showPaymentInfo, setShowPaymentInfo] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     checkAuth();
@@ -329,7 +332,11 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
 
     if (!profile) {
       console.error("No profile available");
-      alert("Error: No se pudo cargar tu información. Por favor recarga la página.");
+      toast({
+        title: "Error",
+        description: "No se pudo cargar tu información. Por favor recarga la página.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -346,7 +353,11 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
 
       if (planError || !plans) {
         console.error("Error fetching plan:", planError);
-        alert(`Error: No se encontró el plan. ${planError?.message || ""}`);
+        toast({
+          title: "Error",
+          description: `No se encontró el plan. ${planError?.message || ""}`,
+          variant: "destructive",
+        });
         setProcessing(false);
         return;
       }
@@ -356,27 +367,47 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
       // Obtener token de sesión para autenticación
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        alert("Error: No se pudo verificar tu sesión. Por favor inicia sesión nuevamente.");
+        toast({
+          title: "Error",
+          description: "No se pudo verificar tu sesión. Por favor inicia sesión nuevamente.",
+          variant: "destructive",
+        });
         router.push("/login");
         return;
       }
 
-      // Mostrar mensaje informativo antes de redirigir
-      alert("💳 Vas a ser redirigido a Reveniu para procesar el pago.\n\nDespués del pago exitoso, Reveniu te mantendrá en su página. Simplemente regresa a MicroAgenda haciendo clic en 'Volver' o en el logo de MicroAgenda.\n\nLa activación será automática una vez que regreses.");
+      // Mostrar diálogo informativo antes de redirigir
+      setShowPaymentInfo(true);
+    } catch (error: any) {
+      console.error("❌ Error creating subscription:", error);
+      toast({
+        title: "Error",
+        description: `Error al procesar la suscripción: ${error.message || "Error desconocido"}`,
+        variant: "destructive",
+      });
+      setProcessing(false);
+    }
+  }
+
+  async function executeRedirection() {
+    try {
+      setProcessing(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      const { data: plans } = await supabase.from("plans").select("*").eq("is_active", true).single();
 
       // Llamar a la API route para crear la preferencia
       const response = await fetch("/api/create-subscription-preference", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${session.access_token}`,
+          "Authorization": `Bearer ${session?.access_token}`,
         },
         body: JSON.stringify({
-          userId: profile.id,
-          userEmail: profile.email,
-          planId: plans.id,
-          planName: plans.name,
-          planPrice: plans.price,
+          userId: profile?.id,
+          userEmail: profile?.email,
+          planId: plans?.id,
+          planName: plans?.name,
+          planPrice: plans?.price,
         }),
       });
 
@@ -395,11 +426,20 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
         const errorMsg = result.error
           ? `Error: ${JSON.stringify(result.error)}`
           : "No se pudo crear la preferencia de pago. Verifica la consola para más detalles.";
-        alert(errorMsg);
+        
+        toast({
+          title: "Error",
+          description: errorMsg,
+          variant: "destructive",
+        });
       }
     } catch (error: any) {
-      console.error("❌ Error creating subscription:", error);
-      alert(`Error al procesar la suscripción: ${error.message || "Error desconocido"}`);
+      console.error("❌ Error en executeRedirection:", error);
+      toast({
+        title: "Error",
+        description: "Error al iniciar el proceso de pago.",
+        variant: "destructive",
+      });
     } finally {
       setProcessing(false);
     }
@@ -518,6 +558,16 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
             </div>
           </CardContent>
         </Card>
+
+        <ConfirmDialog
+          isOpen={showPaymentInfo}
+          onOpenChange={setShowPaymentInfo}
+          onConfirm={executeRedirection}
+          title="Procesar Pago"
+          description="Vas a ser redirigido a Reveniu para procesar el pago de forma segura. Después del pago, simplemente regresa a MicroAgenda para la activación automática."
+          confirmText="Entendido, ir a pagar"
+          variant="primary"
+        />
       </div>
     );
   }
@@ -525,4 +575,3 @@ export function SubscriptionGuard({ children }: SubscriptionGuardProps) {
   // Si tiene suscripción activa o está en trial, mostrar el contenido
   return <>{children}</>;
 }
-

@@ -43,6 +43,7 @@ import { useAppointments } from "@/hooks/useAppointments";
 import { useRealtime } from "@/hooks/useRealtime";
 import { useAutoUpdateAppointments } from "@/hooks/useAutoUpdateAppointments";
 import { RescheduleDialog } from "@/components/RescheduleDialog";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import {
   STATUS_LABELS,
   STATUS_COLORS,
@@ -63,6 +64,10 @@ export default function AppointmentsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [dateFilter, setDateFilter] = useState<string>("");
+
+  // State for confirm dialog
+  const [confirmArchiveOpen, setConfirmArchiveOpen] = useState(false);
+  const [appointmentToArchive, setAppointmentToArchive] = useState<string | null>(null);
 
   const { appointments, loading: appointmentsLoading, updateAppointment, deleteAppointment, refresh } = useAppointments(user?.id);
 
@@ -283,9 +288,14 @@ export default function AppointmentsPage() {
   }
 
   async function handleDeleteAppointment(appointmentId: string) {
-    if (!confirm("¿Quieres quitar esta cita de tu vista? Podrás seguir viéndola en tus estadísticas generales.")) return;
+    setAppointmentToArchive(appointmentId);
+    setConfirmArchiveOpen(true);
+  }
 
-    const result = await updateAppointment(appointmentId, { status: "archived" });
+  async function executeArchive() {
+    if (!appointmentToArchive) return;
+
+    const result = await updateAppointment(appointmentToArchive, { status: "archived" });
 
     if (result.success) {
       toast({
@@ -299,6 +309,7 @@ export default function AppointmentsPage() {
         variant: "destructive",
       });
     }
+    setAppointmentToArchive(null);
   }
 
   async function handleReschedule(appointmentId: string, newDate: string, newTime: string) {
@@ -607,6 +618,16 @@ export default function AppointmentsPage() {
         </Card>
       </motion.div>
 
+      {/* DIÁLOGO DE CONFIRMACIÓN PREMIUM */}
+      <ConfirmDialog
+        isOpen={confirmArchiveOpen}
+        onOpenChange={setConfirmArchiveOpen}
+        onConfirm={executeArchive}
+        title="¿Quitar de la vista?"
+        description="La cita se moverá a tu historial. Podrás seguir viéndola en tus estadísticas generales pero ya no aparecerá en tu listado de citas activas."
+        confirmText="Sí, archivar"
+        variant="primary"
+      />
     </div>
   );
 }
