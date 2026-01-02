@@ -45,13 +45,12 @@ export function filterAppointments(
         });
 
     case "upcoming":
-      // Citas de los próximos 7 días que no estén completadas, canceladas o archivadas
+      // Citas agendadas a futuro que no estén completadas, canceladas o archivadas
       return activeAppointments
         .filter((apt) => {
           const aptDate = parseLocalDate(apt.date);
           return (
             aptDate >= today &&
-            aptDate < sevenDaysFromNow &&
             apt.status !== "completed" &&
             apt.status !== "cancelled"
           );
@@ -64,14 +63,11 @@ export function filterAppointments(
         });
 
     case "completed":
-      // Solo citas completadas (últimos 30 días)
-      const thirtyDaysAgo = new Date(today);
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
+      // Solo citas completadas
       return activeAppointments
         .filter((apt) => {
           const aptDate = parseLocalDate(apt.date);
-          return apt.status === "completed" && aptDate >= thirtyDaysAgo;
+          return apt.status === "completed";
         })
         .sort((a, b) => {
           // Ordenar por fecha descendente (más reciente primero)
@@ -115,13 +111,13 @@ export function getFilterTitle(filter: AppointmentFilter): string {
 export function getFilterDescription(filter: AppointmentFilter): string {
   switch (filter) {
     case "today":
-      return "Citas programadas para hoy";
+      return "Tus citas programadas para el día de hoy";
     case "upcoming":
-      return "Citas de los próximos 7 días";
+      return "Tus próximas citas agendadas a futuro";
     case "completed":
-      return "Citas completadas (últimos 30 días)";
+      return "Historial de citas finalizadas exitosamente";
     case "all":
     default:
-      return "Todas tus citas activas";
+      return "Listado completo de todas tus citas activas";
   }
 }

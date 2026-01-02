@@ -51,7 +51,6 @@ export function AppointmentFilters({
         const aptDate = parseLocalDate(apt.date);
         return (
           aptDate >= today &&
-          aptDate < sevenDaysFromNow &&
           apt.status !== "completed" &&
           apt.status !== "archived" &&
           apt.status !== "cancelled"
@@ -79,28 +78,28 @@ export function AppointmentFilters({
       label: "Hoy",
       icon: Clock,
       count: counts.today,
-      description: "Citas de hoy",
+      description: "Citas para hoy",
     },
     {
       id: "upcoming",
       label: "Próximas",
       icon: Calendar,
       count: counts.upcoming,
-      description: "Próximos 7 días",
+      description: "Citas agendadas",
     },
     {
       id: "completed",
       label: "Completadas",
       icon: CheckCircle,
       count: counts.completed,
-      description: "Últimos 7 días",
+      description: "Historial de citas",
     },
     {
       id: "all",
       label: "Todas",
       icon: ListFilter,
       count: counts.all,
-      description: "Todas las citas activas",
+      description: "Todas las citas",
     },
   ];
 
