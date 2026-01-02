@@ -41,6 +41,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase, type Profile, type Service } from "@/lib/supabaseClient";
 import { useAppointments } from "@/hooks/useAppointments";
 import { useRealtime } from "@/hooks/useRealtime";
+import { useAutoUpdateAppointments } from "@/hooks/useAutoUpdateAppointments";
 import {
   STATUS_LABELS,
   STATUS_COLORS,
@@ -69,6 +70,10 @@ export default function AppointmentsPage() {
 
   // Real-time updates
   useRealtime("appointments", userId, refresh);
+
+  // Auto-actualizar estados de citas cada 1 minuto
+  // Esto marca automáticamente las citas como "completed" cuando terminan
+  useAutoUpdateAppointments(1, true);
 
   const checkAuth = useCallback(async () => {
     try {
@@ -108,6 +113,20 @@ export default function AppointmentsPage() {
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  // Escuchar eventos de auto-actualización para refrescar las citas
+  useEffect(() => {
+    const handleAppointmentsUpdated = () => {
+      console.log("🔄 Citas actualizadas automáticamente, refrescando...");
+      refresh();
+    };
+
+    window.addEventListener("appointmentsUpdated", handleAppointmentsUpdated);
+
+    return () => {
+      window.removeEventListener("appointmentsUpdated", handleAppointmentsUpdated);
+    };
+  }, [refresh]);
 
   async function fetchServices(userId: string) {
     const { data, error } = await supabase

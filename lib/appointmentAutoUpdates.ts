@@ -42,9 +42,15 @@ const DEFAULT_CONFIG: AutoUpdateConfig = {
 
 /**
  * Calcula el timestamp de finalización de una cita
+ * Usa hora local para evitar problemas de timezone
  */
 function getAppointmentEndTime(appointment: Appointment): Date {
-  const appointmentDate = new Date(`${appointment.date}T${appointment.time}`);
+  // Parsear fecha y hora en hora local (no UTC)
+  const [year, month, day] = appointment.date.split('-').map(Number);
+  const [hours, minutes, seconds] = appointment.time.split(':').map(Number);
+  
+  // Crear fecha en hora local
+  const appointmentDate = new Date(year, month - 1, day, hours || 0, minutes || 0, seconds || 0);
 
   // Si tiene servicio con duración, usar esa duración
   const durationMinutes = appointment.service?.duration || 60;
