@@ -1,5 +1,13 @@
 import { Appointment } from "./supabaseClient";
 
+/**
+ * Parsea un string YYYY-MM-DD a un objeto Date en hora local (medianoche)
+ */
+function parseLocalDate(dateStr: string): Date {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
 export type AppointmentFilter = "today" | "upcoming" | "completed" | "all";
 
 /**
@@ -11,8 +19,6 @@ export function filterAppointments(
 ): Appointment[] {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const todayEnd = new Date(today);
-  todayEnd.setDate(todayEnd.getDate() + 1);
 
   const sevenDaysFromNow = new Date(today);
   sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
@@ -27,10 +33,9 @@ export function filterAppointments(
       // Solo citas de hoy que no estén canceladas o archivadas
       return activeAppointments
         .filter((apt) => {
-          const aptDate = new Date(apt.date);
+          const aptDate = parseLocalDate(apt.date);
           return (
-            aptDate >= today &&
-            aptDate < todayEnd &&
+            aptDate.getTime() === today.getTime() &&
             apt.status !== "cancelled"
           );
         })
@@ -43,7 +48,7 @@ export function filterAppointments(
       // Citas de los próximos 7 días que no estén completadas, canceladas o archivadas
       return activeAppointments
         .filter((apt) => {
-          const aptDate = new Date(apt.date);
+          const aptDate = parseLocalDate(apt.date);
           return (
             aptDate >= today &&
             aptDate < sevenDaysFromNow &&
@@ -65,7 +70,7 @@ export function filterAppointments(
 
       return activeAppointments
         .filter((apt) => {
-          const aptDate = new Date(apt.date);
+          const aptDate = parseLocalDate(apt.date);
           return apt.status === "completed" && aptDate >= thirtyDaysAgo;
         })
         .sort((a, b) => {

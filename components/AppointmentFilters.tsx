@@ -7,6 +7,14 @@ import { useTheme } from "@/contexts/ThemeContext";
 
 export type AppointmentFilter = "today" | "upcoming" | "completed" | "all";
 
+/**
+ * Parsea un string YYYY-MM-DD a un objeto Date en hora local (medianoche)
+ */
+function parseLocalDate(dateStr: string): Date {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
 interface AppointmentFiltersProps {
   appointments: Appointment[];
   activeFilter: AppointmentFilter;
@@ -32,16 +40,15 @@ export function AppointmentFilters({
 
     return {
       today: appointments.filter((apt) => {
-        const aptDate = new Date(apt.date);
+        const aptDate = parseLocalDate(apt.date);
         return (
-          aptDate >= today &&
-          aptDate < todayEnd &&
+          aptDate.getTime() === today.getTime() &&
           apt.status !== "archived" &&
           apt.status !== "cancelled"
         );
       }).length,
       upcoming: appointments.filter((apt) => {
-        const aptDate = new Date(apt.date);
+        const aptDate = parseLocalDate(apt.date);
         return (
           aptDate >= today &&
           aptDate < sevenDaysFromNow &&

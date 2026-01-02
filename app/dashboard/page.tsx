@@ -60,6 +60,14 @@ import { filterAppointments, getFilterTitle, getFilterDescription } from "@/lib/
 import { AppointmentFilters } from "@/components/AppointmentFilters";
 import { TodayTimeline } from "@/components/TodayTimeline";
 
+/**
+ * Parsea un string YYYY-MM-DD a un objeto Date en hora local (medianoche)
+ */
+function parseLocalDate(dateStr: string): Date {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
 export default function DashboardPage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -735,29 +743,27 @@ export default function DashboardPage() {
   const stats = useMemo(() => {
     // Filtrar citas por período
     const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
     const filteredByPeriod = appointments.filter(apt => {
-      const aptDate = new Date(apt.date);
+      const aptDate = parseLocalDate(apt.date);
 
       switch (statsPeriod) {
         case "day":
           // Filtrar por hoy
-          return (
-            aptDate.getDate() === now.getDate() &&
-            aptDate.getMonth() === now.getMonth() &&
-            aptDate.getFullYear() === now.getFullYear()
-          );
+          return aptDate.getTime() === today.getTime();
 
         case "week":
           // Filtrar por últimos 7 días
-          const weekAgo = new Date(now);
-          weekAgo.setDate(now.getDate() - 7);
-          return aptDate >= weekAgo && aptDate <= now;
+          const weekAgo = new Date(today);
+          weekAgo.setDate(today.getDate() - 7);
+          return aptDate >= weekAgo && aptDate <= today;
 
         case "month":
           // Filtrar por este mes
           return (
-            aptDate.getMonth() === now.getMonth() &&
-            aptDate.getFullYear() === now.getFullYear()
+            aptDate.getMonth() === today.getMonth() &&
+            aptDate.getFullYear() === today.getFullYear()
           );
 
         default:
@@ -767,31 +773,27 @@ export default function DashboardPage() {
 
     // Filtrar citas del período anterior para comparar
     const previousPeriod = appointments.filter(apt => {
-      const aptDate = new Date(apt.date);
+      const aptDate = parseLocalDate(apt.date);
 
       switch (statsPeriod) {
         case "day":
           // Ayer
-          const yesterday = new Date(now);
-          yesterday.setDate(now.getDate() - 1);
-          return (
-            aptDate.getDate() === yesterday.getDate() &&
-            aptDate.getMonth() === yesterday.getMonth() &&
-            aptDate.getFullYear() === yesterday.getFullYear()
-          );
+          const yesterday = new Date(today);
+          yesterday.setDate(today.getDate() - 1);
+          return aptDate.getTime() === yesterday.getTime();
 
         case "week":
           // Semana anterior (7-14 días atrás)
-          const twoWeeksAgo = new Date(now);
-          twoWeeksAgo.setDate(now.getDate() - 14);
-          const oneWeekAgo = new Date(now);
-          oneWeekAgo.setDate(now.getDate() - 7);
+          const twoWeeksAgo = new Date(today);
+          twoWeeksAgo.setDate(today.getDate() - 14);
+          const oneWeekAgo = new Date(today);
+          oneWeekAgo.setDate(today.getDate() - 7);
           return aptDate >= twoWeeksAgo && aptDate < oneWeekAgo;
 
         case "month":
           // Mes anterior
-          const lastMonth = new Date(now);
-          lastMonth.setMonth(now.getMonth() - 1);
+          const lastMonth = new Date(today);
+          lastMonth.setMonth(today.getMonth() - 1);
           return (
             aptDate.getMonth() === lastMonth.getMonth() &&
             aptDate.getFullYear() === lastMonth.getFullYear()
