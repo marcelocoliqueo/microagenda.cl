@@ -4,8 +4,9 @@ import { useMemo } from "react";
 import { Calendar, Clock, CheckCircle, ListFilter } from "lucide-react";
 import { Appointment } from "@/lib/supabaseClient";
 import { useTheme } from "@/contexts/ThemeContext";
+import { AlertCircle } from "lucide-react";
 
-export type AppointmentFilter = "today" | "upcoming" | "completed" | "all";
+export type AppointmentFilter = "today" | "pending" | "upcoming" | "completed" | "all";
 
 /**
  * Parsea un string YYYY-MM-DD a un objeto Date en hora local (medianoche)
@@ -32,8 +33,6 @@ export function AppointmentFilters({
   const counts = useMemo(() => {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const todayEnd = new Date(today);
-    todayEnd.setDate(todayEnd.getDate() + 1);
 
     const sevenDaysFromNow = new Date(today);
     sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
@@ -47,21 +46,20 @@ export function AppointmentFilters({
           apt.status !== "cancelled"
         );
       }).length,
+      pending: appointments.filter((apt) => {
+        return apt.status === "pending";
+      }).length,
       upcoming: appointments.filter((apt) => {
         const aptDate = parseLocalDate(apt.date);
         return (
-          aptDate >= today &&
-          apt.status !== "completed" &&
-          apt.status !== "archived" &&
-          apt.status !== "cancelled"
+          aptDate > today &&
+          aptDate < sevenDaysFromNow &&
+          apt.status === "confirmed"
         );
       }).length,
       completed: appointments.filter(
         (apt) =>
           apt.status === "completed"
-      ).length,
-      all: appointments.filter(
-        (apt) => apt.status !== "archived"
       ).length,
     };
   }, [appointments]);
@@ -78,28 +76,28 @@ export function AppointmentFilters({
       label: "Hoy",
       icon: Clock,
       count: counts.today,
-      description: "Citas para hoy",
+      description: "Lo de hoy",
+    },
+    {
+      id: "pending",
+      label: "Pendientes",
+      icon: AlertCircle,
+      count: counts.pending,
+      description: "Por confirmar",
     },
     {
       id: "upcoming",
       label: "Próximas",
       icon: Calendar,
       count: counts.upcoming,
-      description: "Citas agendadas",
+      description: "Siguientes días",
     },
     {
       id: "completed",
-      label: "Completadas",
+      label: "Finalizadas",
       icon: CheckCircle,
       count: counts.completed,
-      description: "Historial de citas",
-    },
-    {
-      id: "all",
-      label: "Todas",
-      icon: ListFilter,
-      count: counts.all,
-      description: "Todas las citas",
+      description: "Cerradas",
     },
   ];
 

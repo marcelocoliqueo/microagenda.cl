@@ -8,7 +8,7 @@ function parseLocalDate(dateStr: string): Date {
   return new Date(year, month - 1, day);
 }
 
-export type AppointmentFilter = "today" | "upcoming" | "completed" | "all";
+export type AppointmentFilter = "today" | "pending" | "upcoming" | "completed" | "all";
 
 /**
  * Filtra citas según el filtro seleccionado
@@ -44,33 +44,38 @@ export function filterAppointments(
           return a.time.localeCompare(b.time);
         });
 
+    case "pending":
+      // Citas que requieren acción inmediata (confirmación)
+      return activeAppointments
+        .filter((apt) => apt.status === "pending")
+        .sort((a, b) => {
+          const dateCompare = a.date.localeCompare(b.date);
+          if (dateCompare !== 0) return dateCompare;
+          return a.time.localeCompare(b.time);
+        });
+
     case "upcoming":
-      // Citas agendadas a futuro que no estén completadas, canceladas o archivadas
+      // Citas agendadas a futuro (próximos 7 días para mantenerlo resumido)
       return activeAppointments
         .filter((apt) => {
           const aptDate = parseLocalDate(apt.date);
           return (
-            aptDate >= today &&
-            apt.status !== "completed" &&
-            apt.status !== "cancelled"
+            aptDate > today &&
+            aptDate < sevenDaysFromNow &&
+            apt.status === "confirmed"
           );
         })
         .sort((a, b) => {
-          // Ordenar por fecha y hora
           const dateCompare = a.date.localeCompare(b.date);
           if (dateCompare !== 0) return dateCompare;
           return a.time.localeCompare(b.time);
         });
 
     case "completed":
-      // Solo citas completadas
+      // Citas finalizadas recientemente
       return activeAppointments
-        .filter((apt) => {
-          const aptDate = parseLocalDate(apt.date);
-          return apt.status === "completed";
-        })
+        .filter((apt) => apt.status === "completed")
         .sort((a, b) => {
-          // Ordenar por fecha descendente (más reciente primero)
           const dateCompare = b.date.localeCompare(a.date);
           if (dateCompare !== 0) return dateCompare;
           return b.time.localeCompare(a.time);
@@ -78,12 +83,10 @@ export function filterAppointments(
 
     case "all":
     default:
-      // Todas las citas activas (no archivadas)
       return activeAppointments.sort((a, b) => {
-        // Ordenar por fecha y hora
-        const dateCompare = a.date.localeCompare(b.date);
+        const dateCompare = b.date.localeCompare(a.date);
         if (dateCompare !== 0) return dateCompare;
-        return a.time.localeCompare(b.time);
+        return b.time.localeCompare(a.time);
       });
   }
 }
@@ -94,11 +97,13 @@ export function filterAppointments(
 export function getFilterTitle(filter: AppointmentFilter): string {
   switch (filter) {
     case "today":
-      return "Citas de Hoy";
+      return "Agenda de Hoy";
+    case "pending":
+      return "Por Confirmar";
     case "upcoming":
-      return "Próximas Citas";
+      return "Próximos Días";
     case "completed":
-      return "Citas Completadas";
+      return "Finalizadas";
     case "all":
     default:
       return "Todas las Citas";
@@ -111,13 +116,15 @@ export function getFilterTitle(filter: AppointmentFilter): string {
 export function getFilterDescription(filter: AppointmentFilter): string {
   switch (filter) {
     case "today":
-      return "Tus citas programadas para el día de hoy";
+      return "Lo que tienes para hoy";
+    case "pending":
+      return "Requieren tu atención";
     case "upcoming":
-      return "Tus próximas citas agendadas a futuro";
+      return "Vistazo a lo que viene";
     case "completed":
-      return "Historial de citas finalizadas exitosamente";
+      return "Servicios realizados";
     case "all":
     default:
-      return "Listado completo de todas tus citas activas";
+      return "Listado completo";
   }
 }
